@@ -1,30 +1,117 @@
-<script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="blog-container">
+    <!-- Header -->
+    <header class="blog-header">
+      <h1>ChenXu Blog</h1>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#posts">Posts</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="blog-main">
+      <section class="blog-post">
+        <h2>Welcome to My Blog</h2>
+        <p>
+          This is a simple blog page built with Vue 3 and Vite. Explore the
+          posts, learn something new, and enjoy your stay!
+        </p>
+      </section>
+      <section class="blog-post">
+        <h2>Latest Post</h2>
+        <p>
+          Stay tuned for the latest updates and articles. This is where the most
+          recent blog post will appear.
+        </p>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="blog-footer">
+      <p>&copy; 2025 ChenXu Blog. All rights reserved.</p>
+    </footer>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
+/* General Styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.blog-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header Styles */
+.blog-header {
+  background-color: #42b883;
+  color: white;
+  padding: 1em 2em;
+  text-align: center;
+}
+
+.blog-header h1 {
+  margin: 0;
+  font-size: 2.5em;
+}
+
+.nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0 0;
+  display: flex;
+  justify-content: center;
+  gap: 1.5em;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* Main Content Styles */
+.blog-main {
+  flex: 1;
+  padding: 2em;
+}
+
+.blog-post {
+  background: white;
+  margin: 1em 0;
   padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.blog-post h2 {
+  margin-top: 0;
+  color: #42b883;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+/* Footer Styles */
+.blog-footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 1em 0;
 }
 </style>

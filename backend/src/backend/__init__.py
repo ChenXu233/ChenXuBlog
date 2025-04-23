@@ -5,12 +5,15 @@ from backend.logger import logger, setup_fastapi_logger
 
 from .config import CONFIG
 from .database import get_db, init_db
+from .router import router_manager
 
 setup_fastapi_logger()
 
 init_db()
 
 app = FastAPI(title=CONFIG.app_name, debug=CONFIG.debug)
+
+router_manager.init_router(app)
 
 
 # 示例路由
