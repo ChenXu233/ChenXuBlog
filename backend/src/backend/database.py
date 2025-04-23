@@ -1,10 +1,16 @@
+import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from .config import CONFIG
+from backend.config import CONFIG
 
 SQLALCHEMY_DATABASE_URL = CONFIG.database_url
+DATABASE_URL = Path(CONFIG.database_url.split("///")[1])
+
+if not os.path.exists(DATABASE_URL.parent):
+    os.makedirs(DATABASE_URL.parent, exist_ok=True)
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,

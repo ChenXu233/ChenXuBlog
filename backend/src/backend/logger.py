@@ -1,9 +1,11 @@
-from loguru import logger
-import sys
-from fastapi.logger import logger as fastapi_logger
 import logging
-from .config import CONFIG
+import sys
 from pathlib import Path
+
+from fastapi.logger import logger as fastapi_logger
+from loguru import logger
+
+from .config import CONFIG
 
 SAVING_PATH = Path(CONFIG.log_path)
 

@@ -1,3 +1,3 @@
-from src.app import app as APP
+from backend import app as APP
 
 APP = APP
