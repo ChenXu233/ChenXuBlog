@@ -1,32 +1,40 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="blog-container">
+  <div class="flex flex-col min-h-screen bg-gray-100 text-gray-800">
     <!-- Header -->
-    <header class="blog-header">
-      <h1>ChenXu Blog</h1>
+    <header class="bg-green-500 text-white py-4 px-8 text-center">
+      <h1 class="text-4xl font-bold">ChenXu Blog</h1>
       <nav>
-        <ul class="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#posts">Posts</a></li>
-          <li><a href="#contact">Contact</a></li>
+        <ul class="flex justify-center gap-6 mt-4">
+          <li>
+            <a href="#home" class="hover:underline font-semibold">Home</a>
+          </li>
+          <li>
+            <a href="#about" class="hover:underline font-semibold">About</a>
+          </li>
+          <li>
+            <a href="#posts" class="hover:underline font-semibold">Posts</a>
+          </li>
+          <li>
+            <a href="#contact" class="hover:underline font-semibold">Contact</a>
+          </li>
         </ul>
       </nav>
     </header>
 
     <!-- Main Content -->
-    <main class="blog-main">
-      <section class="blog-post">
-        <h2>Welcome to My Blog</h2>
-        <p>
+    <main class="flex-1 p-8">
+      <section class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-bold text-green-500">Welcome to My Blog</h2>
+        <p class="mt-4">
           This is a simple blog page built with Vue 3 and Vite. Explore the
           posts, learn something new, and enjoy your stay!
         </p>
       </section>
-      <section class="blog-post">
-        <h2>Latest Post</h2>
-        <p>
+      <section class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-2xl font-bold text-green-500">Latest Post</h2>
+        <p class="mt-4">
           Stay tuned for the latest updates and articles. This is where the most
           recent blog post will appear.
         </p>
@@ -34,84 +42,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="blog-footer">
+    <footer class="bg-gray-800 text-white text-center py-4">
       <p>&copy; 2025 ChenXu Blog. All rights reserved.</p>
     </footer>
   </div>
 </template>
-
-<style scoped>
-/* General Styles */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  background-color: #f9f9f9;
-  color: #333;
-}
-
-.blog-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Header Styles */
-.blog-header {
-  background-color: #42b883;
-  color: white;
-  padding: 1em 2em;
-  text-align: center;
-}
-
-.blog-header h1 {
-  margin: 0;
-  font-size: 2.5em;
-}
-
-.nav-links {
-  list-style: none;
-  padding: 0;
-  margin: 1em 0 0;
-  display: flex;
-  justify-content: center;
-  gap: 1.5em;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.nav-links a:hover {
-  text-decoration: underline;
-}
-
-/* Main Content Styles */
-.blog-main {
-  flex: 1;
-  padding: 2em;
-}
-
-.blog-post {
-  background: white;
-  margin: 1em 0;
-  padding: 1.5em;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.blog-post h2 {
-  margin-top: 0;
-  color: #42b883;
-}
-
-/* Footer Styles */
-.blog-footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  padding: 1em 0;
-}
-</style>
