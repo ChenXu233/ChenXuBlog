@@ -1,9 +1,10 @@
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
+from backend.logger import logger, setup_fastapi_logger
+
 from .config import CONFIG
 from .database import get_db, init_db
-from backend.logger import logger, setup_fastapi_logger
 
 setup_fastapi_logger()
 

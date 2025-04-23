@@ -1,25 +1,28 @@
 import os
 from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from backend.config import CONFIG
+from .config import CONFIG
+from .logger import logger
 
 SQLALCHEMY_DATABASE_URL = CONFIG.database_url
 DATABASE_URL = Path(CONFIG.database_url.split("///")[1])
 
 if not os.path.exists(DATABASE_URL.parent):
+    logger.warning(f"数据库目录 {DATABASE_URL.parent} 不存在，正在创建...")
     os.makedirs(DATABASE_URL.parent, exist_ok=True)
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}
-    if "sqlite" in SQLALCHEMY_DATABASE_URL
-    else {},
+    connect_args=(
+        {"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URL else {}
+    ),
 )
 
-SessionLocal = sessionmaker(bind=engine)
+Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
 
@@ -36,7 +39,7 @@ def init_db():
 
 
 def get_db():
-    db = SessionLocal()
+    db = Session()
     try:
         yield db
     finally:

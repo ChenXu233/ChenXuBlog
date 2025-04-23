@@ -10,3 +10,4 @@ src/backend.egg-info/dependency_links.txt
 src/backend.egg-info/requires.txt
 src/backend.egg-info/top_level.txt
 src/backend/model/blog.py
+src/backend/model/user.py

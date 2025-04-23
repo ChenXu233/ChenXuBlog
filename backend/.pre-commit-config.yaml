@@ -1,0 +1,21 @@
+repos:
+  # Black for Python code formatting
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+
+  # isort for sorting Python imports
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort
+
+  # Prettier for Vue and other frontend files
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0
+    hooks:
+      - id: prettier
+        args: ["--config-precedence", "prefer-file"]
+        files: "\\.(vue|js|jsx|ts|tsx|css|scss|html|json|yaml|yml|md)$"
+        language_version: default # 使用默认的 Node.js 环境

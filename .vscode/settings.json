@@ -1,12 +1,12 @@
 {
-    "cSpell.words": [
-        "customise",
-        "levelname",
-        "loguru",
-        "pyyaml",
-        "sessionmaker",
-        "setuptools",
-        "sqlalchemy",
-        "uvicorn"
-    ]
+  "cSpell.words": [
+    "customise",
+    "levelname",
+    "loguru",
+    "pyyaml",
+    "sessionmaker",
+    "setuptools",
+    "sqlalchemy",
+    "uvicorn"
+  ]
 }
