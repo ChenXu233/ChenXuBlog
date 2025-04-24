@@ -11,3 +11,7 @@ src/backend.egg-info/requires.txt
 src/backend.egg-info/top_level.txt
 src/backend/model/blog.py
 src/backend/model/user.py
+src/backend/router/__init__.py
+src/backend/router/router_manager.py
+src/backend/router/v1/blog.py
+src/backend/schema/blog.py

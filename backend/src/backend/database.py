@@ -1,9 +1,8 @@
 import os
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 
 from .config import CONFIG
 from .logger import logger
@@ -15,32 +14,24 @@ if not os.path.exists(DATABASE_URL.parent):
     logger.warning(f"数据库目录 {DATABASE_URL.parent} 不存在，正在创建...")
     os.makedirs(DATABASE_URL.parent, exist_ok=True)
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args=(
-        {"check_same_thread": False} if "sqlite" in SQLALCHEMY_DATABASE_URL else {}
-    ),
+# 创建异步引擎
+engine: AsyncEngine = create_async_engine(
+    CONFIG.database_url,
+    echo=True,  # 可选：打印 SQL 日志
 )
 
-Session = sessionmaker(bind=engine)
+
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 Base = declarative_base()
 
 
-# 数据库初始化函数（可选）
-def init_db():
-    """
-    初始化数据库。
-    """
-    try:
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        print(f"数据库初始化失败: {e}")
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-def get_db():
-    db = Session()
-    try:
-        yield db
-    finally:
-        db.close()
+# 异步依赖项：获取数据库会话
+async def get_db():
+    async with async_session() as session:
+        yield session

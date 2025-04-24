@@ -1,12 +1,16 @@
 {
   "cSpell.words": [
+    "Avenir",
+    "bushi",
     "customise",
     "levelname",
+    "levelno",
     "loguru",
     "pyyaml",
     "sessionmaker",
     "setuptools",
     "sqlalchemy",
-    "uvicorn"
+    "uvicorn",
+    "Vite"
   ]
 }

@@ -26,3 +26,4 @@
 - [Vue](https://cn.vuejs.org/)
 - [Vite](https://cn.vitejs.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
+- [pinia](https://pinia.vuejs.org/)

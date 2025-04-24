@@ -5,10 +5,22 @@
 groups = ["default", "dev"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:d30e7dab5213d6f8a705655257bd988dca1048313fd91325933736a1cae962cf"
+content_hash = "sha256:4263ce337009e1465d15fd1b1e17ddea63ae345444d5a6989eb0992694d9202e"
 
 [[metadata.targets]]
 requires_python = ">=3.13"
+
+[[package]]
+name = "aiosqlite"
+version = "0.21.0"
+summary = ""
+dependencies = [
+    "typing-extensions",
+]
+files = [
+    {file = "aiosqlite-0.21.0-py3-none-any.whl", hash = "sha256:2549cf4057f95f53dcba16f2b64e8e2791d7e1adedb13197dd8ed77bb226d7d0"},
+    {file = "aiosqlite-0.21.0.tar.gz", hash = "sha256:131bb8056daa3bc875608c631c678cda73922a2d4ba8aec373b19f18c17e7aa3"},
+]
 
 [[package]]
 name = "annotated-types"

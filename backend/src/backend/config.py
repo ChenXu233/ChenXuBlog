@@ -4,8 +4,9 @@ from pydantic_settings import BaseSettings
 class AppConfig(BaseSettings):
     # 定义配置项
     app_name: str = "ChenXuBlog"
+    log_level: str = "DEBUG"
     debug: bool = False
-    database_url: str = "sqlite:///./database/blog.db"
+    database_url: str = "sqlite+aiosqlite:///./database/blog.db"
     log_path: str = "./logs"
     key: str
 

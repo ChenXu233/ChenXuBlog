@@ -1,19 +1,27 @@
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
-from backend.logger import logger, setup_fastapi_logger
+from backend.logger import logger
 
 from .config import CONFIG
 from .database import get_db, init_db
 from .router import router_manager
 
-setup_fastapi_logger()
 
-init_db()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # on_startup
+    router_manager.init_router(app)
+    await init_db()
 
-app = FastAPI(title=CONFIG.app_name, debug=CONFIG.debug)
+    yield
+    # on_shutdown
 
-router_manager.init_router(app)
+
+# 创建 FastAPI 应用程序
+app = FastAPI(title=CONFIG.app_name, debug=CONFIG.debug, lifespan=lifespan)
 
 
 # 示例路由

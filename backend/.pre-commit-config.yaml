@@ -1,15 +1,17 @@
 repos:
-  # Black for Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-      - id: black
-
   # isort for sorting Python imports
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1
     hooks:
       - id: isort
+        args: ["--profile", "black"] # 使用 black 风格的排序
+
+  # Ruff for Python linting and formatting
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.287
+    hooks:
+      - id: ruff
+        args: ["--fix"] # 自动修复格式问题
 
   # Prettier for Vue and other frontend files
   - repo: https://github.com/pre-commit/mirrors-prettier
