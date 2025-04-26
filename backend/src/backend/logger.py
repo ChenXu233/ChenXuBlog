@@ -52,8 +52,8 @@ def configure_logging():
         retention="7 days",  # 保留7天
         compression="zip",  # 压缩旧日志
         enqueue=True,  # 异步写入
-        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | "
-        "{process.name} | {module}:{function}:{line} - {message}",
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS}|{level: <4}| "
+        "{module}:{function}:{line}|{message}",
         level="DEBUG",
     )
 
@@ -67,4 +67,4 @@ def configure_logging():
 
 
 configure_logging()
-logger.info("Loguru logger is now configured!")
+logger.info("logger is now configured!")

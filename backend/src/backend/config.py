@@ -8,7 +8,7 @@ class AppConfig(BaseSettings):
     APP_NAME: str = "ChenXuBlog"
     LOG_LEVEL: str = "DEBUG"
     DEBUG: bool = False
-    DATABASE_URL: str = "sqlite+aiosqlite:///./database/blog.db"
+    DATABASE_URI: str = "sqlite+aiosqlite:///./database/blog.db"
     LOG_PATH: Path = Path("./logs")
     JWT_SECRET_KEY: str
 
