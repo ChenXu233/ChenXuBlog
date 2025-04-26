@@ -13,7 +13,7 @@ class BlogCreate(BaseModel):
     published: bool = Field(..., description="Blog published status")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class BlogUpdate(BaseModel):
@@ -22,4 +22,4 @@ class BlogUpdate(BaseModel):
     published: bool = Field(..., description="Blog published status")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
