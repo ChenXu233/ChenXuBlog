@@ -15,3 +15,6 @@ src/backend/router/__init__.py
 src/backend/router/router_manager.py
 src/backend/router/v1/blog.py
 src/backend/schema/blog.py
+src/backend/util/dependencies.py
+src/backend/util/jwt.py
+src/backend/util/permission.py

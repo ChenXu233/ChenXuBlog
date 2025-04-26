@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
 
 
 # 创建 FastAPI 应用程序
-app = FastAPI(title=CONFIG.app_name, debug=CONFIG.debug, lifespan=lifespan)
+app = FastAPI(title=CONFIG.APP_NAME, debug=CONFIG.DEBUG, lifespan=lifespan)
 
 
 # 示例路由

@@ -8,7 +8,7 @@ from loguru import logger
 
 from .config import CONFIG
 
-SAVING_PATH = Path(CONFIG.log_path)
+SAVING_PATH = Path(CONFIG.LOG_PATH)
 
 
 # 劫持 FastAPI 的日志
@@ -41,7 +41,7 @@ def configure_logging():
         format="<level>{level: <4}</level>|"
         "<green>{time:YYYY-MM-DD HH:mm:ss}</green>| "
         "<level>{message}</level>",
-        level=CONFIG.log_level,
+        level=CONFIG.LOG_LEVEL,
         colorize=True,
     )
 
