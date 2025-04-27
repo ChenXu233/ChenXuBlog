@@ -8,7 +8,8 @@ class AppConfig(BaseSettings):
     APP_NAME: str = "ChenXuBlog"
     LOG_LEVEL: str = "DEBUG"
     DEBUG: bool = False
-    DATABASE_URI: str = "sqlite+aiosqlite:///./database/blog.db"
+    DATABASE_URI: str = "sqlite+aiosqlite:///./data/database/blog.db"
+    IMG_PATH: Path = Path("./data/images")
     LOG_PATH: Path = Path("./logs")
     JWT_SECRET_KEY: str
 
@@ -18,7 +19,12 @@ class AppConfig(BaseSettings):
 
     @classmethod
     def validate_log_path(cls, value: str) -> Path:
-        return Path(value)
+        path = Path(value)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+        if not path.is_dir():
+            raise ValueError(f"The path {path} is not a directory.")
+        return path
 
 
 CONFIG = AppConfig()  # type: ignore

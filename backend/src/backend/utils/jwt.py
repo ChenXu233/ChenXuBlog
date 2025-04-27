@@ -4,6 +4,7 @@ import jwt
 from fastapi import Header, HTTPException
 
 from backend.config import CONFIG
+from backend.model.user import User
 
 
 def create_jwt_token(data: dict, expires_delta: timedelta) -> str:
@@ -37,7 +38,7 @@ def get_jwt_token_user_uuid(token: str = Header(..., description="JWT Token")) -
     return user_uuid
 
 
-def get_jwt_token_user(token: str = Header(..., description="JWT Token")) -> dict:
+def get_jwt_token_user(token: str = Header(..., description="JWT Token")) -> User:
     """获取JWT令牌中的用户信息"""
     user = decode_jwt_token(token).get("user", None)
     if user is None:

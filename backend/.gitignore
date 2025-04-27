@@ -168,5 +168,5 @@ __pycache__/
 .ruff_cache/
 .pdm-python
 logs/*
-database/*
+/data/*
 .env

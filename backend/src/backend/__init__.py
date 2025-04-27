@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 
 from backend.logger import logger
 
 from .config import CONFIG
-from .database import get_db, init_db
+from .database import init_db
 from .router import router_manager
 
 
@@ -20,7 +19,6 @@ async def lifespan(app: FastAPI):
     # on_shutdown
 
 
-# 创建 FastAPI 应用程序
 app = FastAPI(title=CONFIG.APP_NAME, debug=CONFIG.DEBUG, lifespan=lifespan)
 
 
@@ -29,19 +27,6 @@ app = FastAPI(title=CONFIG.APP_NAME, debug=CONFIG.DEBUG, lifespan=lifespan)
 def read_root():
     logger.info("Handling root endpoint")
     return {"message": "Welcome to ChenXuBlog!"}
-
-
-@app.get("/config")
-def get_config():
-    logger.info("Fetching app configuration")
-    return CONFIG.model_dump()
-
-
-@app.get("/db-test")
-def db_test(db: Session = Depends(get_db)):
-    logger.info("Testing database connection")
-    # 示例：测试数据库连接
-    return {"message": "Database connection is working!"}
 
 
 if __name__ == "__main__":

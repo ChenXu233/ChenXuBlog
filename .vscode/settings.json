@@ -6,6 +6,7 @@
     "levelname",
     "levelno",
     "loguru",
+    "poolclass",
     "pyyaml",
     "sessionmaker",
     "setuptools",
