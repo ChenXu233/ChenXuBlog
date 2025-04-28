@@ -21,6 +21,7 @@ class AppConfig(BaseSettings):
     class Config:
         env_file = ".env"  # 指定 .env 文件路径
         env_file_encoding = "utf-8"  # 指定文件编码
+        extra = "allow"
 
     @classmethod
     def validate_log_path(cls, value: str) -> Path:
