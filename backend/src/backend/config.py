@@ -12,6 +12,11 @@ class AppConfig(BaseSettings):
     IMG_PATH: Path = Path("./data/images")
     LOG_PATH: Path = Path("./logs")
     JWT_SECRET_KEY: str
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
 
     class Config:
         env_file = ".env"  # 指定 .env 文件路径

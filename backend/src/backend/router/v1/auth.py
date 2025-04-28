@@ -15,6 +15,9 @@ auth = APIRouter(prefix="/apis/v1/auth", tags=["auth"])
 async def get_user_by_evidence(evidence: str, db: AsyncSession) -> User:
     result = await db.execute(select(User).where(User.email == evidence))
     if not result:
+        pass
+    result = await db.execute(select(User).where(User.username == evidence))
+    if not result:
         raise HTTPException(status_code=404, detail="User not found")
     return result.scalars().first()
 

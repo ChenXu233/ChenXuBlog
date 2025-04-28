@@ -17,6 +17,7 @@ dependencies = [
     "aiosqlite>=0.21.0",
     "PyJWT>=2.10.1",
     "alembic>=1.15.2",
+    "fastapi-mail>=1.4.2",
 ]
 requires-python = ">=3.13"
 readme = "README.md"

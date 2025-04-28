@@ -70,6 +70,7 @@ class Role(Base):
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    bio: Mapped[Optional[str]] = mapped_column(Text)
     uuid: Mapped[str] = mapped_column(
         String(36), default=lambda: str(uuid4().hex), unique=True, index=True
     )

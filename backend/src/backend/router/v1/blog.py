@@ -33,8 +33,9 @@ async def get_blog(
                     detail="You do not have permission to view this blog",
                 )
             return blog.to_ResponseModel()
-        except HTTPException:
-            pass
+        except HTTPException as e:
+            if e.status_code == 403:
+                raise e
 
     if not blog.published:
         raise HTTPException(status_code=403, detail="This blog is not published yet")
