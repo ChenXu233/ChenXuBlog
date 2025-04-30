@@ -18,6 +18,8 @@ Requires-Dist: aiosqlite>=0.21.0
 Requires-Dist: PyJWT>=2.10.1
 Requires-Dist: alembic>=1.15.2
 Requires-Dist: fastapi-mail>=1.4.2
+Requires-Dist: pillow>=11.2.1
+Requires-Dist: python-multipart>=0.0.20
 Provides-Extra: dev
 Requires-Dist: pre-commit>=4.2.0; extra == "dev"
 

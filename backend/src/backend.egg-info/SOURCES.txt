@@ -16,6 +16,8 @@ src/backend/router/__init__.py
 src/backend/router/router_manager.py
 src/backend/router/v1/auth.py
 src/backend/router/v1/blog.py
+src/backend/router/v1/img_bed.py
+src/backend/router/v1/permission.py
 src/backend/router/v1/register.py
 src/backend/router/v1/user.py
 src/backend/schema/auth.py

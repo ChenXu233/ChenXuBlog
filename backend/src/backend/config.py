@@ -11,6 +11,7 @@ class AppConfig(BaseSettings):
     DATABASE_URI: str = "sqlite+aiosqlite:///./data/database/blog.db"
     IMG_PATH: Path = Path("./data/images")
     LOG_PATH: Path = Path("./logs")
+    IMAGE_BED_PATH: Path = Path("./data/images")
     JWT_SECRET_KEY: str
     MAIL_USERNAME: str
     MAIL_PASSWORD: str

@@ -67,10 +67,21 @@ class Role(Base):
         return any(p.code == permission_code for p in self.permissions)
 
 
+class UserInfo(Base):
+    __tablename__ = "user_info"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_uuid: Mapped[str] = mapped_column(String(36), ForeignKey("users.uuid"))
+    user: Mapped["User"] = relationship("User", back_populates="user_info")
+    avatar: Mapped[Optional[str]] = mapped_column(String(255))
+    gender: Mapped[Optional[str]] = mapped_column(String(10))
+    birthday: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    location: Mapped[Optional[str]] = mapped_column(String(255))
+    introduction: Mapped[Optional[str]] = mapped_column(Text)
+
+
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    bio: Mapped[Optional[str]] = mapped_column(Text)
     uuid: Mapped[str] = mapped_column(
         String(36), default=lambda: str(uuid4().hex), unique=True, index=True
     )
@@ -99,6 +110,9 @@ class User(Base):
 
     roles: Mapped[List[Role]] = relationship(
         secondary=user_role, back_populates="users"
+    )
+    user_info: Mapped[UserInfo] = relationship(
+        "UserInfo", back_populates="user", uselist=False
     )
 
     @property
