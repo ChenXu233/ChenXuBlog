@@ -22,7 +22,7 @@ async def get_user_by_evidence(evidence: str, db: AsyncSession) -> User:
     return result.scalars().first()
 
 
-@auth.post("/login", res1ponse_model=LoginResponse)
+@auth.post("/login", response_model=LoginResponse)
 async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
     user = await get_user_by_evidence(user.evidence, db)
 
