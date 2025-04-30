@@ -26,7 +26,7 @@ async def get_blog(
 
     if token:
         try:
-            user = get_jwt_token_user(token)
+            user = await get_jwt_token_user(token)
             if blog.user_uuid != user.uuid and not blog.published:
                 raise HTTPException(
                     status_code=403,

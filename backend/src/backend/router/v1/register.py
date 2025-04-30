@@ -4,7 +4,8 @@ from inspect import cleandoc
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
 from backend.model.user import User, create_user
@@ -16,14 +17,11 @@ register = APIRouter(prefix="/apis/v1/auth", tags=["signup"])
 
 @register.post("/register")
 async def signup_user(
-    request: Request, user: UserCreate, db: Session = Depends(get_db)
+    request: Request, user: UserCreate, db: AsyncSession = Depends(get_db)
 ):
     # 确保用户名和邮箱的唯一性
-    db_user = (
-        db.query(User)
-        .filter((User.username == user.username) | (User.email == user.email))
-        .first()
-    )
+    db_user = await db.execute(select(User).where(User.username == user.username))
+    db_user = db_user.scalars().first()
 
     # 生成用户验证token，并在5分钟后过期
     verfication_token = str(uuid.uuid4())
@@ -31,7 +29,7 @@ async def signup_user(
 
     if not db_user:
         # 创建用户
-        db_user = create_user(
+        db_user = await create_user(
             db,
             user.username,
             user.email,
@@ -47,10 +45,10 @@ async def signup_user(
             )
         try:
             db_user.verification_token = verfication_token
-            db_user.verification_token_expiry = token_expiry
-            db.commit()
+            db_user.verification_expiry = token_expiry
+            await db.commit()
         except Exception as e:
-            db.rollback()
+            await db.rollback()
             raise HTTPException(
                 status_code=500, detail=f"Error updating verification token: {str(e)}"
             ) from e
@@ -62,9 +60,10 @@ async def signup_user(
 
 
 @register.get("/verify/{token}")
-async def verify_email(token: str, db: Session = Depends(get_db)):
+async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     """根据token对邮箱进行验证"""
-    db_user = db.query(User).filter(User.verification_token == token).first()
+    db_user = await db.execute(select(User).where(User.verification_token == token))
+    db_user = db_user.scalars().first()
 
     if not db_user:
         raise HTTPException(
@@ -87,9 +86,9 @@ async def verify_email(token: str, db: Session = Depends(get_db)):
         db_user.is_verified = True
         db_user.verification_token = None  # 将token移除
         db_user.verification_token_expiry = None  # 将token过期时间移除
-        db.commit()
+        await db.commit()
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status_code=500, detail=f"Error verifying email: {str(e)}"
         ) from e

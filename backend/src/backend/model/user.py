@@ -11,8 +11,10 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    select,
 )
-from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from backend.database import Base
@@ -88,6 +90,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))  # 扩展长度
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     verification_token: Mapped[Optional[str]] = mapped_column(String(255))
     verification_expiry: Mapped[Optional[datetime]] = mapped_column(DateTime)
     blog_likes: Mapped[List["Blog"]] = relationship(
@@ -130,12 +133,12 @@ class User(Base):
         return any(role.has_permission(permission_code) for role in self.roles)
 
 
-def get_user(db: Session, user_id: int) -> Optional[User]:
-    return db.query(User).get(user_id)
+async def get_user(db: AsyncSession, user_id: int) -> Optional[User]:
+    return (await db.execute(select(User).where(User.id == user_id))).scalars().first()
 
 
-def create_user(
-    db: Session,
+async def create_user(
+    db: AsyncSession,
     username: str,
     email: str,
     password: str,
@@ -152,15 +155,19 @@ def create_user(
 
     try:
         # 添加默认角色
-        default_role = db.query(Role).filter(Role.is_default).first()
+        default_role = (
+            (await db.execute(select(Role).where(Role.is_default is True)))
+            .scalars()
+            .first()
+        )
         if default_role:
             user.roles.append(default_role)
 
         db.add(user)
-        db.commit()
-        db.refresh(user)
+        await db.commit()
+        await db.refresh(user)
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise e
     return user
 

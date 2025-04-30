@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config import CONFIG
+from backend.database import get_db
 from backend.model.user import User
 
 
@@ -38,9 +41,14 @@ def get_jwt_token_user_uuid(token: str = Header(..., description="JWT Token")) -
     return user_uuid
 
 
-def get_jwt_token_user(token: str = Header(..., description="JWT Token")) -> User:
+async def get_jwt_token_user(
+    token: str = Header(..., description="JWT Token"),
+    db: AsyncSession = Depends(get_db),
+) -> User:
     """获取JWT令牌中的用户信息"""
-    user = decode_jwt_token(token).get("user", None)
+    user_uuid = decode_jwt_token(token).get("sub", None)
+    user = await db.execute(select(User).where(User.uuid == user_uuid))
+    user = user.scalars().first()
     if user is None:
         raise HTTPException(
             status_code=401, detail="Invalid authentication credentials"
