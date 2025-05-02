@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import (
     Boolean,
@@ -40,6 +40,7 @@ class Blog(Base):
     user_uuid: Mapped[str] = mapped_column(String(36), ForeignKey("users.uuid"))  # 外键
     user: Mapped["User"] = relationship("User", back_populates="blogs")  # 关系
     title: Mapped[str] = mapped_column(String(233), index=True)
+    headshot: Mapped[Optional[str]] = mapped_column(String(233), nullable=True)
     body: Mapped[str] = mapped_column(Text, index=True)
     published: Mapped[bool] = mapped_column(Boolean, default=False)
     view_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -67,6 +68,7 @@ class Blog(Base):
             user_uuid=self.user_uuid,
             title=self.title,
             body=self.body,
+            headShot=self.headshot,
             tags=[tag.name for tag in self.tags],
             created_at=int(self.created_at.timestamp()),
             updated_at=int(self.updated_at.timestamp()),
