@@ -98,12 +98,6 @@ class User(Base):
         secondary="blog_likes",
         back_populates="like",
     )  # 多对多关系
-    follow: Mapped[List["User"]] = relationship(
-        "User", secondary="follows", back_populates="followers"
-    )
-    followers: Mapped[List["User"]] = relationship(
-        "User", secondary="follows", back_populates="follow"
-    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
@@ -156,7 +150,7 @@ async def create_user(
     try:
         # 添加默认角色
         default_role = (
-            (await db.execute(select(Role).where(Role.is_default is True)))
+            (await db.execute(select(Role).where(Role.is_default == True)))
             .scalars()
             .first()
         )

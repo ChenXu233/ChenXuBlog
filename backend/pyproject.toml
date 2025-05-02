@@ -46,4 +46,5 @@ dev = ["pre-commit>=4.2.0"]
 ignore = [
     "E402", # import not at top of file
     "E501", # line too long (82 > 79 characters)
+    'E712', # comparing with None
 ]

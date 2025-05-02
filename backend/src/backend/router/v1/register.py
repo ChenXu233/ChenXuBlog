@@ -12,7 +12,7 @@ from backend.model.user import User, create_user
 from backend.schema.user import UserCreate
 from backend.service.email import send_verification_email
 
-register = APIRouter(prefix="/apis/v1/auth", tags=["signup"])
+register = APIRouter(prefix="/apis/v1/auth", tags=["register"])
 
 
 @register.post("/register")
@@ -22,6 +22,9 @@ async def signup_user(
     # 确保用户名和邮箱的唯一性
     db_user = await db.execute(select(User).where(User.username == user.username))
     db_user = db_user.scalars().first()
+    if not db_user:
+        db_user = await db.execute(select(User).where(User.email == user.email))
+        db_user = db_user.scalars().first()
 
     # 生成用户验证token，并在5分钟后过期
     verfication_token = str(uuid.uuid4())
@@ -60,7 +63,9 @@ async def signup_user(
 
 
 @register.get("/verify/{token}")
-async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
+async def verify_email(
+    token: str, request: Request, db: AsyncSession = Depends(get_db)
+):
     """根据token对邮箱进行验证"""
     db_user = await db.execute(select(User).where(User.verification_token == token))
     db_user = db_user.scalars().first()
@@ -70,12 +75,10 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
             status_code=400, detail="Invalid or expired verification token"
         )
 
-    if db_user.verification_token_expiry is None:
+    if db_user.verification_expiry is None:
         raise HTTPException(status_code=400, detail="Token expiry time missing")
 
-    token_expiry_with_tz = db_user.verification_token_expiry.replace(
-        tzinfo=timezone.utc
-    )
+    token_expiry_with_tz = db_user.verification_expiry.replace(tzinfo=timezone.utc)
 
     # 检查是否已经过期
     if token_expiry_with_tz < datetime.now(UTC):
@@ -85,7 +88,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     try:
         db_user.is_verified = True
         db_user.verification_token = None  # 将token移除
-        db_user.verification_token_expiry = None  # 将token过期时间移除
+        db_user.verification_expiry = None  # 将token过期时间移除
         await db.commit()
     except Exception as e:
         await db.rollback()
@@ -135,6 +138,7 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
             <h1>Email Verification</h1>
             <p>Hello,{username}.</p>
             <p>Your email has been successfully verified.</p>
+            <p>You can now log in to your account.</p>
         </div>
     </body>
 

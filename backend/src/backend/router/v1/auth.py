@@ -24,13 +24,13 @@ async def get_user_by_evidence(evidence: str, db: AsyncSession) -> User:
 
 @auth.post("/login", response_model=LoginResponse)
 async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
-    user = await get_user_by_evidence(user.evidence, db)
+    db_user = await get_user_by_evidence(user.evidence, db)
 
-    if not user.verify_password(user.password):
+    if not db_user.verify_password(user.password):
         raise HTTPException(status_code=401, detail="Email or password incorrect")
 
     jwt_token = create_jwt_token(
-        {"sub": str(user.uuid), "type": "access"}, timedelta(days=1)
+        {"sub": str(db_user.uuid), "type": "access"}, timedelta(days=1)
     )
 
-    return LoginResponse(user_uuid=user.uuid, access_token=jwt_token)
+    return LoginResponse(user_uuid=db_user.uuid, access_token=jwt_token)

@@ -11,6 +11,7 @@ from sqlalchemy import (
     Table,
     Text,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.schema.blog import BlogResponse
@@ -50,7 +51,7 @@ class Blog(Base):
     like: Mapped[List["User"]] = relationship(
         "User",
         secondary="blog_likes",
-        back_populates="liked_blogs",
+        back_populates="blog_likes",
     )  # 多对多关系
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
@@ -59,7 +60,8 @@ class Blog(Base):
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
 
-    def to_ResponseModel(self) -> BlogResponse:
+    async def to_ResponseModel(self, db: AsyncSession) -> BlogResponse:
+        await db.refresh(self, ["tags", "like"])
         return BlogResponse(
             id=self.id,
             user_uuid=self.user_uuid,
