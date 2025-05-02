@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path
@@ -23,45 +24,47 @@ async def get_blog(
     result = await db.execute(
         select(Blog).where(Blog.id == id).options(selectinload(Blog.tags))
     )
-    blog: Optional[Blog] = result.scalars().first()
+    db_blog: Optional[Blog] = result.scalars().first()
 
-    if not blog:
+    if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
 
     if token:
         try:
             user = await get_jwt_token_user(token)
-            if blog.user_uuid != user.uuid and not blog.published:
+            if db_blog.user_uuid != user.uuid and not db_blog.published:
                 raise HTTPException(
                     status_code=403,
                     detail="You do not have permission to view this blog",
                 )
-            return await blog.to_ResponseModel(db)
+            return await db_blog.to_ResponseModel(db)
         except HTTPException as e:
             if e.status_code == 403:
                 raise e
-    blog: Optional[Blog] = result.scalars().first()
 
-    if not blog:
+    if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
 
     if token:
         try:
             user = await get_jwt_token_user(token)
-            if blog.user_uuid != user.uuid and not blog.published:
+            if db_blog.user_uuid != user.uuid and not db_blog.published:
                 raise HTTPException(
                     status_code=403,
                     detail="You do not have permission to view this blog",
                 )
-            return await blog.to_ResponseModel(db)
+            return await db_blog.to_ResponseModel(db)
         except HTTPException as e:
             if e.status_code == 403:
                 raise e
 
-    if not blog.published:
+    if not db_blog.published:
         raise HTTPException(status_code=403, detail="This blog is not published yet")
 
-    return await blog.to_ResponseModel(db)
+    db_blog.view_count += 1
+    await db.commit()
+
+    return await db_blog.to_ResponseModel(db)
 
 
 @blog.post("/{id}", response_model=BlogResponse)
@@ -84,6 +87,7 @@ async def update_blog(
     db_blog.title = blog.title
     db_blog.body = blog.body
     db_blog.published = blog.published
+    db_blog.updated_at = datetime.now()
 
     for tag_name in blog.tags:
         tag = await db.execute(Tag.select().where(Tag.name == tag_name))
