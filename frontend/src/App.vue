@@ -36,7 +36,7 @@
               {{ post.content }}
             </p>
             <button
-              @click="viewDetail(post)"
+              @click="viewDetail()"
               class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               阅读更多
@@ -52,6 +52,7 @@
 import { ref, onMounted } from "vue";
 import type { Article } from "./types/article";
 import AppBar from "./components/AppBar.vue";
+import { useRouter } from "vue-router";
 
 const articles = ref<Article[]>([
   {
@@ -68,11 +69,12 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString();
 };
 
-const viewDetail = (post: Article) => {
-  // 路由跳转逻辑
+const viewDetail = () => {
+  const $r = useRouter();
+  $r.push("/home");
 };
 
 onMounted(() => {
-  console.log("你好，欢迎来到我的博客 %");
+  console.log("你好，欢迎来到我的博客");
 });
 </script>
