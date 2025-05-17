@@ -1,5 +1,7 @@
 # ChenXu's Blog
 
+[![wakatime](https://wakatime.com/badge/user/114aee90-a5f9-49aa-b441-9eca7eebfda3/project/87840f09-9243-4ba1-a39c-a8a23729c9b4.svg)](https://wakatime.com/badge/user/114aee90-a5f9-49aa-b441-9eca7eebfda3/project/87840f09-9243-4ba1-a39c-a8a23729c9b4)
+
 ## 简介
 
 这是一个基于 [FastAPI](https://fastapi.tiangolo.com/) 和 [Vue](https://cn.vuejs.org/) 的个人博客系统。
