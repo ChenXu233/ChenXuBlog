@@ -38,7 +38,10 @@ class Blog(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_uuid: Mapped[str] = mapped_column(String(36), ForeignKey("users.uuid"))  # 外键
-    user: Mapped["User"] = relationship("User", back_populates="blogs")  # 关系
+    user: Mapped["User"] = relationship(
+        "User", back_populates="blogs", foreign_keys=[user_uuid]
+    )  # 关系
+
     title: Mapped[str] = mapped_column(String(233), index=True)
     headshot: Mapped[Optional[str]] = mapped_column(String(233), nullable=True)
     body: Mapped[str] = mapped_column(Text, index=True)
