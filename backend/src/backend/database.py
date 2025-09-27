@@ -28,7 +28,8 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
 
-# 异步依赖项：获取数据库会话
 async def get_db():
     async with async_session() as session:
         yield session
+        await session.commit()
+        await session.close()

@@ -12,7 +12,8 @@ class AppConfig(BaseSettings):
     IMG_PATH: Path = Path("./data/images")
     LOG_PATH: Path = Path("./logs")
     IMAGE_BED_PATH: Path = Path("./data/images")
-    JWT_SECRET_KEY: str
+    ACCESS_SECRET_KEY: str
+    REFRESH_SECRET_KEY: str
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
     MAIL_FROM: str

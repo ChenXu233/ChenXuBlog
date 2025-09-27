@@ -30,12 +30,12 @@ async def upload_image(request: Request, image: UploadFile = File(...)):
     with open(image_path, "wb") as f:
         f.write(image_content)
 
-    image_url = request.url_for("upload_image", image_hash=image_filename)
+    image_url = request.url_for("image_get", image_hash=image_filename)
 
     return JSONResponse(content={"url": image_url})
 
 
-@img_bed.get("/{image_hash}")
+@img_bed.get("/{image_hash}", name="image_get")
 async def get_image(image_hash: str):
     matching_files = list(CONFIG.IMAGE_BED_PATH.glob(f"{image_hash}*"))
     if not matching_files:

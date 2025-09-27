@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.database import get_db
 from backend.model.user import User
 from backend.schema.permission import PermissionResponse
-from backend.utils.jwt import get_jwt_token_user
+from backend.utils.jwt import get_access_token_user
 
 permission = APIRouter(prefix="/apis/v1/permission", tags=["permission"])
 
@@ -13,7 +13,7 @@ permission = APIRouter(prefix="/apis/v1/permission", tags=["permission"])
 async def have_permission(
     permission_code: str,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_jwt_token_user),
+    user: User = Depends(get_access_token_user),
 ):
     for i in user.roles:
         if permission_code in i.permissions:
@@ -24,7 +24,7 @@ async def have_permission(
 @permission.get("/", response_model=PermissionResponse)
 async def get_permission(
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_jwt_token_user),
+    user: User = Depends(get_access_token_user),
 ):
     permissions = []
     for i in user.roles:

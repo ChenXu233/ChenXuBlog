@@ -16,6 +16,9 @@ class BlogResponse(BaseModel):
     published: bool = Field(..., description="Blog published status")
     like: int = Field(..., description="Blog like count")
 
+    class Config:
+        from_attributes = True
+
 
 class BlogCreate(BaseModel):
     title: str = Field(..., description="Blog title")

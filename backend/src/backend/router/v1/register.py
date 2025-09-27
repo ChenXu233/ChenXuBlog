@@ -27,7 +27,7 @@ async def signup_user(
         db_user = db_user.scalars().first()
 
     # 生成用户验证token，并在5分钟后过期
-    verfication_token = str(uuid.uuid4())
+    verify_token = str(uuid.uuid4())
     token_expiry = datetime.now(UTC) + timedelta(minutes=60)
 
     if not db_user:
@@ -37,7 +37,7 @@ async def signup_user(
             user.username,
             user.email,
             user.password,
-            verfication_token,
+            verify_token,
             token_expiry,
         )
     else:
@@ -47,8 +47,8 @@ async def signup_user(
                 status_code=400, detail="User already exists and is verified"
             )
         try:
-            db_user.verification_token = verfication_token
-            db_user.verification_expiry = token_expiry
+            db_user.verify_token = verify_token
+            db_user.verify_expiry = token_expiry
             await db.commit()
         except Exception as e:
             await db.rollback()
@@ -75,10 +75,10 @@ async def verify_email(
             status_code=400, detail="Invalid or expired verification token"
         )
 
-    if db_user.verification_expiry is None:
+    if db_user.verify_expiry is None:
         raise HTTPException(status_code=400, detail="Token expiry time missing")
 
-    token_expiry_with_tz = db_user.verification_expiry.replace(tzinfo=timezone.utc)
+    token_expiry_with_tz = db_user.verify_expiry.replace(tzinfo=timezone.utc)
 
     # 检查是否已经过期
     if token_expiry_with_tz < datetime.now(UTC):
@@ -87,8 +87,8 @@ async def verify_email(
     # 邮箱已验证
     try:
         db_user.is_verified = True
-        db_user.verification_token = None  # 将token移除
-        db_user.verification_expiry = None  # 将token过期时间移除
+        db_user.verify_token = None  # 将token移除
+        db_user.verify_expiry = None  # 将token过期时间移除
         await db.commit()
     except Exception as e:
         await db.rollback()

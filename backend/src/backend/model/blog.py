@@ -66,19 +66,7 @@ class Blog(Base):
 
     async def to_ResponseModel(self, db: AsyncSession) -> BlogResponse:
         await db.refresh(self, ["tags", "like"])
-        return BlogResponse(
-            id=self.id,
-            user_uuid=self.user_uuid,
-            title=self.title,
-            body=self.body,
-            headShot=self.headshot,
-            tags=[tag.name for tag in self.tags],
-            created_at=int(self.created_at.timestamp()),
-            updated_at=int(self.updated_at.timestamp()),
-            view_count=self.view_count,
-            like=len(self.like),
-            published=self.published,
-        )
+        return BlogResponse(**self)
 
 
 class Tag(Base):

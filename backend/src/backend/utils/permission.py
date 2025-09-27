@@ -4,7 +4,7 @@ from typing import List
 from fastapi import Depends, HTTPException, status
 
 from backend.model.user import User
-from backend.util.jwt import get_jwt_token_user  # 假设通过依赖注入获取当前用户
+from backend.utils.jwt import generate_access_token
 
 
 def require_permissions(required_permissions: List[str]):
@@ -17,7 +17,7 @@ def require_permissions(required_permissions: List[str]):
     def decorator(func):
         @wraps(func)
         async def wrapper(
-            *args, current_user: User = Depends(get_jwt_token_user), **kwargs
+            *args, current_user: User = Depends(generate_access_token), **kwargs
         ):
             # 检查用户是否具有所有所需权限
             for permission in required_permissions:

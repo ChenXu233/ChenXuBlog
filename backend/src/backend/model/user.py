@@ -91,8 +91,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))  # 扩展长度
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    verification_token: Mapped[Optional[str]] = mapped_column(String(255))
-    verification_expiry: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    verify_token: Mapped[Optional[str]] = mapped_column(String(255))
+    verify_expiry: Mapped[Optional[datetime]] = mapped_column(DateTime)
     blog_likes: Mapped[List["Blog"]] = relationship(
         "Blog",
         secondary="blog_likes",

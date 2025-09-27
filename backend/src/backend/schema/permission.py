@@ -8,4 +8,8 @@ class PermissionResponse(BaseModel):
 
 
 class Permission(BaseModel):
-    permission: List[str]
+    code: str
+    description: str
+
+    class Config:
+        from_attributes = True
