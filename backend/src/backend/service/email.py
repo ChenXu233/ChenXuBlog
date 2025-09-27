@@ -17,20 +17,16 @@ mail_config = ConnectionConfig(
 )
 
 
-async def send_verification_email(
-    request: Request, email: str, verification_token: str
-):
+async def send_verify_email(request: Request, email: str, verify_token: str):
     """发送电子邮件验证码"""
     # 使用 FastAPI 的 url_for 生成验证链接
-    verification_url = request.url_for("verify_email", token=verification_token)
+    verify_url = request.url_for("verify_email", token=verify_token)
 
-    print(f"Verification URL: {verification_url}")
+    print(f"Verify URL: {verify_url}")
 
-    body = (
-        f"Please verify your email by clicking the following link: {verification_url}"
-    )
+    body = f"Please verify your email by clicking the following link: {verify_url}"
     message = MessageSchema(
-        subject="Email Verification",
+        subject="Email Verify",
         recipients=[email],
         body=body,
         subtype=MessageType.html,
@@ -39,7 +35,7 @@ async def send_verification_email(
     try:
         await fm.send_message(message)
     except Exception as e:
-        print(f"Failed to send verification email to {email}: {e}")
-    print(f"Verification email sent to {email}.")
+        print(f"Failed to send verify email to {email}: {e}")
+    print(f"Verify email sent to {email}.")
 
     return

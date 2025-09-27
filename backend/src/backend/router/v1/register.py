@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.database import get_db
 from backend.model.user import User, create_user
 from backend.schema.user import UserCreate
-from backend.service.email import send_verification_email
+from backend.service.email import send_verify_email
 
 register = APIRouter(prefix="/apis/v1/auth", tags=["register"])
 
@@ -53,11 +53,11 @@ async def signup_user(
         except Exception as e:
             await db.rollback()
             raise HTTPException(
-                status_code=500, detail=f"Error updating verification token: {str(e)}"
+                status_code=500, detail=f"Error updating verify token: {str(e)}"
             ) from e
 
     # 发送验证邮件
-    await send_verification_email(request, user.email, str(db_user.verification_token))
+    await send_verify_email(request, user.email, verify_token)
 
     return {"user_id": str(db_user.id)}
 

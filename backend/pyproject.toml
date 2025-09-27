@@ -20,6 +20,7 @@ dependencies = [
     "fastapi-mail>=1.4.2",
     "pillow>=11.2.1",
     "python-multipart>=0.0.20",
+    "httpx>=0.28.1",
 ]
 requires-python = ">=3.13"
 readme = "README.md"
@@ -31,6 +32,19 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.2",
+]
+
+[tool.ruff]
+ignore = [
+    "E402", # import not at top of file
+    "E501", # line too long (82 > 79 characters)
+    'E712', # comparing with None
+]
+
 [tool.pdm]
 distribution = true
 
@@ -39,12 +53,3 @@ start = "pdm run main.py"
 dev = "pdm run uvicorn main:APP --reload --port 8080 --host 127.0.0.1"
 server = "pdm run uvicorn main:APP --port 8080 --host 0.0.0.0"
 
-[dependency-groups]
-dev = ["pre-commit>=4.2.0"]
-
-[tool.ruff]
-ignore = [
-    "E402", # import not at top of file
-    "E501", # line too long (82 > 79 characters)
-    'E712', # comparing with None
-]
