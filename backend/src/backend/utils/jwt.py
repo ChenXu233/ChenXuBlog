@@ -7,14 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config import CONFIG
 from backend.database import get_db
+from backend.logger import logger
 from backend.model.user import User
 
 
 def generate_access_token(user_uuid: str) -> str:
+    """生成访问令牌"""
+    logger.info(f"Generating access token for user {user_uuid}")
     try:
         payload = {
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=15),
-            "iat": datetime.datetime.utcnow(),
+            "exp": datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15),
+            "iat": datetime.now(datetime.timezone.utc),
             "sub": user_uuid,
             "type": "access",
         }
@@ -24,10 +27,12 @@ def generate_access_token(user_uuid: str) -> str:
 
 
 def generate_refresh_token(user_uuid: str) -> str:
+    """生成刷新令牌"""
+    logger.info(f"Generating refresh token for user {user_uuid}")
     try:
         payload = {
-            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=7),
-            "iat": datetime.datetime.utcnow(),
+            "exp": datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7),
+            "iat": datetime.now(datetime.timezone.utc),
             "sub": user_uuid,
             "type": "refresh",
         }
@@ -38,6 +43,7 @@ def generate_refresh_token(user_uuid: str) -> str:
 
 def decode_access_token(token: str) -> dict:
     """解码访问令牌"""
+    logger.info(f"Decoding access token {token}")
     try:
         info = jwt.decode(token, CONFIG.ACCESS_SECRET_KEY, algorithms="HS256")
     except jwt.ExpiredSignatureError:
@@ -51,6 +57,7 @@ def decode_access_token(token: str) -> dict:
 
 def decode_refresh_token(token: str = Header(..., description="Access Token")) -> dict:
     """解码刷新令牌"""
+    logger.info(f"Decoding refresh token {token}")
     try:
         info = jwt.decode(token, CONFIG.REFRESH_SECRET_KEY, algorithms="HS256")
     except jwt.ExpiredSignatureError:

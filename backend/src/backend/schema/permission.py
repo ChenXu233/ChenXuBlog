@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 
-class PermissionResponse(BaseModel):
+class PermissionsResponse(BaseModel):
     permissions: List[bool]
 
 

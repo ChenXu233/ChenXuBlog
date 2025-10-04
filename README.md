@@ -12,7 +12,7 @@
 
 ## 为啥不用静态的？
 
-可以写一些小玩具，比如DB_LAB（bushi， 然后还有一些奇奇怪怪的功能说不定会被弄上（
+可以写一些小玩具，比如 DB_LAB（bushi， 然后还有一些奇奇怪怪的功能说不定会被弄上（
 
 ## 技术栈
 
@@ -27,5 +27,8 @@
 
 - [Vue](https://cn.vuejs.org/)
 - [Vite](https://cn.vitejs.dev/)
-- [TailwindCSS](https://tailwindcss.com/)
 - [pinia](https://pinia.vuejs.org/)
+
+## TODO
+
+- [ ] 后端的权限管理，制作一个更灵活的权限管理，每个路由资源都可以配置不同的权限
