@@ -14,7 +14,7 @@ user = APIRouter(prefix="/apis/v1/user", tags=["user"])
 @user.get(
     "/info",
     response_model=UserResponse,
-    dependencies=[Depends(require_permissions("user:get", "Get user info"))],
+    dependencies=[Depends(require_permissions("user:read", "Read user info"))],
 )
 async def get_user_info(user: User = Depends(get_access_token_user)):
     user_response = UserResponse(
@@ -30,7 +30,7 @@ async def get_user_info(user: User = Depends(get_access_token_user)):
 @user.get(
     "/info/{user_id}",
     response_model=UserResponse,
-    dependencies=[Depends(require_permissions("user:get"))],
+    dependencies=[Depends(require_permissions("user:read"))],
 )
 async def get_user_info_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
     user = (await db.execute(select(User).where(User.id == user_id))).scalars().first()
@@ -47,5 +47,8 @@ async def get_user_info_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
     return user_response
 
 
-@user.post("/edit")
+@user.post(
+    "/edit",
+    dependencies=[Depends(require_permissions("user:edit"))],
+)
 async def edit_user_info(user_edit, user: User = Depends(get_access_token_user)): ...

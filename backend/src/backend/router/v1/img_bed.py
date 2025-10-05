@@ -14,7 +14,7 @@ img_bed = APIRouter(prefix="/apis/v1/img_bed", tags=["img_bed"])
 @img_bed.post(
     "/",
     name="image_upload",
-    dependencies=[Depends(require_permissions("img_bed:upload", "Upload image"))],
+    dependencies=[Depends(require_permissions("img_bed:create", "Upload image"))],
 )
 async def upload_image(request: Request, image: UploadFile = File(...)):
     image_content = await image.read()
@@ -40,7 +40,11 @@ async def upload_image(request: Request, image: UploadFile = File(...)):
     return JSONResponse(content={"url": image_url})
 
 
-@img_bed.get("/{image_hash}", name="image_get")
+@img_bed.get(
+    "/{image_hash}",
+    name="image_get",
+    dependencies=[Depends(require_permissions("img_bed:read", "Read image"))],
+)
 async def get_image(image_hash: str):
     matching_files = list(CONFIG.IMAGE_BED_PATH.glob(f"{image_hash}*"))
     if not matching_files:

@@ -8,6 +8,7 @@ from .config import CONFIG
 from .database import get_db, init_db
 from .router import router_manager
 from .utils.first_start import check_is_first_start, first_start
+from .utils.permission import permission_manager
 
 
 @asynccontextmanager
@@ -18,9 +19,9 @@ async def lifespan(app: FastAPI):
     await init_db()
 
     async for db in get_db():
-        if not await check_is_first_start(db):
-            continue
-        await first_start(db)
+        await permission_manager.update_permission_db(db)
+        if await check_is_first_start(db):
+            await first_start(db)
 
     logger.info("Application startup completed")
 

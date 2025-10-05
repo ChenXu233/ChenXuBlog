@@ -38,7 +38,9 @@ role_permission = Table(
 
 class Permission(Base):
     __tablename__ = "permissions"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True, index=True
+    )
     target: Mapped[str] = mapped_column(String(100))
     action: Mapped[str] = mapped_column(String(100))
     description: Mapped[Optional[str]] = mapped_column(Text)
@@ -59,8 +61,11 @@ class Permission(Base):
 
 class Role(Base):
     __tablename__ = "roles"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True, index=True
+    )
     name: Mapped[str] = mapped_column(String(50), unique=True)
+    description: Mapped[Optional[str]] = mapped_column(Text)
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # 双向关系
@@ -77,7 +82,9 @@ class Role(Base):
 
 class UserInfo(Base):
     __tablename__ = "user_info"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True, index=True
+    )
     user_uuid: Mapped[str] = mapped_column(String(36), ForeignKey("users.uuid"))
     user: Mapped["User"] = relationship("User", back_populates="user_info")
     avatar: Mapped[Optional[str]] = mapped_column(String(255))
@@ -89,7 +96,9 @@ class UserInfo(Base):
 
 class User(Base):
     __tablename__ = "users"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, index=True, autoincrement=True
+    )
     uuid: Mapped[str] = mapped_column(
         String(36), default=lambda: str(uuid4().hex), unique=True, index=True
     )

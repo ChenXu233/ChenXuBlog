@@ -11,6 +11,14 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/backend"
+    },
+    {
+      "name": "Launch FastAPI",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/main.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend"
     }
   ]
 }

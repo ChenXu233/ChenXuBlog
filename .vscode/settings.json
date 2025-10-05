@@ -13,6 +13,7 @@
     "sessionmaker",
     "setuptools",
     "sqlalchemy",
+    "uselist",
     "uvicorn",
     "Vite"
   ]
