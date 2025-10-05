@@ -1,19 +1,22 @@
 from functools import wraps
-from typing import List
 
 from fastapi import Depends, HTTPException, status
 
 from backend.logger import logger
 from backend.model.user import User
-from backend.schema.permission import Permission
 from backend.utils.jwt import get_access_token_user
 
+from .manager import permission_manager
 
-def require_permissions(required_permission: str, permission_description: str):
+
+def require_permissions(
+    required_permission: str, permission_description: str | None = None
+):
     """
-    权限判断装饰器，用于检查用户是否具有所需权限。
+    权限装饰器，将资源的权限添加到权限管理器中，并检查用户是否具有所需权限。
 
-    :param required_permissions: 需要的权限列表
+    :param required_permission: 需要的权限
+    :param permission_description: 权限描述
     """
     if not any(p.code == required_permission for p in permission_manager.permissions):
         logger.trace(
@@ -41,17 +44,3 @@ def require_permissions(required_permission: str, permission_description: str):
         return wrapper
 
     return decorator
-
-
-class PermissionManager:
-    def __init__(self):
-        self.permissions: List[Permission] = []
-
-    def add_permission(self, code: str, description: str) -> None:
-        self.permissions.append(Permission(code=code, description=description))
-
-    def get_permissions(self) -> List[Permission]:
-        return self.permissions
-
-
-permission_manager = PermissionManager()

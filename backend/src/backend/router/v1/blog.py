@@ -11,6 +11,7 @@ from backend.model.blog import Blog, Tag
 from backend.model.user import User
 from backend.schema.blog import BlogCreate, BlogResponse
 from backend.utils.jwt import get_access_token_user
+from backend.utils.permission import require_permissions
 
 blog = APIRouter(prefix="/apis/v1/blog", tags=["blog"])
 
@@ -45,7 +46,17 @@ async def get_blog(
     return await db_blog.to_ResponseModel(db)
 
 
-@blog.post("/{id}", response_model=BlogResponse)
+@blog.put(
+    "/{id}",
+    response_model=BlogResponse,
+    dependencies=[
+        Depends(
+            require_permissions(
+                required_permission="blog:update", permission_description="Update blog"
+            )
+        )
+    ],
+)
 async def update_blog(
     blog: BlogCreate,
     id: int = Path(..., gt=0),
@@ -78,7 +89,17 @@ async def update_blog(
     return await db_blog.to_ResponseModel(db)
 
 
-@blog.post("/", response_model=BlogResponse)
+@blog.post(
+    "/",
+    response_model=BlogResponse,
+    dependencies=[
+        Depends(
+            require_permissions(
+                required_permission="blog:create", permission_description="Create blog"
+            )
+        )
+    ],
+)
 async def create_blog(
     blog: BlogCreate,
     user: User = Depends(get_access_token_user),

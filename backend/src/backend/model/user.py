@@ -14,6 +14,7 @@ from sqlalchemy import (
     select,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -38,7 +39,8 @@ role_permission = Table(
 class Permission(Base):
     __tablename__ = "permissions"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    code: Mapped[str] = mapped_column(String(100), unique=True)
+    target: Mapped[str] = mapped_column(String(100))
+    action: Mapped[str] = mapped_column(String(100))
     description: Mapped[Optional[str]] = mapped_column(Text)
 
     # 双向关系
@@ -49,6 +51,10 @@ class Permission(Base):
     @property
     def display_name(self):
         return self.code.replace("_", " ").title()
+
+    @hybrid_property
+    def code(self):
+        return f"{self.target}:{self.action}"
 
 
 class Role(Base):

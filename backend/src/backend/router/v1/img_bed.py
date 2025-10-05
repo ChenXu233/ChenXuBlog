@@ -1,16 +1,21 @@
 import hashlib
 import io
 
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 from PIL import Image
 
 from backend.config import CONFIG
+from backend.utils.permission import require_permissions
 
 img_bed = APIRouter(prefix="/apis/v1/img_bed", tags=["img_bed"])
 
 
-@img_bed.post("/")
+@img_bed.post(
+    "/",
+    name="image_upload",
+    dependencies=[Depends(require_permissions("img_bed:upload", "Upload image"))],
+)
 async def upload_image(request: Request, image: UploadFile = File(...)):
     image_content = await image.read()
 

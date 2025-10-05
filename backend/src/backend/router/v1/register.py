@@ -15,7 +15,10 @@ from backend.service.email import send_verify_email
 register = APIRouter(prefix="/apis/v1/auth", tags=["register"])
 
 
-@register.post("/register")
+@register.post(
+    "/register",
+    name="register_user",
+)
 async def signup_user(
     request: Request, user: UserCreate, db: AsyncSession = Depends(get_db)
 ):
@@ -62,7 +65,7 @@ async def signup_user(
     return {"user_id": str(db_user.id)}
 
 
-@register.get("/verify/{token}")
+@register.get("/verify/{token}", response_class=HTMLResponse, name="verify_email")
 async def verify_email(
     token: str, request: Request, db: AsyncSession = Depends(get_db)
 ):

@@ -22,7 +22,8 @@ async def init_permissions(db: AsyncSession):
     logger.info("Initializing permissions")
     for permission in permission_manager.get_permissions():
         _permission = Permission(
-            name=permission.code,
+            target=permission.target,
+            action=permission.action,
             description=permission.description,
         )
         db.add(_permission)

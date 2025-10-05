@@ -8,6 +8,8 @@ class PermissionsResponse(BaseModel):
 
 
 class Permission(BaseModel):
+    target: str
+    action: str
     code: str
     description: str
 

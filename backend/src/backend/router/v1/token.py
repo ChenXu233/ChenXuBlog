@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,7 +8,7 @@ from backend.utils.jwt import generate_access_token, get_refresh_token_user
 token = APIRouter(prefix="/apis/v1/token", tags=["token"])
 
 
-@token.post("/refresh", response_model=TokenResponse)
+@token.post("/refresh", response_model=TokenResponse, name="refresh_access_token")
 async def refresh_token(request: Request, db: AsyncSession = Depends(get_db)):
     refresh_token = request.cookies.get("refresh_token")
     if refresh_token is None:
