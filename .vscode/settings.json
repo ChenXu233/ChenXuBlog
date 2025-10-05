@@ -6,6 +6,7 @@
     "levelname",
     "levelno",
     "loguru",
+    "onupdate",
     "poolclass",
     "pyyaml",
     "selectinload",
