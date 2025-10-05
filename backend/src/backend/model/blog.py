@@ -12,6 +12,7 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.schema.blog import BlogResponse
@@ -64,9 +65,17 @@ class Blog(Base):
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
 
+    @hybrid_property
+    def likes_count(self) -> int:
+        return len(self.like)
+
+    @hybrid_property
+    def tags_name(self) -> List[str]:
+        return [tag.name for tag in self.tags]
+
     async def to_ResponseModel(self, db: AsyncSession) -> BlogResponse:
         await db.refresh(self, ["tags", "like"])
-        return BlogResponse(**self)
+        return BlogResponse.model_validate(self)
 
 
 class Tag(Base):

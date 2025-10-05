@@ -9,10 +9,11 @@ class BlogResponse(BaseModel):
     title: str = Field(..., description="Blog title")
     headShot: Optional[str] = Field(..., description="Blog headshot")
     body: str = Field(..., description="Blog body")
-    tags: List[str] = Field(..., description="Blog tags")
+    tags_name: List[str] = Field(..., description="Blog tags")
     created_at: int = Field(..., description="Blog creation time")
     updated_at: int = Field(..., description="Blog update time")
     view_count: int = Field(..., description="Blog view count")
+    likes_count: int = Field(..., description="Blog like count")
     published: bool = Field(..., description="Blog published status")
     like: int = Field(..., description="Blog like count")
 

@@ -5,15 +5,24 @@ from fastapi import FastAPI
 from backend.logger import logger
 
 from .config import CONFIG
-from .database import init_db
+from .database import get_db, init_db
 from .router import router_manager
+from .utils.first_start import check_is_first_start, first_start
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # on_startup
+    logger.info("Application startup")
     router_manager.init_router(app)
     await init_db()
+
+    async for db in get_db():
+        if not await check_is_first_start(db):
+            continue
+        await first_start(db)
+
+    logger.info("Application startup completed")
 
     yield
     # on_shutdown
