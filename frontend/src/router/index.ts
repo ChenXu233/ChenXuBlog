@@ -4,7 +4,7 @@ import type { RouteRecordRaw } from "vue-router";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: "home",
+    redirect: "/home", // 修复：确保重定向路径是字符串
   },
   {
     path: "/home",
@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/Login.vue"),
     meta: {
       title: "登录",
-      KeepAlive: true,
+      keepAlive: true,
     },
   },
   {
@@ -32,7 +32,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/Article.vue"),
     meta: {
       title: "文章",
-      KeepAlive: true,
+      keepAlive: true,
+    },
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: () => import("../views/Register.vue"),
+    meta: {
+      title: "注册",
+      keepAlive: true,
     },
   },
 ];

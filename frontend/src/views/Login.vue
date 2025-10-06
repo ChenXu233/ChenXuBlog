@@ -5,13 +5,13 @@
       <h2>用户登录</h2>
 
       <div class="form-group">
-        <label for="username">用户名</label>
+        <label for="evidence">用户名或邮箱</label>
         <input
           type="text"
-          id="username"
-          v-model="form.username"
+          id="evidence"
+          v-model="form.evidence"
           required
-          placeholder="请输入用户名"
+          placeholder="请输入用户名或邮箱"
         />
       </div>
 
@@ -38,15 +38,30 @@
 
 <script setup>
 import { reactive } from "vue";
+import { request } from "../utils/request";
 
 const form = reactive({
-  username: "",
+  evidence: "",
   password: "",
 });
 
 const handleLogin = () => {
-  // 处理登录逻辑
-  console.log("登录表单提交:", form);
+  console.log("登录表单数据:", form);
+  request
+    .post({
+      url: "/login",
+      data: form,
+    })
+    .then((res) => {
+      if (res.code === 200) {
+        console.log("登录成功:", res);
+        localStorage.setItem("token", res.data.access_token);
+        router.push("home");
+      }
+    })
+    .catch((err) => {
+      console.error("登录失败:", err);
+    });
 };
 </script>
 

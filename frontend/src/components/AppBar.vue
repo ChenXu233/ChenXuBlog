@@ -1,7 +1,7 @@
 <template>
   <nav class="main-nav">
     <div class="nav-brand">
-      <span class="brand-text">ChenXu博客</span>
+      <router-link to="/" class="brand-text">ChenXu博客</router-link>
     </div>
     <div class="nav-links">
       <template v-if="!authStore.isAuthenticated">
@@ -17,8 +17,8 @@
 </template>
 
 <script setup>
-import { useAuthStore } from "../stores/auth";
-const authStore = useAuthStore();
+import { useUserStore } from "../stores/userStore";
+const authStore = useUserStore();
 </script>
 
 <style scoped>

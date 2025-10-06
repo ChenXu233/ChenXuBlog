@@ -11,6 +11,9 @@
           <router-link to="/register" class="cta-button secondary"
             >立即注册</router-link
           >
+          <router-link to="/login" class="cta-button secondary"
+            >登录</router-link
+          >
         </div>
       </section>
 
@@ -37,9 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "../stores/auth";
-const authStore = useAuthStore();
-
 // 临时测试数据
 const articles = [
   {

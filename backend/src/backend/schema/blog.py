@@ -7,7 +7,7 @@ class BlogResponse(BaseModel):
     id: int = Field(..., description="Blog id")
     user_uuid: str = Field(..., description="User UUID")
     title: str = Field(..., description="Blog title")
-    headShot: Optional[str] = Field(..., description="Blog headshot")
+    cover_url: Optional[str] = Field(..., description="Blog cover URL")
     body: str = Field(..., description="Blog body")
     tags_name: List[str] = Field(..., description="Blog tags")
     created_at: int = Field(..., description="Blog creation time")

@@ -12,6 +12,7 @@ class AppConfig(BaseSettings):
     IMG_PATH: Path = Path("./data/images")
     LOG_PATH: Path = Path("./logs")
     IMAGE_BED_PATH: Path = Path("./data/images")
+    PORT: int = 8000
     ACCESS_SECRET_KEY: str
     REFRESH_SECRET_KEY: str
     MAIL_USERNAME: str

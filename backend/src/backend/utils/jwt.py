@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from fastapi import Depends, Header, HTTPException
@@ -16,8 +16,8 @@ def generate_access_token(user_uuid: str) -> str:
     logger.info(f"Generating access token for user {user_uuid}")
     try:
         payload = {
-            "exp": datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15),
-            "iat": datetime.now(datetime.timezone.utc),
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
+            "iat": datetime.now(timezone.utc),
             "sub": user_uuid,
             "type": "access",
         }
@@ -31,8 +31,8 @@ def generate_refresh_token(user_uuid: str) -> str:
     logger.info(f"Generating refresh token for user {user_uuid}")
     try:
         payload = {
-            "exp": datetime.now(datetime.timezone.utc) + datetime.timedelta(days=7),
-            "iat": datetime.now(datetime.timezone.utc),
+            "exp": datetime.now(timezone.utc) + timedelta(days=7),
+            "iat": datetime.now(timezone.utc),
             "sub": user_uuid,
             "type": "refresh",
         }
@@ -73,11 +73,9 @@ def get_access_token_user_uuid(
     token: str = Header(..., description="Access Token"),
 ) -> str:
     """获取访问令牌中的用户信息"""
-    if user_uuid := decode_access_token(token).get("sub", None) is None:
-        raise HTTPException(
-            status_code=401, detail="Invalid authentication credentials"
-        )
-    return user_uuid
+    if user_uuid := decode_access_token(token).get("sub", None):
+        return user_uuid
+    raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 
 async def get_access_token_user(
