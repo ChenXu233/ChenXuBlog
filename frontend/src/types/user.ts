@@ -16,8 +16,17 @@ export interface UserRegister {
   password: string;
 }
 
+export interface UserRegisterResponse {
+  user: User;
+}
+
 export interface UserUpdate {
   username: string;
   email: string;
   avatar_url: string;
+}
+
+export interface UserLoginResponse {
+  user_uuid: string;
+  access_token: string;
 }

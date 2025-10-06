@@ -15,3 +15,7 @@ class UserResponse(BaseModel):
     email: str = Field(..., description="邮箱")
     bio: Optional[str] = Field(..., description="个人简介")
     avatar: Optional[str] = Field(..., description="头像")
+
+
+class UserRegisterResponse(BaseModel):
+    user_uuid: str = Field(..., description="用户UUID")

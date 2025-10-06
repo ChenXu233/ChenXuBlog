@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
 from backend.model.user import User, create_user
-from backend.schema.user import UserCreate
+from backend.schema.user import UserCreate, UserRegisterResponse
 from backend.service.email import send_verify_email
 
 register = APIRouter(prefix="/apis/v1/auth", tags=["register"])
@@ -21,7 +21,7 @@ register = APIRouter(prefix="/apis/v1/auth", tags=["register"])
 )
 async def signup_user(
     request: Request, user: UserCreate, db: AsyncSession = Depends(get_db)
-):
+) -> UserRegisterResponse:
     # 确保用户名和邮箱的唯一性
     db_user = await db.execute(select(User).where(User.username == user.username))
     db_user = db_user.scalars().first()
@@ -62,7 +62,7 @@ async def signup_user(
     # 发送验证邮件
     await send_verify_email(request, user.email, verify_token)
 
-    return {"user_id": str(db_user.id)}
+    return UserRegisterResponse(user_uuid=db_user.user_uuid)
 
 
 @register.get("/verify/{token}", response_class=HTMLResponse, name="verify_email")

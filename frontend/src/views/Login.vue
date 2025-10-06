@@ -36,9 +36,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive } from "vue";
-import { request } from "../utils/request";
+import { post } from "../utils/request";
+import { useRouter } from "vue-router";
+import type { UserLoginResponse } from "../types/user";
+import { useTokenStore } from "../stores/token";
+
+const router = useRouter();
+const tokenStore = useTokenStore();
 
 const form = reactive({
   evidence: "",
@@ -47,20 +53,16 @@ const form = reactive({
 
 const handleLogin = () => {
   console.log("登录表单数据:", form);
-  request
-    .post({
-      url: "/login",
-      data: form,
-    })
+  post<UserLoginResponse>("/auth/login", form)
     .then((res) => {
-      if (res.code === 200) {
+      if (res.status === 200) {
+        tokenStore.setToken(res.data.access_token);
         console.log("登录成功:", res);
-        localStorage.setItem("token", res.data.access_token);
-        router.push("home");
+        router.push("/home");
       }
     })
     .catch((err) => {
-      console.error("登录失败:", err);
+      console.error("登录失败:", err.response.data.detail);
     });
 };
 </script>

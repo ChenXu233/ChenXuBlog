@@ -38,4 +38,4 @@ async def send_verify_email(request: Request, email: str, verify_token: str):
         print(f"Failed to send verify email to {email}: {e}")
     print(f"Verify email sent to {email}.")
 
-    return
+    return verify_url

@@ -4,14 +4,14 @@ import { defineStore } from "pinia";
 interface IUserState {
   id: string;
   name: string;
-  roles: string[];
+  avatar_url: string;
 }
 
 export const useUserStore = defineStore("user", {
   state: (): IUserState => ({
     id: "",
     name: "Guest",
-    roles: [],
+    avatar_url: "",
   }),
   actions: {
     // 带参数的方法需明确类型
@@ -20,8 +20,5 @@ export const useUserStore = defineStore("user", {
       this.name = payload.name;
     },
   },
-  getters: {
-    // 自动推断返回类型，也可显式标注
-    isAdmin: (state): boolean => state.roles.includes("admin"),
-  },
+  getters: {},
 });

@@ -56,10 +56,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { request } from "../utils/request";
+import { post } from "../utils/request";
+import type { UserRegisterResponse } from "../types/user";
 
 const router = useRouter();
 const form = reactive({
@@ -118,23 +119,14 @@ const handleRegister = () => {
   if (!validateForm()) {
     return;
   }
-
-  isSubmitting.value = true;
-
-  request({
-    url: "/register",
-    method: "POST",
-    data: form,
-  })
+  post<UserRegisterResponse>("/register", form)
     .then((res) => {
-      if (res.code === 200) {
-        // 注册成功后跳转到登录页面
+      if (res.status === 200) {
         router.push("/login");
       }
     })
     .catch((err) => {
       console.error("注册失败:", err);
-      // 可以在这里显示更友好的错误提示
     })
     .finally(() => {
       isSubmitting.value = false;
