@@ -4,5 +4,5 @@ export interface Article {
   content: string;
   date: string;
   tags: string[];
-  cover?: string;
+  cover_url?: string;
 }

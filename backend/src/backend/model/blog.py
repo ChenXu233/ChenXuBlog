@@ -44,10 +44,10 @@ class Blog(Base):
     )  # 关系
 
     title: Mapped[str] = mapped_column(String(233), index=True)
-    headshot: Mapped[Optional[str]] = mapped_column(String(233), nullable=True)
     body: Mapped[str] = mapped_column(Text, index=True)
     published: Mapped[bool] = mapped_column(Boolean, default=False)
     view_count: Mapped[int] = mapped_column(Integer, default=0)
+    cover_url: Mapped[Optional[str]] = mapped_column(String(233))
     tags: Mapped[List["Tag"]] = relationship(
         "Tag",
         secondary="blog_tags",

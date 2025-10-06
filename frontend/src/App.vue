@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <AppBar />
+    <AppBar v-if="$route.meta.showAppBar !== false" />
     <router-view />
-    <Footer />
+    <Footer v-if="$route.meta.showFooter !== false" />
   </div>
 </template>
 

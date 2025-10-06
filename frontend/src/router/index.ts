@@ -13,6 +13,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: "首页",
       keepAlive: true,
+      showAppBar: false, // 不显示AppBar
+      showFooter: false, // 不显示Footer
     },
   },
   {
