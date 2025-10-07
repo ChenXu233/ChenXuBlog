@@ -26,7 +26,7 @@ const authStore = useUserStore();
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: transparent;
+  background: rgba(125, 173, 252, 0.6);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   color: white;

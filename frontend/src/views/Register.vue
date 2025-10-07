@@ -50,7 +50,7 @@
 
       <div class="login-link">
         <span>已有账号？</span>
-        <a href="/login">立即登录</a>
+        <router-link to="/login" class="login-link">立即登录</router-link>
       </div>
     </form>
   </div>
@@ -119,18 +119,11 @@ const handleRegister = () => {
   if (!validateForm()) {
     return;
   }
-  post<UserRegisterResponse>("/register", form)
-    .then((res) => {
-      if (res.status === 200) {
-        router.push("/login");
-      }
-    })
-    .catch((err) => {
-      console.error("注册失败:", err);
-    })
-    .finally(() => {
-      isSubmitting.value = false;
-    });
+  post<UserRegisterResponse>("/register", form).then((res) => {
+    if (res.status === 200) {
+      router.push("/login");
+    }
+  });
 };
 </script>
 
@@ -140,38 +133,63 @@ const handleRegister = () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
 }
 
 .register-form {
-  background: white;
-  padding: 2rem 3rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem 3rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.register-form:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
 }
 
 .nav-brand {
-  display: inline-block;
+  display: block;
+  text-align: center;
   margin-bottom: 1rem;
-  color: #1890ff;
+  color: #667eea;
+  font-weight: 600;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .nav-brand:hover {
-  text-decoration: underline;
+  color: #764ba2;
+  transform: scale(1.05);
 }
 
 h2 {
   text-align: center;
   color: #333;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .form-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
 }
 
 label {
@@ -179,64 +197,127 @@ label {
   margin-bottom: 0.5rem;
   color: #666;
   font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 input {
   width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  padding: 0.9rem 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background-color: white;
 }
 
 input:focus {
   outline: none;
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+input::placeholder {
+  color: #a0aec0;
+  transition: color 0.3s ease;
+}
+
+input:focus::placeholder {
+  color: #cbd5e0;
 }
 
 .error-message {
   color: #ff4d4f;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   margin-top: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  background-color: rgba(255, 77, 79, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #ff4d4f;
+  transition: all 0.3s ease;
 }
 
 .register-btn {
   width: 100%;
-  padding: 0.8rem;
-  background-color: #1890ff;
+  padding: 0.9rem;
+  background: linear-gradient(90deg, #667eea, #764ba2);
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.register-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #764ba2, #667eea);
+  transition: all 0.5s ease;
+  z-index: -1;
+}
+
+.register-btn:hover:not(:disabled)::before {
+  left: 0;
 }
 
 .register-btn:hover:not(:disabled) {
-  background-color: #40a9ff;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.register-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .register-btn:disabled {
-  background-color: #d9d9d9;
+  opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .login-link {
-  text-align: center;
   margin-top: 1.5rem;
+  text-align: center;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .login-link a {
-  color: #1890ff;
+  color: #667eea;
   text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.login-link a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+  border-radius: 2px;
 }
 
 .login-link a:hover {
-  text-decoration: underline;
+  color: #764ba2;
+}
+
+.login-link a:hover::after {
+  width: 100%;
 }
 </style>

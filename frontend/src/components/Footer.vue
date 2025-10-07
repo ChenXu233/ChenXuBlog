@@ -6,33 +6,33 @@
         <p class="footer-description">分享知识，记录生活</p>
       </div>
       <div class="footer-links">
-        <a
-          href="/"
+        <router-link
+          to="/"
           class="footer-link"
           @mouseenter="hoveredLink = 'home'"
           @mouseleave="hoveredLink = ''"
-          >首页</a
+          >首页</router-link
         >
-        <a
-          href="/about"
+        <router-link
+          to="/about"
           class="footer-link"
           @mouseenter="hoveredLink = 'about'"
           @mouseleave="hoveredLink = ''"
-          >关于我</a
+          >关于我</router-link
         >
-        <a
-          href="/archive"
+        <router-link
+          to="/archive"
           class="footer-link"
           @mouseenter="hoveredLink = 'archive'"
           @mouseleave="hoveredLink = ''"
-          >文章归档</a
+          >文章归档</router-link
         >
-        <a
-          href="/contact"
+        <router-link
+          to="/contact"
           class="footer-link"
           @mouseenter="hoveredLink = 'contact'"
           @mouseleave="hoveredLink = ''"
-          >联系我</a
+          >联系我</router-link
         >
       </div>
     </div>
@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { RouterLink } from "vue-router";
 
 // 用于处理悬停效果的响应式数据
 const hoveredLink = ref("");
@@ -51,11 +52,19 @@ const hoveredLink = ref("");
 
 <style scoped>
 .main-footer {
-  background-color: #2c3e50;
-  color: #ecf0f1;
+  background: linear-gradient(
+    135deg,
+    rgba(125, 173, 252, 0.6),
+    rgba(245, 87, 108, 0.6)
+  );
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: white;
   padding: 40px 24px 20px;
   margin-top: auto;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .footer-content {
@@ -74,64 +83,104 @@ const hoveredLink = ref("");
 }
 
 .footer-logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ecf0f1;
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
   margin-bottom: 10px;
-  letter-spacing: 1px;
-  transition: color 0.3s ease;
+  letter-spacing: 1.2px;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: inline-block;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.footer-logo::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ffecd2, #fcb69f);
+  transition: width 0.3s ease;
+  border-radius: 3px;
 }
 
 .footer-logo:hover {
-  color: #3498db;
+  color: #fcb69f;
+  transform: translateY(-3px) scale(1.05);
+}
+
+.footer-logo:hover::after {
+  width: 100%;
 }
 
 .footer-description {
-  color: #bdc3c7;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .footer-links {
   display: flex;
-  gap: 24px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
 .footer-link {
-  color: #ecf0f1;
+  color: white;
   text-decoration: none;
   font-size: 16px;
-  padding: 8px 0;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 25px;
   position: relative;
-  transition: color 0.3s ease;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: all 0.5s ease;
+  z-index: -1;
 }
 
 .footer-link:hover {
-  color: #3498db;
+  background-color: rgba(255, 255, 255, 0.25);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-.footer-link::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: #3498db;
-  transition: width 0.3s ease;
-}
-
-.footer-link:hover::after {
-  width: 100%;
+.footer-link:hover::before {
+  left: 100%;
 }
 
 .footer-copyright {
   text-align: center;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: #95a5a6;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* 响应式设计 */
@@ -153,15 +202,16 @@ const hoveredLink = ref("");
   }
 
   .footer-logo {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .footer-link {
     font-size: 14px;
+    padding: 8px 16px;
   }
 }
 
-/* 添加一些微动画效果 */
+/* 动画效果 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -173,7 +223,22 @@ const hoveredLink = ref("");
   }
 }
 
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .main-footer {
-  animation: fadeIn 0.5s ease-out;
+  animation:
+    fadeIn 0.5s ease-out,
+    gradientShift 15s ease infinite;
+  background-size: 400% 400%;
 }
 </style>
