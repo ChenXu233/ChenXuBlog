@@ -2,19 +2,19 @@
   <div class="home">
     <div class="home-content">
       <div class="home-cards-container">
-        <div class="home-card-big">
+        <div class="home-card-big" ref="bigCardRefs">
           <h1>欢迎来到ChenXuBlog</h1>
         </div>
-        <div class="home-cards-container-seconde">
-          <div class="home-card">
-            <h2>ChenXuBlog</h2>
-          </div>
-          <div class="home-card">
-            <h2>ChenXuBlog</h2>
-          </div>
-          <div class="home-card">
-            <h2>ChenXuBlog</h2>
-          </div>
+      </div>
+      <div class="home-cards-container-seconde">
+        <div class="home-card" :ref="setSmallCardRef">
+          <h2>ChenXuBlog</h2>
+        </div>
+        <div class="home-card" :ref="setSmallCardRef">
+          <h2>ChenXuBlog</h2>
+        </div>
+        <div class="home-card" :ref="setSmallCardRef">
+          <h2>ChenXuBlog</h2>
         </div>
       </div>
       <div class="home-lived-2d-container"></div>
@@ -22,7 +22,43 @@
   </div>
 </template>
 
-<script lang="ts"></script>
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from "vue";
+
+const bigCardRefs = ref<HTMLDivElement | null>(null);
+const smallCardRefs = ref<Array<HTMLDivElement | null>>([]);
+
+const setSmallCardRef = (el: HTMLDivElement) => {
+  if (el) {
+    smallCardRefs.value.push(el);
+  }
+};
+
+onMounted(() => {
+  const handleMouseMove = (event: MouseEvent) => {
+    const centerX = window.innerWidth / 2;
+    const mouseX = event.clientX;
+    const maxRotate = 5; // 最大偏转角度
+    const rotateY = ((mouseX - centerX) / centerX) * maxRotate;
+
+    if (bigCardRefs.value) {
+      bigCardRefs.value.style.setProperty("--rotate-y", `${rotateY + 15}deg`);
+    }
+
+    smallCardRefs.value.forEach((card) => {
+      if (card) {
+        card.style.setProperty("--rotate-y", `${rotateY - 15}deg`);
+      }
+    });
+  };
+
+  window.addEventListener("mousemove", handleMouseMove);
+
+  onBeforeUnmount(() => {
+    window.removeEventListener("mousemove", handleMouseMove);
+  });
+})
+</script>
 
 <style scoped>
 .home {
@@ -37,7 +73,7 @@
 }
 
 .home-content {
-  display: relative;
+  position: relative;
 }
 
 .home-cards-container {
@@ -49,7 +85,7 @@
 
 .home-cards-container-seconde {
   position: absolute;
-  top: 10rem;
+  top: 25rem;
   left: 30rem;
   perspective: 800px;
 }
@@ -62,6 +98,9 @@
   border-radius: 10px;
   padding: 20px;
   margin: 20px;
+}
+
+.home-card:not(.home-card-big) {
   animation: rotateFloatSmallCard 4s ease-in-out infinite;
 }
 
@@ -73,25 +112,25 @@
 
 @keyframes rotateFloatBigCard {
   0% {
-    transform: translateY(0) rotateY(15deg);
+    transform: translateY(0) rotateY(var(--rotate-y, 15deg));
   }
   50% {
-    transform: translateY(-20px) rotateY(15deg);
+    transform: translateY(-20px) rotateY(var(--rotate-y, 15deg));
   }
   100% {
-    transform: translateY(0) rotateY(15deg);
+    transform: translateY(0) rotateY(var(--rotate-y, 15deg));
   }
 }
 
 @keyframes rotateFloatSmallCard {
   0% {
-    transform: translateY(0) rotateY(-15deg);
+    transform: translateY(0) rotateY(var(--rotate-y, -15deg));
   }
   50% {
-    transform: translateY(-20px) rotateY(-15deg);
+    transform: translateY(-20px) rotateY(var(--rotate-y, -15deg));
   }
   100% {
-    transform: translateY(0) rotateY(-15deg);
+    transform: translateY(0) rotateY(var(--rotate-y, -15deg));
   }
 }
 
