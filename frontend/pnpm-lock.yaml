@@ -10,6 +10,9 @@ importers:
       axios:
         specifier: ^1.12.2
         version: 1.12.2
+      font-awesome:
+        specifier: ^4.7.0
+        version: 4.7.0
       pinia:
         specifier: 3.0.3
         version: 3.0.3(typescript@5.9.2)(vue@3.5.22(typescript@5.9.2))
@@ -971,6 +974,13 @@ packages:
       debug:
         optional: true
 
+  font-awesome@4.7.0:
+    resolution:
+      {
+        integrity: sha512-U6kGnykA/6bFmg1M/oT9EkFeIYv7JlX3bozwQJWiiLz6L0w3F5vBVPxHlwyX/vtNq1ckcpRKOB9f2Qal/VtFpg==,
+      }
+    engines: { node: ">=0.10.3" }
+
   form-data@4.0.4:
     resolution:
       {
@@ -1901,6 +1911,8 @@ snapshots:
       picomatch: 4.0.3
 
   follow-redirects@1.15.11: {}
+
+  font-awesome@4.7.0: {}
 
   form-data@4.0.4:
     dependencies:

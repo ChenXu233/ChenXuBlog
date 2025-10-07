@@ -53,17 +53,13 @@ const form = reactive({
 
 const handleLogin = () => {
   console.log("登录表单数据:", form);
-  post<UserLoginResponse>("/auth/login", form)
-    .then((res) => {
-      if (res.status === 200) {
-        tokenStore.setToken(res.data.access_token);
-        console.log("登录成功:", res);
-        router.push("/home");
-      }
-    })
-    .catch((err) => {
-      console.error("登录失败:", err.response.data.detail);
-    });
+  post<UserLoginResponse>("/auth/login", form).then((res) => {
+    if (res.status === 200) {
+      tokenStore.setToken(res.data.access_token);
+      console.log("登录成功:", res);
+      router.push("/home");
+    }
+  });
 };
 </script>
 
