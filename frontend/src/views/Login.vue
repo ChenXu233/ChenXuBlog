@@ -70,6 +70,7 @@ const handleLogin = () => {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
+  perspective: 500px;
 }
 
 .login-form {
@@ -87,7 +88,8 @@ const handleLogin = () => {
 }
 
 .login-form:hover {
-  transform: translateY(-5px) scale(1.01);
+  transform: translateY(-5px) scale(1.01) rotateY(30deg) translateZ(20px);
+  perspective: 10px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
 }
 
