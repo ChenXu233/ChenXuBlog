@@ -23,22 +23,26 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref } from "vue";
+import {
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  type ComponentPublicInstance,
+} from "vue";
 
 const bigCardRefs = ref<HTMLDivElement | null>(null);
 const smallCardRefs = ref<Array<HTMLDivElement | null>>([]);
 
-const setSmallCardRef = (el: HTMLDivElement) => {
-  if (el) {
-    smallCardRefs.value.push(el);
+const setSmallCardRef = (el: Element | ComponentPublicInstance | null) => {
+  if (el && (el as HTMLDivElement)) {
+    smallCardRefs.value.push(el as HTMLDivElement);
   }
 };
-
 onMounted(() => {
   const handleMouseMove = (event: MouseEvent) => {
     const centerX = window.innerWidth / 2;
     const mouseX = event.clientX;
-    const maxRotate = 5; // 最大偏转角度
+    const maxRotate = 1;
     const rotateY = ((mouseX - centerX) / centerX) * maxRotate;
 
     if (bigCardRefs.value) {
@@ -57,7 +61,7 @@ onMounted(() => {
   onBeforeUnmount(() => {
     window.removeEventListener("mousemove", handleMouseMove);
   });
-})
+});
 </script>
 
 <style scoped>
@@ -78,24 +82,26 @@ onMounted(() => {
 
 .home-cards-container {
   position: absolute;
-  top: 15rem;
-  left: 10rem;
-  perspective: 600px;
+  top: 20vh;
+  left: 10vw;
+  perspective: 70vh;
+  transition: all 0.5s ease-in-out;
 }
 
 .home-cards-container-seconde {
   position: absolute;
-  top: 25rem;
-  left: 30rem;
-  perspective: 800px;
+  top: 35vh;
+  left: 30vw;
+  perspective: 70vh;
+  transition: all 0.5s ease-in-out;
 }
 
 .home-card-big,
 .home-card {
-  width: 30rem;
-  height: 10rem;
+  width: 25vw;
+  height: 13vh;
   background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
+  border-radius: 1vh;
   padding: 20px;
   margin: 20px;
 }
@@ -105,8 +111,8 @@ onMounted(() => {
 }
 
 .home-card-big {
-  width: 40rem;
-  height: 40rem;
+  width: 30vw;
+  height: 60vh;
   animation: rotateFloatBigCard 6s ease-in-out infinite;
 }
 
@@ -134,31 +140,31 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .home {
     background-image: url("/yunxi.jpg");
     background-position: center top;
   }
   .home-cards-container {
-    top: 10rem;
-    left: 1rem;
+    top: 20vh;
+    left: 10vw;
   }
   .home-cards-container-seconde {
-    top: 10rem;
-    left: 20rem;
+    top: 35vh;
+    left: 35vw;
   }
   .home-card-big,
   .home-card {
-    width: 20rem;
-    height: 10rem;
+    width: 30vw;
+    height: 13vh;
   }
   .home-card-big {
-    width: 30rem;
-    height: 30rem;
+    width: 35vw;
+    height: 60vh;
   }
 }
 
-@media (max-width: px) {
+@media (max-width: 480px) {
   .home-lived-2d-container {
     display: none;
   }
