@@ -6,11 +6,41 @@
           <div class="home-card-big-tips-card">
             <h1>欢迎来到ChenXuBlog</h1>
           </div>
-          <router-link to="/blog">
-            <div class="home-card-big card-big">
-              <h2>博客</h2>
-            </div>
-          </router-link>
+          <div class="home-card-big card-big">
+            <el-carousel
+              :interval="4000"
+              trigger="click"
+              height="40vh"
+              indicator-position="outside"
+              motion-blur="true"
+            >
+              <router-link to="/blog">
+                <el-carousel-item
+                  style="
+                    background-image: url(/yunxi.jpg);
+                    background-size: cover;
+                    background-position: center;
+                  "
+                >
+                </el-carousel-item>
+              </router-link>
+              <el-carousel-item>
+                <router-link to="/archive">
+                  <h2>归档</h2>
+                </router-link>
+              </el-carousel-item>
+              <el-carousel-item>
+                <router-link to="/friend">
+                  <h2>友链</h2>
+                </router-link>
+              </el-carousel-item>
+              <el-carousel-item>
+                <router-link to="/diary">
+                  <h2>随谈</h2>
+                </router-link>
+              </el-carousel-item>
+            </el-carousel>
+          </div>
         </div>
       </div>
       <div class="home-cards-container-seconde" ref="smallCardRefs">
@@ -90,7 +120,7 @@ onMounted(() => {
 
 .home-cards-container {
   position: absolute;
-  top: 20vh;
+  top: 15vh;
   left: 10vw;
   transition: all 0.5s ease-in-out;
   animation: rotateFloatBigCard 6s ease-in-out infinite;
@@ -99,7 +129,7 @@ onMounted(() => {
 .home-cards-container-seconde {
   position: absolute;
   top: 35vh;
-  left: 35vw;
+  left: 38vw;
   transition: all 0.5s ease-in-out;
   animation: rotateFloatSmallCard 4s ease-in-out infinite;
 }
@@ -223,8 +253,8 @@ onMounted(() => {
     height: 13vh;
   }
   .home-card-big {
-    width: 35vw;
-    height: 60vh;
+    width: 40vh;
+    height: 50vh;
   }
 }
 
