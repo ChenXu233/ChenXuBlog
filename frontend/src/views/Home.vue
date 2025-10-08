@@ -1,36 +1,34 @@
 <template>
   <div class="home">
     <div class="home-content">
-      <div class="home-cards-container" ref="bigCardRefs">
-        <div class="home-card-big-container">
-          <div class="home-card-big-tips-card">
-            <h1>欢迎来到ChenXuBlog</h1>
-          </div>
-          <router-link to="/blog">
-            <div class="home-card-big card-big">
-              <h2>博客</h2>
-            </div>
-          </router-link>
+      <div class="card-container-left" ref="bigCardRefs">
+        <div class="card big-card tips-card">
+          <h1>欢迎来到ChenXuBlog</h1>
         </div>
+        <router-link to="/blog">
+          <div class="card big-card">
+            <h2>博客</h2>
+          </div>
+        </router-link>
       </div>
-      <div class="home-cards-container-seconde" ref="smallCardRefs">
+      <div class="card-container-right" ref="smallCardRefs">
         <router-link to="/archive">
-          <div class="home-card card-1">
+          <div class="card card-1">
             <h2>归档</h2>
           </div>
         </router-link>
         <router-link to="/friend">
-          <div class="home-card card-2">
+          <div class="card card-2">
             <h2>友链</h2>
           </div>
         </router-link>
         <router-link to="/diary">
-          <div class="home-card card-3">
+          <div class="card card-3">
             <h2>随谈</h2>
           </div>
         </router-link>
       </div>
-      <div class="home-lived-2d-container"></div>
+      <div class="lived2d-container"></div>
     </div>
   </div>
 </template>
@@ -85,10 +83,10 @@ onMounted(() => {
 .home-content {
   position: relative;
   perspective: 100vh;
-  perspective-origin: 50% 0%;
+  perspective-origin: 50% 0;
 }
 
-.home-cards-container {
+.card-container-left {
   position: absolute;
   top: 20vh;
   left: 10vw;
@@ -96,7 +94,7 @@ onMounted(() => {
   animation: rotateFloatBigCard 6s ease-in-out infinite;
 }
 
-.home-cards-container-seconde {
+.card-container-right {
   position: absolute;
   top: 35vh;
   left: 35vw;
@@ -104,44 +102,40 @@ onMounted(() => {
   animation: rotateFloatSmallCard 4s ease-in-out infinite;
 }
 
-.home-card-big-container {
-  transition: all 0.5s ease-in-out;
-}
-
-.home-card-big,
-.home-card {
+.card {
   width: 25vw;
   height: 13vh;
   border-radius: 1vh;
   padding: 3vh;
   margin: 3vh;
+  transition: transform 0.3s ease;
 }
 
-.home-card-big {
+.card:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  transform: scale(1.05);
+}
+
+.big-card {
   width: 50vh;
   height: 50vh;
+  background: linear-gradient(135deg, #ff512f, #dd2476);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
-.home-card-big-tips-card {
+.tips-card {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 1vh;
   padding: 1vh;
   margin: 3vh;
+  height: initial;
 }
 
-.home-card-big-tips-card h1 {
+.tips-card h1 {
   font-size: 2.5vh;
-  padding: 0vh 2vh;
+  padding: 0 2vh;
   color: blue;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.card-1,
-.card-2,
-.card-3,
-.card-big,
-.home-card-big-tips-card {
-  transition: transform 0.3s ease;
 }
 
 .card-1 {
@@ -160,47 +154,33 @@ onMounted(() => {
   background: linear-gradient(135deg, #00dbde, #fc00ff);
 }
 
-.card-big {
-  background: linear-gradient(135deg, #ff512f, #dd2476);
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-}
-
-.card-1:hover,
-.card-2:hover,
-.card-3:hover,
-.card-big:hover,
-.home-card-big-tips-card:hover {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-  transform: scale(1.05);
-}
-
 @keyframes rotateFloatBigCard {
   0% {
     transform: translateY(0) rotateY(var(--rotate-y, 15deg))
-      rotateX(var(--rotate-x, 0deg));
+    rotateX(var(--rotate-x, 0deg));
   }
   50% {
     transform: translateY(-20px) rotateY(var(--rotate-y, 15deg))
-      rotateX(var(--rotate-x, 0deg));
+    rotateX(var(--rotate-x, 0deg));
   }
   100% {
     transform: translateY(0) rotateY(var(--rotate-y, 15deg))
-      rotateX(var(--rotate-x, 0deg));
+    rotateX(var(--rotate-x, 0deg));
   }
 }
 
 @keyframes rotateFloatSmallCard {
   0% {
     transform: translateY(0) rotateY(var(--rotate-y, -15deg))
-      rotateX(var(--rotate-x, 0deg));
+    rotateX(var(--rotate-x, 0deg));
   }
   50% {
     transform: translateY(-20px) rotateY(var(--rotate-y, -15deg))
-      rotateX(var(--rotate-x, 0deg));
+    rotateX(var(--rotate-x, 0deg));
   }
   100% {
     transform: translateY(0) rotateY(var(--rotate-y, -15deg))
-      rotateX(var(--rotate-x, 0deg));
+    rotateX(var(--rotate-x, 0deg));
   }
 }
 
@@ -209,27 +189,29 @@ onMounted(() => {
     background-image: url("/yunxi.jpg");
     background-position: center top;
   }
-  .home-cards-container {
+  .card-container-left {
     top: 15vh;
     left: 10vw;
   }
-  .home-cards-container-seconde {
+  .card-container-right {
     top: 35vh;
     left: 35vw;
   }
-  .home-card-big,
-  .home-card {
+  .card {
     width: 30vw;
     height: 13vh;
   }
-  .home-card-big {
+  .big-card {
     width: 35vw;
     height: 60vh;
+  }
+  .tips-card {
+    height: initial;
   }
 }
 
 @media (max-width: 480px) {
-  .home-lived-2d-container {
+  .lived2d-container {
     display: none;
   }
 }
