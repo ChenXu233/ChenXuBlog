@@ -1,6 +1,5 @@
 import axios, { type AxiosResponse, type AxiosRequestConfig } from "axios";
 import { config } from "../config/config";
-import { useRouter } from "vue-router";
 import { useTokenStore } from "../stores/token";
 import { createApp, h } from "vue";
 import Error from "../components/Error.vue";
@@ -42,7 +41,6 @@ export const showError = (
 };
 
 type ErrorHandler = (error: unknown) => void;
-const router = useRouter();
 const tokenStore = useTokenStore();
 
 const service = axios.create({
