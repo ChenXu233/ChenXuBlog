@@ -7,45 +7,57 @@
             <h1>欢迎来到ChenXuBlog</h1>
           </div>
         </div>
-        <div class="card card-big" ref="bigCardRefs">
-          <el-carousel
-            :interval="4000"
-            trigger="click"
-            height="25vw"
-            indicator-position="outside"
-            :motionBlur="true"
-          >
-            <router-link to="/blog">
-              <el-carousel-item
-                style="
-                  background-image: url(/yunxi.jpg);
-                  background-size: cover;
-                  background-position: center;
-                  border-radius: 2vw;
-                "
-              >
-                <h2>文章</h2>
+        <div class="card-perspective-big" ref="bigCardRefs">
+          <div class="card card-big" ref="bigCardRefs">
+            <el-carousel
+              :interval="4000"
+              trigger="click"
+              height="25vw"
+              indicator-position="outside"
+              :motionBlur="true"
+            >
+              <router-link to="/blog">
+                <el-carousel-item
+                  style="
+                    background-image: url(/yunxi.jpg);
+                    background-size: cover;
+                    background-position: center;
+                    border-radius: 2vw;
+                  "
+                >
+                  <h2>文章</h2>
+                </el-carousel-item>
+              </router-link>
+              <el-carousel-item>
+                <router-link to="/archive">
+                  <h2>归档</h2>
+                </router-link>
               </el-carousel-item>
-            </router-link>
-            <el-carousel-item>
-              <router-link to="/archive">
-                <h2>归档</h2>
-              </router-link>
-            </el-carousel-item>
-            <el-carousel-item>
-              <router-link to="/friend">
-                <h2>友链</h2>
-              </router-link>
-            </el-carousel-item>
-            <el-carousel-item>
-              <router-link to="/diary">
-                <h2>随谈</h2>
-              </router-link>
-            </el-carousel-item>
-          </el-carousel>
+              <el-carousel-item>
+                <router-link to="/friend">
+                  <h2>友链</h2>
+                </router-link>
+              </el-carousel-item>
+              <el-carousel-item>
+                <router-link to="/diary">
+                  <h2>随谈</h2>
+                </router-link>
+              </el-carousel-item>
+            </el-carousel>
+          </div>
         </div>
       </div>
       <div class="card-container-right">
+        <div class="card-perspective-small" ref="smallCardRefs">
+          <div class="flex flex-col items-center justify-center">
+            <el-avatar
+              src="https://avatars.githubusercontent.com/u/50247313?v=4"
+              :size="100"
+              class="avatar"
+            />
+            <p>Name</p>
+          </div>
+        </div>
         <div class="card-perspective-small" ref="smallCardRefs">
           <router-link to="/archive">
             <div class="card card-1">
@@ -136,18 +148,18 @@ onMounted(() => {
 
 .card-container-right {
   position: absolute;
-  top: 35vh;
+  top: 25vh;
   left: 38vw;
   transition: all 0.5s ease-in-out;
   perspective: 80vh;
 }
 
 .card-perspective-small {
-  animation: rotateFloatSmallCard 4s ease-in-out infinite;
+  animation: rotateFloatSmallCard 6.14s ease-in-out infinite;
 }
 
 .card-perspective-big {
-  animation: rotateFloatBigCard 4s ease-in-out infinite;
+  animation: rotateFloatBigCard 4.56s ease-in-out infinite;
 }
 
 .card {
@@ -169,7 +181,6 @@ onMounted(() => {
   height: 30vw;
   background: linear-gradient(135deg, #ff512f, #dd2476);
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-  animation: rotateFloatBigCard 6s ease-in-out infinite;
 }
 
 .tips-card {
