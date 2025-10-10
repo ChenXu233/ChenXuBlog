@@ -1,7 +1,11 @@
 <template>
   <div id="app">
     <AppBar v-if="$route.meta.showAppBar !== false" />
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <transition>
+        <component :is="Component" :key="$route.path" />
+      </transition>
+    </router-view>
     <Footer v-if="$route.meta.showFooter !== false" />
   </div>
 </template>

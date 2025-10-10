@@ -15,6 +15,7 @@ const routes: Array<RouteRecordRaw> = [
       keepAlive: true,
       showAppBar: false, // 不显示AppBar
       showFooter: false, // 不显示Footer
+      transition: "slide-right",
     },
   },
   {
@@ -24,6 +25,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: "登录",
       keepAlive: true,
+      transition: "slide-right",
     },
   },
   {
@@ -33,6 +35,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: "文章",
       keepAlive: true,
+      transition: "slide-right",
     },
   },
   {
@@ -42,6 +45,7 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: "注册",
       keepAlive: true,
+      transition: "slide-right",
     },
   },
 ];
