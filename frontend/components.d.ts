@@ -9,13 +9,17 @@ export {};
 declare module 'vue' {
   export interface GlobalComponents {
     AppBar: typeof import('./src/components/AppBar.vue')['default']
+    BlossomCanvas: typeof import('./src/components/effects/BlossomCanvas.vue')['default']
     Comment: typeof import('./src/components/Comment.vue')['default']
+    CyberMonitor: typeof import('./src/components/CyberMonitor.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElCarousel: typeof import('element-plus/es')['ElCarousel']
     ElCarouselItem: typeof import('element-plus/es')['ElCarouselItem']
     Error: typeof import('./src/components/Error.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
-    LinkCard: typeof import('./src/components/LinkCard.vue')['default']
+    LoadingOverlay: typeof import('./src/components/LoadingOverlay.vue')['default']
+    MouseTrail: typeof import('./src/components/effects/MouseTrail.vue')['default']
+    RainCanvas: typeof import('./src/components/effects/RainCanvas.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
