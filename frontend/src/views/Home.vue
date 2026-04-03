@@ -7,17 +7,20 @@
 
     <!-- Section 1: Hero (Blossoms) -->
     <section class="hero-section">
+      <div class="mist-overlay"></div>
       <div class="hero-content reveal-blur" ref="heroText">
         <h1 class="elegant-title">
           <div class="title-line size-m">Amid</div>
           <div class="title-line size-l">April mists</div>
           <div class="title-line size-s">and</div>
           <div class="title-line size-xl text-gradient alt">
-            bl<span class="title-line text-gradient alt size-l raise">🌸</span
-            >ss<span class="raise">🌸</span>ms
+            bl<span class="title-line text-gradient alt size-l">🌸</span>ss<span
+              class=""
+              >🌸</span
+            >ms
           </div>
         </h1>
-        <p class="hero-subtitle">晨煦的个人空间 · 烟花三月，不必下扬州</p>
+        <p class="hero-subtitle">晨煦的个人空间 · 烟花三月</p>
 
         <div class="scroll-indicator">
           <div class="mouse"></div>
@@ -27,63 +30,181 @@
     </section>
 
     <!-- Section 2: Progressive Introduction with Rain & Thunder -->
-    <section class="intro-section" ref="introSection">
-      <div class="intro-content-wrapper">
-        <div class="glass-panel reveal-up v-observe full-width-panel">
-          <h2 class="panel-title highlight-cyan">晨煦 / ChenXu233</h2>
-          <p class="poetic-text">
-            烟花三月，不必下扬州——<br />雾与花之间，我
-            <span class="highlight-pink">type</span> 了一行宇宙。
-          </p>
-        </div>
+    <section class="intro-section zen-canvas" ref="introSection">
+      <div class="zen-watermark v-observe fade-in-scroll">C.X_UNIVERSE</div>
 
-        <div class="glass-panel reveal-up delay-1 v-observe right-align-panel">
-          <h2 class="panel-title">👋 身份：全能干饭者</h2>
-          <p>
-            你好，我是晨煦，一名 <strong>全干开发者</strong>（全栈 +
-            全能干饭）。<br /><br />
-            <span class="tech-stack">> Rust · Python · TypeScript</span><br />
-            从左到右分别是：性能、灵气、和让类型系统替我背锅。
-          </p>
-        </div>
-
-        <div class="glass-panel reveal-up delay-2 v-observe">
-          <h2 class="panel-title">🤖 赛博愿景</h2>
-          <p>
-            AI 爱好者，喜欢探索 <strong>软硬件协同的边界</strong>。<br /><br />
-            我有一个不太小的野心：开发一门叫
-            <span class="highlight-cyan">Type the Universe</span> 的语言 ——<br />让类型系统不仅约束变量，还能约束人生的不确定性<br />（虽然目前只约束了
-            bug）。
-          </p>
-        </div>
-
-        <div
-          class="glass-panel reveal-up delay-1 v-observe full-width-panel center-align"
-        >
-          <h2 class="panel-title">🧠 思考小工厂</h2>
-          <p>
-            擅长领域：发呆 + 胡思乱想。这里是
-            <strong>炫技 + 思考小工厂</strong>。你会看到：<br /><br />
-          </p>
-          <div class="bullet-list">
-            <div class="bullet-item">// 奇奇怪怪的技术实验</div>
-            <div class="bullet-item">// 软硬件结合的治愈翻车现场</div>
-            <div class="bullet-item">
-              // 以及一些发呆时想出来的、后来居然能跑的东西
+      <div class="zen-container">
+        <!-- 板块一：开门见山 -->
+        <div class="zen-block block-intro v-observe reveal-up">
+          <div class="zen-hero-name">
+            <span>晨</span>
+            <span>煦</span>
+          </div>
+          <div class="zen-biography">
+            <div class="zen-subtitle">ChenXu233 // SYS.ADMIN</div>
+            <div class="zen-prose">
+              烟花三月，雾与花之间，我
+              <span class="hl-soft">type</span> 了一行宇宙。
+            </div>
+            <div class="zen-quote">
+              “发呆不是浪费生命，是给生命留出编译的时间。”
             </div>
           </div>
-          <p class="bottom-note">
-            ☕ 如果你也喜欢在代码里藏一点浪漫，或者在焊电路板的时候泡一杯茶——<br />很高兴认识你。
-          </p>
-          <p class="social-links">
-            📫 找到我：
-            <a
-              href="https://github.com/ChenXu233"
-              target="_blank"
-              class="cyber-link"
-              >[GitHub · ChenXu233]</a
+        </div>
+
+        <!-- 板块二：日常状态（Orbiting Avatar & Capsules） -->
+        <div class="zen-block block-status v-observe reveal-up delay-1">
+          <div class="status-text">
+            <h3>别人叫我“全干工程师”。不是全栈，是全都干——</h3>
+            <p>写代码、聊哲学、推物理、焊电路、发呆、胡思乱想、吃白饭。</p>
+            <p class="status-summary">
+              发呆是我最强的 debug 工具，<br />
+              吃白饭是我最低成本的快乐，<br />
+              至于哲学和物理——反正宇宙也没说我不能想。
+            </p>
+          </div>
+
+          <div class="zen-avatar-system">
+            <div class="enso-circle"></div>
+            <el-avatar
+              src="https://avatars.githubusercontent.com/u/91937041?v=4"
+              :size="120"
+              class="zen-avatar-core"
+            />
+            <!-- 横版胶囊状态小组件 -->
+            <div class="z-capsule cap-1">
+              <span class="c-emoji">🍚</span>
+              <div class="c-details">
+                <strong>吃白饭</strong><span>米饭是碳水，也是灵感燃料</span>
+              </div>
+            </div>
+            <div class="z-capsule cap-2">
+              <span class="c-emoji">⌨️</span>
+              <div class="c-details">
+                <strong>写代码</strong><span>Rust底层 / Py脚本 / TS诗</span>
+              </div>
+            </div>
+            <div class="z-capsule cap-3">
+              <span class="c-emoji">🪐</span>
+              <div class="c-details">
+                <strong>聊哲学</strong><span>bug存不存在于未观测</span>
+              </div>
+            </div>
+            <div class="z-capsule cap-4">
+              <span class="c-emoji">📐</span>
+              <div class="c-details">
+                <strong>推物理</strong><span>从欧姆定律到量子力学</span>
+              </div>
+            </div>
+            <div class="z-capsule cap-5">
+              <span class="c-emoji">😶‍🌫️</span>
+              <div class="c-details">
+                <strong>发呆</strong><span>发呆才是核心生产力</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 板块三：技术野心 (Floating Windows 巧思) -->
+        <div class="zen-block block-ambition v-observe reveal-up delay-2">
+          <div class="ambition-header">探 索 边 界 // EXPLORATION</div>
+          <div class="floating-grid">
+            <div class="float-window win-glass">
+              <div class="win-dot red"></div>
+              <div class="win-dot yellow"></div>
+              <div class="win-dot green"></div>
+              <h4>[ YaoXiang ]</h4>
+              <p>
+                愿景：<strong>Type the Universe</strong>。<br />
+                欢迎来点 star，或者点 issue 骂我。<br />
+                <a
+                  href="https://github.com/ChenXu233/YaoXiang"
+                  target="_blank"
+                  class="cyber-link"
+                  >ChenXu233/YaoXiang ↗</a
+                >
+              </p>
+            </div>
+
+            <div class="float-window win-cyber">
+              <div class="win-status">System.IO.Hardware</div>
+              <h4>软硬协同</h4>
+              <p>
+                深入学习计算机组成原理，希望有一天能为“多核原生”做出自己的贡献，让软件和硬件不再互相甩锅。
+              </p>
+            </div>
+
+            <div class="float-window win-agape">
+              <div class="win-icon">⚙️</div>
+              <h4>AGI 执念</h4>
+              <p>听起来很中二但我是认真的：<br />实现能改变世界的 AGI。</p>
+            </div>
+
+            <div class="float-window win-neuro">
+              <div class="win-header">
+                <strong>脑电 + MR</strong>
+                <span class="win-badge">进度: 60%准率</span>
+              </div>
+              <p>
+                发个呆，光标就动了；想个类型，代码就生成了。<br />
+                目前能分辨“我在发呆”和“认真想bug”的区别。
+              </p>
+            </div>
+          </div>
+          <p class="ambition-footer">
+            对类型系统、计组、AGI、脑机接口感兴趣？欢迎脑暴。<strong
+              >发呆小广告位常年招租。</strong
             >
           </p>
+        </div>
+
+        <!-- 板块四：小工厂出品 + 联系方式 -->
+        <div class="zen-block block-factory v-observe reveal-up delay-3">
+          <div class="factory-split">
+            <div class="f-left">
+              <h4>炫技 + 思考小工厂</h4>
+              <ul class="f-list">
+                <li>
+                  <strong>奇奇怪怪的实验</strong>：用 TS 写会发朋友圈的机器人
+                </li>
+                <li>
+                  <strong>软硬结合翻车现场</strong>：焊电路板烫到手，但 LED
+                  居然亮了
+                </li>
+                <li><strong>发呆产物</strong>：用 Python 远程控制家里花洒</li>
+                <li><strong>瞎折腾记录</strong>：从“脑控小灯”到“脑控 IDE”</li>
+                <li>
+                  <strong>写写诗</strong>：代码诗与文字诗，质量随发呆时长波动
+                </li>
+              </ul>
+            </div>
+            <div class="f-right">
+              <div class="contact-box">
+                <div class="c-greeting">
+                  如果你也喜欢在代码里藏一点浪漫，<br />或者在焊电路板的时候泡一杯茶——很高兴认识你。
+                </div>
+                <div class="c-joke">
+                  > 发呆时长 > 10,000 hrs<br />
+                  > 发呆领域资深专家<br />
+                  > 可接发呆咨询（收费：一杯奶茶）
+                </div>
+                <div class="c-links">
+                  <a
+                    href="https://github.com/ChenXu233"
+                    target="_blank"
+                    class="c-btn"
+                    ><i class="icon">G</i> GitHub</a
+                  >
+                  <a href="#" class="c-btn"
+                    ><i class="icon">R</i> 小红书·晨煦发呆中</a
+                  >
+                  <a href="mailto:chenxu233@type.universe" class="c-btn"
+                    ><i class="icon">M</i> chenxu233@type.universe</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -107,9 +228,6 @@
                     >
                   </div>
                 </div>
-                <div class="h-card-back">
-                  <div class="debug-text">隐藏彩蛋 / DEBUG: Hello World</div>
-                </div>
               </div>
             </div>
           </div>
@@ -127,9 +245,6 @@
                       >Enter Module_</router-link
                     >
                   </div>
-                </div>
-                <div class="h-card-back">
-                  <div class="debug-text">隐藏彩蛋 / DEBUG: Hello World</div>
                 </div>
               </div>
             </div>
@@ -149,9 +264,6 @@
                     >
                   </div>
                 </div>
-                <div class="h-card-back">
-                  <div class="debug-text">隐藏彩蛋 / DEBUG: Hello World</div>
-                </div>
               </div>
             </div>
           </div>
@@ -170,9 +282,6 @@
                     >
                   </div>
                 </div>
-                <div class="h-card-back">
-                  <div class="debug-text">隐藏彩蛋 / DEBUG: Hello World</div>
-                </div>
               </div>
             </div>
           </div>
@@ -180,38 +289,8 @@
       </div>
     </section>
 
-    <!-- Section 4: Profile / User Module -->
-    <section class="profile-section">
-      <div class="profile-card reveal-blur v-observe">
-        <div class="profile-header">
-          <div class="dot red"></div>
-          <div class="dot yellow"></div>
-          <div class="dot green"></div>
-          <span class="terminal-title">user_profile.sh</span>
-        </div>
-        <div class="profile-body">
-          <div class="avatar-ring">
-            <el-avatar
-              src="https://avatars.githubusercontent.com/u/91937041?v=4"
-              :size="120"
-              class="avatar"
-            />
-          </div>
-          <div class="profile-info">
-            <h3>USER: <span class="highlight-pink">ADMIN / ChenXu</span></h3>
-            <div class="typewriter-box">
-              <p class="type-line">> System initialized.</p>
-              <p class="type-line delay">
-                > Core identity: Developer / Creator.
-              </p>
-              <p class="type-line delay-more">
-                > Connection secure. Welcome back.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <!-- Footer -->
+    <section class="footer-section">
       <div class="footer-note reveal-up v-observe">
         © 2026 ChenXuBlog. A blend of technology and blooming spring.
       </div>
@@ -356,7 +435,7 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Base Styles */
 .elegant-home {
-  background-color: #030305;
+  background: #030305;
   color: #fff;
   font-family: "JetBrains Mono", monospace;
   /* overflow-x: hidden causes position:sticky to break in scroll listeners, use clip */
@@ -397,6 +476,9 @@ onBeforeUnmount(() => {
 
 /* Section 1: Hero */
 .hero-section {
+  background-image: url("../assets/sukra.jpg");
+  background-size: auto 100vw;
+  background-position: center;
   position: relative;
   height: 100vh;
   display: flex;
@@ -409,14 +491,15 @@ onBeforeUnmount(() => {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, transparent 0%, #030305 100%);
-  z-index: 2;
+  background: #030305cc;
+  backdrop-filter: blur(10px);
+  z-index: 0;
   pointer-events: none;
 }
 
 .hero-content {
   position: relative;
-  z-index: 3;
+  z-index: 1;
   text-align: center;
   pointer-events: auto;
 }
@@ -466,12 +549,6 @@ onBeforeUnmount(() => {
   -webkit-text-fill-color: transparent;
   font-weight: 700;
   text-transform: lowercase;
-}
-
-.raise {
-  display: inline-block;
-  transform: translateY(-0.25em);
-  vertical-align: middle;
 }
 
 .hero-subtitle {
@@ -529,177 +606,560 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Section 2: Intro with Rain */
-.intro-section {
+/* Section 2: Soft Zen Canvas */
+.zen-canvas {
   position: relative;
-  padding: 15vh 0;
-  background: transparent;
-  z-index: 10;
+  width: 100vw;
   min-height: 100vh;
+  margin-left: calc(-50vw + 50%);
+  padding: 8rem 0;
+  display: flex;
+  justify-content: center;
+  background: #030305;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+  color: #e2e8f0;
+  overflow: hidden;
 }
 
-.intro-section.is-flashing::before {
-  content: "";
+.zen-watermark {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.4);
-  mix-blend-mode: overlay;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 15vw;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.015);
+  letter-spacing: -2px;
   pointer-events: none;
-  z-index: 99;
-  animation: flash-overlay 0.3s ease-out forwards;
+  z-index: 0;
+  white-space: nowrap;
 }
 
-@keyframes flash-overlay {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+.zen-block {
+  z-index: 2;
+  backdrop-filter: blur(10px);
 }
 
-.intro-section.is-flashing .glass-panel {
-  animation: panel-shake 0.3s ease-in-out;
-}
-
-@keyframes panel-shake {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  25% {
-    transform: translate(2px, 2px);
-  }
-  50% {
-    transform: translate(-2px, -2px);
-  }
-  75% {
-    transform: translate(2px, -2px);
-  }
-}
-
-.intro-content-wrapper {
+.zen-container {
   position: relative;
-  z-index: 3;
+  z-index: 2;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 2rem;
   display: flex;
   flex-direction: column;
-  gap: 15vh;
-  width: 80%;
-  max-width: 1200px;
-  margin: 0 auto;
+  gap: 8rem;
 }
 
-.glass-panel {
-  padding: 3rem 4rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.5),
-    inset 0 0 20px rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(12px);
-  border-left: 3px solid #ff7aa2;
-  border-radius: 8px;
-  color: #ddd;
-  line-height: 1.8;
-  width: 60%;
+/* BLOCK 1: INTRO */
+.block-intro {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
 }
-
-.right-align-panel {
-  align-self: flex-end;
-  border-left: none;
-  border-right: 3px solid #00f0ff;
-  text-align: right;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.01),
-    rgba(0, 240, 255, 0.05)
-  );
-}
-
-.full-width-panel {
-  width: 100%;
-  border-left: 3px solid rgba(255, 255, 255, 0.3);
-}
-
-.center-align {
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid #ffbd2e;
-}
-
-.panel-title {
-  font-family: "Cinzel", serif;
+.zen-hero-name {
+  display: flex;
+  flex-direction: column;
+  font-size: 4.5rem;
+  font-weight: 200;
+  letter-spacing: 0.5rem;
   color: #fff;
-  font-size: 1.6rem;
-  margin-bottom: 1.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding-right: 3rem;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+.zen-biography {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.zen-subtitle {
+  font-family: "JetBrains Mono", monospace;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
   letter-spacing: 2px;
 }
-
-.poetic-text {
-  font-size: 1.4rem;
-  font-family: "Noto Serif SC", serif;
-  line-height: 2.2;
+.zen-prose {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 1.6;
 }
-
-.highlight-cyan {
-  color: #00f0ff;
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+.hl-soft {
+  color: #f4b3c2;
+  font-style: italic;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: bold;
 }
-.highlight-pink {
-  color: #ff7aa2;
-  text-shadow: 0 0 10px rgba(255, 122, 162, 0.3);
+.zen-quote {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  padding-left: 1rem;
   font-style: italic;
 }
 
-.tech-stack {
-  font-family: "JetBrains Mono", monospace;
-  color: #00f0ff;
+/* BLOCK 2: STATUS & ORBIT AVATAR */
+.block-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 24px;
+  padding: 4rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+.status-text {
+  flex: 1;
+  max-width: 500px;
+}
+.status-text h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: #f4b3c2;
+}
+.status-text p {
   font-size: 1.1rem;
-  background: rgba(0, 240, 255, 0.1);
-  padding: 5px 15px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+.status-summary {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 3px solid rgba(244, 179, 194, 0.4);
+  font-size: 1rem !important;
 }
 
-.bullet-list {
+.zen-avatar-system {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.enso-circle {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  animation: slow-spin 40s linear infinite;
+}
+.enso-circle::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: #f4b3c2;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #f4b3c2;
+}
+
+/* CAPSULE (Horizontal) WIDGETS */
+.z-capsule {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(20, 22, 28, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.6rem 1.2rem 0.6rem 0.6rem;
+  border-radius: 50px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.z-capsule:hover {
+  transform: scale(1.05) translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+.c-emoji {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  font-size: 1.2rem;
+}
+.c-details {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  align-items: center;
-  font-size: 1.1rem;
-  color: #bbb;
-  margin-bottom: 2rem;
+}
+.c-details strong {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.c-details span {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
 }
 
-.bullet-item {
+/* Orbit Positioning - Elliptical style around avatar */
+.cap-1 {
+  top: 5%;
+  left: 0%;
+  transform: rotate(-5deg);
+}
+.cap-2 {
+  top: 25%;
+  right: -15%;
+  transform: rotate(3deg);
+}
+.cap-3 {
+  bottom: 20%;
+  right: -10%;
+  transform: rotate(-2deg);
+}
+.cap-4 {
+  bottom: -5%;
+  left: 10%;
+  transform: rotate(4deg);
+}
+.cap-5 {
+  bottom: 35%;
+  left: -25%;
+  transform: rotate(-4deg);
+}
+
+.cap-1:hover,
+.cap-2:hover,
+.cap-3:hover,
+.cap-4:hover,
+.cap-5:hover {
+  transform: scale(1.05) translateY(-5px) rotate(0deg);
+}
+
+/* BLOCK 3: AMBITION */
+.block-ambition {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+.ambition-header {
+  font-size: 1rem;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  font-family: "JetBrains Mono", monospace;
+}
+.floating-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
   position: relative;
 }
-
-.bottom-note {
-  font-size: 1.1rem;
-  color: #ddd;
-  margin-bottom: 2rem;
+.float-window {
+  background: rgba(25, 28, 36, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 2.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.float-window:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  background: rgba(30, 33, 42, 0.6);
+}
+.float-window h4 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #f4b3c2;
+  margin-bottom: 1.2rem;
+}
+.float-window p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.8;
 }
 
-.social-links {
-  font-size: 1.2rem;
+/* 浮窗巧思设计 */
+.win-glass {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+.win-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  margin-bottom: 1.5rem;
+}
+.win-dot.red {
+  background: #ff5f56;
+}
+.win-dot.yellow {
+  background: #ffbd2e;
+}
+.win-dot.green {
+  background: #27c93f;
+}
+
+.win-cyber .win-status {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  color: #4ade80;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+.win-agape {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.win-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.win-neuro .win-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+.win-neuro h4 {
+  margin-bottom: 0;
+}
+.win-badge {
+  background: rgba(244, 179, 194, 0.15);
+  color: #f4b3c2;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(244, 179, 194, 0.3);
 }
 
 .cyber-link {
-  color: #00f0ff;
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #fff;
+  font-family: "JetBrains Mono", monospace;
   text-decoration: none;
-  font-weight: 700;
-  border-bottom: 1px dashed #00f0ff;
-  transition: all 0.3s;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+.cyber-link:hover {
+  color: #f4b3c2;
+  border-color: #f4b3c2;
+}
+.ambition-footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.1rem;
+  margin-top: 1rem;
 }
 
-.cyber-link:hover {
-  text-shadow: 0 0 10px #00f0ff;
-  background: rgba(0, 240, 255, 0.1);
+/* BLOCK 4: FACTORY & CONTACT */
+.factory-split {
+  display: flex;
+  background: rgba(17, 19, 26, 0.6);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+.f-left {
+  flex: 55%;
+  padding: 4rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+}
+.f-left h4 {
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: #e2e8f0;
+}
+.f-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.f-list li {
+  position: relative;
+  padding-left: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+}
+.f-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #f4b3c2;
+  font-family: monospace;
+}
+.f-list strong {
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+.f-right {
+  flex: 45%;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.02);
+}
+.c-greeting {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+.c-joke {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1.5rem;
+  border-radius: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.8;
+  margin-bottom: 2.5rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+.c-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.c-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  color: #e2e8f0;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.c-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(5px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.c-btn .icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  background: #f4b3c2;
+  color: #000;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  font-style: normal;
+}
+
+@keyframes slow-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1024px) {
+  .zen-container {
+    padding: 0 1.5rem;
+    gap: 4rem;
+  }
+  .block-intro {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+    border: none;
+  }
+  .zen-hero-name {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 2rem;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .block-status {
+    flex-direction: column;
+    padding: 2rem;
+    gap: 4rem;
+    text-align: center;
+  }
+  .zen-avatar-system {
+    width: 100%;
+    height: 350px;
+    transform: scale(0.8);
+  }
+  .z-capsule {
+    position: relative;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 10px 0;
+  }
+  .zen-avatar-system {
+    flex-direction: column;
+    height: auto;
+    gap: 1rem;
+  }
+  .enso-circle {
+    display: none;
+  }
+  .floating-grid {
+    grid-template-columns: 1fr;
+  }
+  .factory-split {
+    flex-direction: column;
+  }
+  .f-left,
+  .f-right {
+    padding: 2rem;
+  }
 }
 
 /* Section 3: Horizontal Scroll */
@@ -753,40 +1213,14 @@ onBeforeUnmount(() => {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform-style: preserve-3d;
 }
 
-.h-card:hover .h-card-inner {
-  transform: rotateY(180deg);
-}
-
-.h-card-front,
-.h-card-back {
+.h-card-front {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
   border-radius: 2px;
   overflow: hidden;
-}
-
-.h-card-back {
-  transform: rotateY(180deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10, 10, 15, 0.95);
-  border: 1px dashed rgba(255, 122, 162, 0.3);
-  box-shadow: inset 0 0 50px rgba(255, 122, 162, 0.05);
-}
-
-.debug-text {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 1.5rem;
-  color: #ff7aa2;
-  text-shadow: 0 0 15px rgba(255, 122, 162, 0.4);
-  letter-spacing: 2px;
 }
 
 .h-card-bg {
@@ -912,8 +1346,7 @@ onBeforeUnmount(() => {
   transform: translateX(10px);
 }
 
-/* Section 4: Profile */
-.profile-section {
+.footer-section {
   padding: 20vh 10vw 10vh 10vw;
   background: #030305;
   display: flex;
@@ -921,93 +1354,6 @@ onBeforeUnmount(() => {
   align-items: center;
   position: relative;
   z-index: 1;
-}
-
-.profile-card {
-  width: 100%;
-  max-width: 700px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(20, 20, 25, 0.8);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-}
-
-.profile-header {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.dot.red {
-  background: #ff5f56;
-}
-.dot.yellow {
-  background: #ffbd2e;
-}
-.dot.green {
-  background: #27c93f;
-}
-
-.terminal-title {
-  margin-left: 10px;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.profile-body {
-  padding: 40px;
-  display: flex;
-  gap: 40px;
-  align-items: center;
-}
-
-.avatar-ring {
-  padding: 5px;
-  border: 2px dashed rgba(255, 122, 162, 0.5);
-  border-radius: 50%;
-  animation: spin 20s linear infinite;
-}
-
-.avatar {
-  border-radius: 50%;
-  display: block;
-  animation: spin 20s linear infinite reverse;
-}
-
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.profile-info h3 {
-  font-size: 1.5rem;
-  margin: 0 0 20px 0;
-  letter-spacing: 2px;
-}
-
-.typewriter-box {
-  background: rgba(0, 0, 0, 0.6);
-  padding: 20px;
-  border-radius: 4px;
-  border-left: 2px solid #00f0ff;
-}
-
-.type-line {
-  margin: 5px 0;
-  color: #88b0b0;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 0.9rem;
 }
 
 .footer-note {
@@ -1042,10 +1388,6 @@ onBeforeUnmount(() => {
   }
   .h-card-content p {
     max-width: 100%;
-  }
-  .profile-body {
-    flex-direction: column;
-    text-align: center;
   }
 }
 </style>

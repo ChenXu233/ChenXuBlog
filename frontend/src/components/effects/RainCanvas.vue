@@ -259,7 +259,7 @@ const initRainCanvas = () => {
     }
   }
 
-  const drops = Array.from({ length: 300 }, () => new RainDrop()); // 减少粒子数优化性能
+  const drops = Array.from({ length: 80 }, () => new RainDrop()); // 减少粒子数优化性能
   let ripples: Ripple[] = [];
 
   const animate = () => {
