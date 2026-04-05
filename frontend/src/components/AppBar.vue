@@ -4,21 +4,44 @@
       <router-link to="/" class="brand-text">ChenXu博客</router-link>
     </div>
     <div class="nav-links">
-      <template v-if="!authStore.isAuthenticated">
+      <template v-if="!tokenStore.isAuthenticated">
         <router-link to="/login" class="nav-link">登录</router-link>
         <router-link to="/register" class="nav-link">注册</router-link>
       </template>
       <template v-else>
-        <span class="user-info">{{ authStore.user.username }}</span>
-        <button @click="authStore.logout" class="logout-btn">退出</button>
+        <router-link
+          v-if="permissionStore.isSuperUser"
+          to="/article/create"
+          class="nav-link create-btn"
+        >
+          <i class="fa fa-plus"></i> 发文章
+        </router-link>
+        <span class="user-info">{{ userStore.name }}</span>
+        <button @click="handleLogout" class="logout-btn">退出</button>
       </template>
     </div>
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useTokenStore } from "../stores/token";
 import { useUserStore } from "../stores/userStore";
-const authStore = useUserStore();
+import { usePermissionStore } from "../stores/permission";
+import { useRouter } from "vue-router";
+import { resetPermissionState } from "../router";
+
+const tokenStore = useTokenStore();
+const userStore = useUserStore();
+const permissionStore = usePermissionStore();
+const router = useRouter();
+
+const handleLogout = () => {
+  tokenStore.clearToken();
+  userStore.$reset();
+  permissionStore.clearPermissions();
+  resetPermissionState();
+  router.push("/login");
+};
 </script>
 
 <style scoped>
@@ -81,6 +104,16 @@ const authStore = useUserStore();
 
 .nav-link.router-link-active {
   color: var(--color-primary);
+}
+
+.create-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+}
+
+.create-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .user-info {

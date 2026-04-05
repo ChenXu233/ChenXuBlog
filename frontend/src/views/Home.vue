@@ -212,6 +212,8 @@
     <!-- Section 3: Horizontal Scroll Module -->
     <section class="h-scroll-wrapper" ref="hScrollWrapper">
       <div class="h-scroll-sticky">
+        <!-- 倾斜栏珊背景 -->
+        <div class="h-scroll-bg-stripes" ref="hScrollStripes"></div>
         <div class="h-scroll-track" ref="hScrollTrack">
           <!-- Card 1 -->
           <div class="h-scroll-panel">
@@ -313,6 +315,7 @@ const introSectionHeight = ref<number | undefined>(undefined);
 
 const hScrollWrapper = ref<HTMLElement | null>(null);
 const hScrollTrack = ref<HTMLElement | null>(null);
+const hScrollStripes = ref<HTMLElement | null>(null);
 
 let observer: IntersectionObserver | null = null;
 
@@ -401,6 +404,11 @@ const handleScroll = () => {
   // 4 panels = 400vw width. Max translate needs to be exactly -(4 - 1) * 100vw = -300vw (or -75% of track width)
   // Using fixed percentage prevents scroll bugs
   hScrollTrack.value.style.transform = `translate3d(-${progress * 75}%, 0, 0)`;
+
+  // 让栏珊背景向右移动（视差层）
+  if (hScrollStripes.value) {
+    hScrollStripes.value.style.transform = `translate3d(${progress * 25}%, 0, 0)`;
+  }
 };
 
 onMounted(() => {
@@ -1181,11 +1189,30 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 
+.h-scroll-bg-stripes {
+  position: absolute;
+  top: -50vh;
+  left: -50vw;
+  width: 300vw; /* 足够宽以支持反向移动 */
+  height: 200vh;
+  background: repeating-linear-gradient(
+    30deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 60px,
+    transparent 60px,
+    transparent 120px
+  );
+  z-index: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
 .h-scroll-track {
   display: flex;
   width: 400vw;
   height: 100%;
   will-change: transform;
+  z-index: 1; /* 确保卡片在栏珊背景上方 */
 }
 
 .h-scroll-panel {
