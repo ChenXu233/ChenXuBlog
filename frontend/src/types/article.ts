@@ -30,4 +30,5 @@ export interface ArticleCreate {
   body: string;
   tags_name: string[];
   cover_url?: string;
+  published: boolean;
 }

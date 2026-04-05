@@ -1,10 +1,12 @@
-import { createRouter, createWebHistory } from "vue-router";
-import type { RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { useTokenStore } from "../stores/token";
+import { usePermissionStore } from "../stores/permission";
+import { permissionService } from "../service/permission";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: "/home", // 修复：确保重定向路径是字符串
+    redirect: "/home",
   },
   {
     path: "/home",
@@ -13,8 +15,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: "首页",
       keepAlive: true,
-      showAppBar: false, // 不显示AppBar
-      showFooter: false, // 不显示Footer
+      showAppBar: false,
+      showFooter: false,
       transition: "slide-right",
     },
   },
@@ -29,16 +31,6 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/article",
-    name: "article",
-    component: () => import("../views/Article.vue"),
-    meta: {
-      title: "文章",
-      keepAlive: true,
-      transition: "slide-right",
-    },
-  },
-  {
     path: "/register",
     name: "register",
     component: () => import("../views/Register.vue"),
@@ -48,11 +40,97 @@ const routes: Array<RouteRecordRaw> = [
       transition: "slide-right",
     },
   },
+  {
+    path: "/article/:id",
+    name: "article-detail",
+    component: () => import("../views/ArticleDetail.vue"),
+    meta: {
+      title: "文章详情",
+      keepAlive: true,
+      transition: "slide-right",
+    },
+  },
+  {
+    path: "/article/create",
+    name: "article-create",
+    component: () => import("../views/ArticleEditor.vue"),
+    meta: {
+      title: "创建文章",
+      requiresAuth: true,
+      requiresPermission: "blog:create",
+      transition: "slide-right",
+    },
+  },
+  {
+    path: "/article/edit/:id",
+    name: "article-edit",
+    component: () => import("../views/ArticleEditor.vue"),
+    meta: {
+      title: "编辑文章",
+      requiresAuth: true,
+      transition: "slide-right",
+    },
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+let permissionLoaded = false;
+
+const loadPermissions = async () => {
+  if (permissionLoaded) return;
+  const tokenStore = useTokenStore();
+  const permissionStore = usePermissionStore();
+
+  if (!tokenStore.isAuthenticated) {
+    permissionLoaded = false;
+    return;
+  }
+
+  try {
+    const res = await permissionService.getPermissions();
+    permissionStore.setPermissions(res.permissions);
+    permissionLoaded = true;
+  } catch {
+    permissionLoaded = false;
+  }
+};
+
+router.beforeEach(async (to, _from, next) => {
+  const tokenStore = useTokenStore();
+  const permissionStore = usePermissionStore();
+
+  // 需要认证的路由
+  if (to.meta.requiresAuth && !tokenStore.isAuthenticated) {
+    next({ name: "login", query: { redirect: to.fullPath } });
+    return;
+  }
+
+  // 已登录用户访问登录页，重定向到首页
+  if (to.name === "login" && tokenStore.isAuthenticated) {
+    next({ name: "home" });
+    return;
+  }
+
+  // 需要权限的路由
+  if (to.meta.requiresPermission) {
+    await loadPermissions();
+    if (!permissionStore.hasPermission(to.meta.requiresPermission as string)) {
+      alert("您没有权限执行此操作");
+      next({ name: "home" });
+      return;
+    }
+  }
+
+  next();
+});
+
+// 登录成功后重置权限状态
+export const resetPermissionState = () => {
+  permissionLoaded = false;
+};
 
 export default router;
