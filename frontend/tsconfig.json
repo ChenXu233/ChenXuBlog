@@ -7,7 +7,7 @@
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "types": ["node"],
+    "types": ["node", "@types/markdown-it"],
     "isolatedModules": true
   }
 }
