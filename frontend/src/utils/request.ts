@@ -41,7 +41,6 @@ export const showError = (
 };
 
 type ErrorHandler = (error: unknown) => void;
-const tokenStore = useTokenStore();
 
 const service = axios.create({
   baseURL: config.BackendUrl,
@@ -51,6 +50,7 @@ const service = axios.create({
 
 service.interceptors.request.use(
   (config) => {
+    const tokenStore = useTokenStore();
     const token = tokenStore.token;
     token && (config.headers.token = `${token}`);
     return config;

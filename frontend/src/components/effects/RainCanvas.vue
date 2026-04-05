@@ -107,21 +107,24 @@ const fadeInAudio = () => {
   if (thunderFlashInterval) clearInterval(thunderFlashInterval);
 
   const audios = thunderAudioRefs;
+  // Guard against empty audio array
+  if (audios.length === 0) return;
+
   // Randomly decide 1 or 2 audio tracks (1 with higher probability)
   const trackCount = Math.random() < 0.6 ? 1 : 2;
 
   if (!hasPlayedThunder) {
     hasPlayedThunder = true;
     // First time: always play 1 track immediately for flash sync
-    playThunder(audios[0]);
+    if (audios[0]) playThunder(audios[0]);
   } else {
     // Subsequent plays: randomly play 1 or 2 tracks
     if (trackCount === 1) {
-      playThunder(audios[0]);
+      if (audios[0]) playThunder(audios[0]);
     } else {
       // Stagger two tracks with longer delay for natural thunder echo
-      playThunder(audios[0]);
-      playThunder(audios[1], 2000 + Math.random() * 4000);
+      if (audios[0]) playThunder(audios[0]);
+      if (audios[1]) playThunder(audios[1], 2000 + Math.random() * 4000);
     }
   }
 
@@ -131,14 +134,17 @@ const fadeInAudio = () => {
       () => {
         const count = Math.random() < 0.6 ? 1 : 2;
         if (count === 1) {
-          playThunder(audios[Math.floor(Math.random() * audios.length)]);
+          const idx = Math.floor(Math.random() * audios.length);
+          if (audios[idx]) playThunder(audios[idx]);
         } else {
           const idx1 = Math.floor(Math.random() * audios.length);
           let idx2 = Math.floor(Math.random() * audios.length);
           while (idx2 === idx1)
             idx2 = Math.floor(Math.random() * audios.length);
-          playThunder(audios[idx1]);
-          playThunder(audios[idx2], 2000 + Math.random() * 4000);
+          const audio1 = audios[idx1];
+          const audio2 = audios[idx2];
+          if (audio1) playThunder(audio1);
+          if (audio2) playThunder(audio2, 2000 + Math.random() * 4000);
         }
         scheduleNextThunder();
       },
@@ -316,7 +322,8 @@ onMounted(() => {
           if (!hasPlayedThunder) {
             const rect = introSection.getBoundingClientRect();
             if (rect.top < window.innerHeight && rect.bottom > 0) {
-              thunderAudioRef.value?.play().catch(() => {});
+              // Fix: Use correct thunderAudioRefs with index guard
+              if (thunderAudioRefs[0]) thunderAudioRefs[0].play().catch(() => {});
               hasPlayedThunder = true;
             }
           }

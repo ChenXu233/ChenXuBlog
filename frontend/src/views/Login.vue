@@ -38,25 +38,42 @@
 <script setup lang="ts">
 import { reactive } from "vue";
 import { post } from "../utils/request";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import type { UserLoginResponse } from "../types/user";
 import { useTokenStore } from "../stores/token";
+import { usePermissionStore } from "../stores/permission";
+import { permissionService } from "../service/permission";
+import { resetPermissionState } from "../router";
 
 const router = useRouter();
+const route = useRoute();
 const tokenStore = useTokenStore();
+const permissionStore = usePermissionStore();
 
 const form = reactive({
   evidence: "",
   password: "",
 });
 
+const loadPermissions = async () => {
+  try {
+    const res = await permissionService.getPermissions();
+    permissionStore.setPermissions(res.permissions);
+  } catch {
+    permissionStore.clearPermissions();
+  }
+};
+
 const handleLogin = () => {
   console.log("登录表单数据:", form);
-  post<UserLoginResponse>("/auth/login", form).then((res) => {
+  post<UserLoginResponse>("/auth/login", form).then(async (res) => {
     if (res.status === 200) {
       tokenStore.setToken(res.data.access_token);
+      resetPermissionState();
+      await loadPermissions();
       console.log("登录成功:", res);
-      router.push("/home");
+      const redirect = route.query.redirect as string;
+      router.push(redirect || "/home");
     }
   });
 };
