@@ -29,4 +29,5 @@ export interface UserUpdate {
 export interface UserLoginResponse {
   user_uuid: string;
   access_token: string;
+  refresh_token?: string;
 }

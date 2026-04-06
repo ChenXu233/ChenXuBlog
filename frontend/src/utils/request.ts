@@ -3,6 +3,26 @@ import { config } from "../config/config";
 import { useTokenStore } from "../stores/token";
 import { createApp, h } from "vue";
 import Error from "../components/Error.vue";
+import { authService } from "../service/auth";
+
+// 标记是否正在刷新 token
+let isRefreshing = false;
+// 等待刷新完成的请求队列
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+const subscribeTokenRefresh = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
+const onTokenRefreshed = (token: string) => {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+};
+
+// 跳转到登录页
+const redirectToLogin = () => {
+  window.location.href = "/login";
+};
 
 // 创建错误组件实例的函数
 export const showError = (
@@ -116,8 +136,54 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     return response.status >= 400 ? Promise.reject(response) : response;
   },
-  (error) => {
-    // 自动显示错误弹窗
+  async (error) => {
+    const errorObj = error as any;
+    const originalRequest = errorObj.config;
+
+    // 处理 401 错误：尝试刷新 token
+    if (errorObj.response?.status === 401 && !originalRequest._retry) {
+      // 如果正在刷新 token，将请求加入队列
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token: string) => {
+            originalRequest.headers.token = `${token}`;
+            resolve(service.request(originalRequest));
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      const tokenStore = useTokenStore();
+      const refreshToken = tokenStore.refreshToken;
+
+      // 如果没有 refresh_token，跳转到登录
+      if (!refreshToken) {
+        isRefreshing = false;
+        redirectToLogin();
+        return Promise.reject(error);
+      }
+
+      try {
+        const { access_token } = await authService.refreshToken(refreshToken);
+        tokenStore.setToken(access_token);
+        onTokenRefreshed(access_token);
+        isRefreshing = false;
+
+        // 重试原始请求
+        originalRequest.headers.token = `${access_token}`;
+        return service.request(originalRequest);
+      } catch (refreshError) {
+        isRefreshing = false;
+        refreshSubscribers = []; // 清空等待队列
+        tokenStore.clearToken();
+        redirectToLogin();
+        return Promise.reject(refreshError);
+      }
+    }
+
+    // 非 401 错误，显示错误弹窗
     handleError(error);
     return Promise.reject(error);
   },
@@ -129,8 +195,16 @@ export const request = <T>(config: AxiosRequestConfig) =>
 export const get = <T>(url: string, params?: object) =>
   request<T>({ method: "get", url, params });
 
-export const post = <T>(url: string, data?: object) =>
-  request<T>({ method: "post", url, data });
+export const del = <T>(url: string, data?: object) =>
+  request<T>({ method: "delete", url, data });
+
+export const post = <T>(url: string, data?: object) => {
+  // 如果是 FormData，让浏览器自动设置 Content-Type
+  if (data instanceof FormData) {
+    return request<T>({ method: "post", url, data });
+  }
+  return request<T>({ method: "post", url, data });
+};
 
 export const createApiRequest =
   (errorHandler?: ErrorHandler) =>

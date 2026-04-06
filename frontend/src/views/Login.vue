@@ -69,6 +69,9 @@ const handleLogin = () => {
   post<UserLoginResponse>("/auth/login", form).then(async (res) => {
     if (res.status === 200) {
       tokenStore.setToken(res.data.access_token);
+      if (res.data.refresh_token) {
+        tokenStore.setRefreshToken(res.data.refresh_token);
+      }
       resetPermissionState();
       await loadPermissions();
       console.log("登录成功:", res);

@@ -291,6 +291,13 @@
       </div>
     </section>
 
+    <!-- Articles Section -->
+    <section class="articles-section">
+      <div class="articles-container">
+        <BlogList title="最新文章" />
+      </div>
+    </section>
+
     <!-- Footer -->
     <section class="footer-section">
       <div class="footer-note reveal-up v-observe">
@@ -307,6 +314,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import BlossomCanvas from "../components/effects/BlossomCanvas.vue";
 import RainCanvas from "../components/effects/RainCanvas.vue";
 import MouseTrail from "../components/effects/MouseTrail.vue";
+import BlogList from "../components/BlogList.vue";
 import CyberMonitor from "../components/CyberMonitor.vue";
 
 const titleLinesRef = ref<NodeListOf<HTMLElement> | null>(null);
@@ -1371,6 +1379,20 @@ onBeforeUnmount(() => {
 
 .explore-btn:hover::after {
   transform: translateX(10px);
+}
+
+/* Articles Section */
+.articles-section {
+  position: relative;
+  min-height: 100vh;
+  background: #030305;
+  padding: 8rem 10vw;
+  z-index: 1;
+}
+
+.articles-container {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .footer-section {

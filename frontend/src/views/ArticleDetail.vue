@@ -111,9 +111,19 @@ const fetchArticle = async () => {
   }
 };
 
-const handleLike = () => {
+const handleLike = async () => {
+  if (!article.value) return;
+  if (!tokenStore.isAuthenticated) {
+    showError("请先登录后再点赞");
+    return;
+  }
   hasLiked.value = !hasLiked.value;
-  if (article.value) {
+  article.value.like += hasLiked.value ? 1 : -1;
+  try {
+    await blogService.likeBlog(article.value.id);
+  } catch (error) {
+    // 失败回滚
+    hasLiked.value = !hasLiked.value;
     article.value.like += hasLiked.value ? 1 : -1;
   }
 };

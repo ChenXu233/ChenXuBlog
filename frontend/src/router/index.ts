@@ -71,6 +71,15 @@ const routes: Array<RouteRecordRaw> = [
       transition: "slide-right",
     },
   },
+  {
+    path: "/user/:id",
+    name: "user-profile",
+    component: () => import("../views/UserProfile.vue"),
+    meta: {
+      title: "用户中心",
+      transition: "slide-right",
+    },
+  },
 ];
 
 const router = createRouter({

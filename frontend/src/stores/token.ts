@@ -2,11 +2,13 @@ import { defineStore } from "pinia";
 
 interface TokenState {
   token: string | null;
+  refreshToken: string | null;
 }
 
 export const useTokenStore = defineStore("token", {
   state: (): TokenState => ({
     token: localStorage.getItem("token"),
+    refreshToken: localStorage.getItem("refresh_token"),
   }),
 
   getters: {
@@ -27,8 +29,17 @@ export const useTokenStore = defineStore("token", {
         localStorage.removeItem("token");
       }
     },
+    setRefreshToken(refreshToken: string | null): void {
+      this.refreshToken = refreshToken;
+      if (refreshToken) {
+        localStorage.setItem("refresh_token", refreshToken);
+      } else {
+        localStorage.removeItem("refresh_token");
+      }
+    },
     clearToken(): void {
       this.setToken(null);
+      this.setRefreshToken(null);
     },
   },
 });
