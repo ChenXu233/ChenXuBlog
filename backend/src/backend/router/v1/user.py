@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
-from backend.model.user import User
-from backend.schema.user import UserResponse
+from backend.model.user import User, UserInfo
+from backend.schema.user import UserEdit, UserResponse
 from backend.utils.jwt import get_access_token_user
 from backend.utils.permission import require_permissions
 
@@ -49,6 +51,42 @@ async def get_user_info_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
 
 @user.post(
     "/edit",
+    response_model=UserResponse,
     dependencies=[Depends(require_permissions("user:edit"))],
 )
-async def edit_user_info(user_edit, user: User = Depends(get_access_token_user)): ...
+async def edit_user_info(
+    user_edit: UserEdit,
+    user: User = Depends(get_access_token_user),
+    db: AsyncSession = Depends(get_db),
+):
+    # 更新基本信息
+    if user_edit.username is not None:
+        user.username = user_edit.username
+    if user_edit.email is not None:
+        user.email = user_edit.email
+
+    # 更新或创建 UserInfo
+    if user.user_info is None:
+        user.user_info = UserInfo(user_uuid=user.uuid)
+
+    if user_edit.avatar is not None:
+        user.user_info.avatar = user_edit.avatar
+    if user_edit.gender is not None:
+        user.user_info.gender = user_edit.gender
+    if user_edit.birthday is not None:
+        user.user_info.birthday = datetime.fromisoformat(user_edit.birthday)
+    if user_edit.location is not None:
+        user.user_info.location = user_edit.location
+    if user_edit.bio is not None:
+        user.user_info.introduction = user_edit.bio
+
+    await db.commit()
+    await db.refresh(user)
+
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        avatar=user.user_info.avatar if user.user_info else None,
+        bio=user.user_info.introduction if user.user_info else None,
+    )

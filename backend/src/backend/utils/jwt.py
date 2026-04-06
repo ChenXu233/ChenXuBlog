@@ -11,17 +11,22 @@ from backend.logger import logger
 from backend.model.user import User
 
 
+def _generate_token(user_uuid: str, token_type: str, expires_delta: timedelta, secret_key: str) -> str:
+    """通用 token 生成器"""
+    payload = {
+        "exp": datetime.now(timezone.utc) + expires_delta,
+        "iat": datetime.now(timezone.utc),
+        "sub": user_uuid,
+        "type": token_type,
+    }
+    return jwt.encode(payload, secret_key, algorithm="HS256")
+
+
 def generate_access_token(user_uuid: str) -> str:
     """生成访问令牌"""
     logger.info(f"Generating access token for user {user_uuid}")
     try:
-        payload = {
-            "exp": datetime.now(timezone.utc) + timedelta(minutes=15),
-            "iat": datetime.now(timezone.utc),
-            "sub": user_uuid,
-            "type": "access",
-        }
-        return jwt.encode(payload, CONFIG.ACCESS_SECRET_KEY, algorithm="HS256")
+        return _generate_token(user_uuid, "access", timedelta(minutes=15), CONFIG.ACCESS_SECRET_KEY)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -30,15 +35,34 @@ def generate_refresh_token(user_uuid: str) -> str:
     """生成刷新令牌"""
     logger.info(f"Generating refresh token for user {user_uuid}")
     try:
-        payload = {
-            "exp": datetime.now(timezone.utc) + timedelta(days=7),
-            "iat": datetime.now(timezone.utc),
-            "sub": user_uuid,
-            "type": "refresh",
-        }
-        return jwt.encode(payload, CONFIG.REFRESH_SECRET_KEY, algorithm="HS256")
+        return _generate_token(user_uuid, "refresh", timedelta(days=7), CONFIG.REFRESH_SECRET_KEY)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def generate_reset_token(user_uuid: str) -> str:
+    """生成密码重置令牌"""
+    logger.info(f"Generating reset token for user {user_uuid}")
+    try:
+        return _generate_token(user_uuid, "reset", timedelta(hours=1), CONFIG.ACCESS_SECRET_KEY)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def decode_reset_token(token: str) -> dict:
+    """解码密码重置令牌"""
+    logger.info(f"Decoding reset token {token}")
+    try:
+        info = jwt.decode(token, CONFIG.ACCESS_SECRET_KEY, algorithms="HS256")
+        if info.get("type") != "reset":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        return info
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=401, detail="Invalid reset token"
+        )
 
 
 def decode_access_token(token: str) -> dict:

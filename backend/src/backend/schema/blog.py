@@ -39,3 +39,14 @@ class BlogUpdate(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BlogListResponse(BaseModel):
+    items: List[BlogResponse] = Field(..., description="Blog list")
+    total: int = Field(..., description="Total count")
+    page: int = Field(..., description="Current page")
+    page_size: int = Field(..., description="Page size")
+    total_pages: int = Field(..., description="Total pages")
+
+    class Config:
+        from_attributes = True
