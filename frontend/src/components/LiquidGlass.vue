@@ -1,7 +1,10 @@
 <template>
   <div
     class="liquid_glass-wrapper"
-    :style="{ '--border-radius': borderRadius }"
+    :style="{ 
+      '--border-radius': borderRadius || '16px',
+      '--bg-color': bgColor || 'rgba(0, 0, 0, 0.12)'
+    }"
   >
     <!-- SVG Filter Definition -->
     <svg style="display: none">
@@ -35,6 +38,7 @@
 <script setup lang="ts">
 defineProps<{
   borderRadius?: string;
+  bgColor?: string;
 }>();
 </script>
 
@@ -42,19 +46,21 @@ defineProps<{
 .liquid_glass-wrapper {
   position: relative;
   display: flex;
-  overflow: hidden;
   border-radius: var(--border-radius, 16px);
+  /* overflow: hidden removed to allow tooltips to spill out */
 }
 
+/* 确保背景层有自己的 overflow: hidden 等来切除圆角外框 */
 .liquid_glass-outer {
   backdrop-filter: url(#liquid_glass_filter);
   position: absolute;
   inset: 0;
   z-index: 0;
-  border-radius: var(--border-radius, 16px);
+  border-radius: inherit;
+  overflow: hidden;
 
   mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="0" y="0" width="100%" height="100%" rx="0" ry="0" fill="white"/></svg>'),
-    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 20px)" rx="21" ry="21" fill="white"/></svg>');
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="21" ry="21" fill="white"/></svg>');
   mask-composite: exclude;
 }
 
@@ -64,7 +70,7 @@ defineProps<{
   inset: 0;
   z-index: 2;
   border-radius: var(--border-radius, 16px);
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--bg-color);
 }
 
 .liquid_glass-sharp {

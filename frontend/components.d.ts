@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppBar: typeof import('./src/components/AppBar.vue')['default']
     BambooParallax: typeof import('./src/components/effects/BambooParallax.vue')['default']
     BlogCard: typeof import('./src/components/BlogCard.vue')['default']
     BlogList: typeof import('./src/components/BlogList.vue')['default']
@@ -16,7 +15,7 @@ declare module 'vue' {
     Comment: typeof import('./src/components/Comment.vue')['default']
     CommentItem: typeof import('./src/components/CommentItem.vue')['default']
     CommentList: typeof import('./src/components/CommentList.vue')['default']
-    CyberMonitor: typeof import('./src/components/CyberMonitor.vue')['default']
+    DockBar: typeof import('./src/components/WarmOS/DockBar.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     Error: typeof import('./src/components/Error.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
@@ -28,5 +27,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SunriseParallax: typeof import('./src/components/effects/SunriseParallax.vue')['default']
+    SystemPanel: typeof import('./src/components/WarmOS/SystemPanel.vue')['default']
   }
 }

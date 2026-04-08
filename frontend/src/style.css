@@ -14,21 +14,11 @@
   --transition: 0.2s ease;
 }
 
-/* Rainbow Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+html body.home-hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
 }
-
-::-webkit-scrollbar-track {
-  background: #030305;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #ff7aa2, #00f0ff, #ffbd2e, #ff7aa2);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #ffbd2e, #ff7aa2, #00f0ff, #ffbd2e);
+html body.home-hide-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }

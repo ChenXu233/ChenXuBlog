@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-const props = defineProps<{ progress?: number }>();
+defineProps<{ progress?: number }>();
 const forestRef = ref<HTMLElement | null>(null);
 
 function seed(s: number) {

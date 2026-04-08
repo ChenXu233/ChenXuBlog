@@ -131,7 +131,7 @@ const tools = [
   { name: "hr", title: "分割线", icon: "fa fa-minus", action: () => insertText("\n---\n") },
 ];
 
-const handleTab = (e: KeyboardEvent) => {
+const handleTab = (_e: KeyboardEvent) => {
   insertText("  ");
 };
 </script>

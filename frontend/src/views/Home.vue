@@ -310,8 +310,6 @@
         © 2026 ChenXuBlog. A blend of technology and blooming spring.
       </div>
     </section>
-
-    <CyberMonitor />
   </div>
 </template>
 
@@ -319,7 +317,6 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import BlossomCanvas from "../components/effects/BlossomCanvas.vue";
 import RainCanvas from "../components/effects/RainCanvas.vue";
-import CyberMonitor from "../components/CyberMonitor.vue";
 import SunriseParallax from "../components/effects/SunriseParallax.vue";
 import BambooParallax from "../components/effects/BambooParallax.vue";
 const introSection = ref<HTMLElement | null>(null);
@@ -394,6 +391,9 @@ const handleTitleParallax = () => {
 
 // Horizontal Scroll Logic
 const handleScroll = () => {
+  // Mobile fallback: disable horizontal JS scroll
+  if (window.innerWidth <= 768) return;
+
   if (!hScrollWrapper.value || !hScrollTrack.value) return;
 
   const rect = hScrollWrapper.value.getBoundingClientRect();
@@ -438,6 +438,7 @@ const handleScroll = () => {
 
 onMounted(() => {
   setupObserver();
+  document.body.classList.add("home-hide-scrollbar");
 
   // Initial rain opacity is 0 if at top of page
   const mainRain = document.getElementById("rain-canvas");
@@ -457,6 +458,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("scroll", handleTitleParallax);
   if (observer) observer.disconnect();
+  document.body.classList.remove("home-hide-scrollbar");
 });
 </script>
 
@@ -1148,17 +1150,16 @@ onBeforeUnmount(() => {
   .fused-left {
     flex: none;
     width: 100%;
+    flex-direction: column;
     clip-path: none;
     padding: 3rem 2rem;
     text-align: center;
     align-items: center;
   }
   .zen-hero-name {
-    border-right: none;
     padding-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 1.5rem;
-    flex-direction: row;
     justify-content: center;
     gap: 1rem;
     font-size: 2.5rem;
@@ -1174,24 +1175,10 @@ onBeforeUnmount(() => {
     height: 350px;
     transform: scale(0.8);
   }
-  .z-capsule {
-    position: relative;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-    margin: 10px 0;
-  }
-  .zen-avatar-system {
-    flex-direction: column;
-    height: auto;
-    gap: 1rem;
-  }
   .enso-circle {
     display: none;
   }
-  .floating-grid {
+  .float-windows-grid {
     grid-template-columns: 1fr;
   }
   .factory-split {
@@ -1394,6 +1381,81 @@ onBeforeUnmount(() => {
   }
   .h-scroll-panel {
     padding: 0 5vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .size-x { font-size: 3.5rem; }
+  .size-m { font-size: 2.5rem; }
+  .size-s.cn-title { font-size: 1.5rem; }
+  .hero-subtitle { font-size: 1.2rem; }
+  
+  .zen-container {
+    padding: 0 1rem;
+    gap: 3rem;
+  }
+
+  .zen-hero-name {
+    font-size: 2rem;
+    flex-direction: row;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .zen-prose { font-size: 1.1rem; }
+  .zen-quote { font-size: 1.1rem; }
+
+  /* Disable horizontal scroll structure natively */
+  .h-scroll-wrapper {
+    height: auto !important;
+    padding: 2rem 0;
+  }
+  .h-scroll-sticky {
+    position: relative !important;
+    height: auto !important;
+    width: 100% !important;
+    display: block !important;
+  }
+  .h-scroll-track {
+    width: 100% !important;
+    flex-direction: column !important;
+    transform: none !important;
+    gap: 2rem;
+  }
+  .h-scroll-panel {
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 1rem;
+  }
+  .h-card-content {
+    width: 100% !important;
+    height: auto !important;
+    padding: 2rem !important;
+    min-height: 40vh;
+  }
+  .h-card-content h2 { font-size: 2rem; }
+  .h-card-content p { max-width: 100%; font-size: 1rem; }
+  .h-index {
+    font-size: 3rem;
+    right: 1rem;
+    top: 1rem;
+  }
+  .h-parallax-bgs {
+    display: none !important; /* hide complex side background elements on mobile */
+  }
+
+  .f-left, .f-right {
+    padding: 1.5rem;
+    flex: 1;
+  }
+  .float-window {
+    padding: 1.5rem;
+  }
+  
+  /* Fallback for the background on mobile */
+  .h-scroll-wrapper {
+    background: #2a3136 url('https://picsum.photos/seed/mobile/1920/1080') no-repeat center center / cover;
+    background-blend-mode: overlay;
   }
 }
 </style>
