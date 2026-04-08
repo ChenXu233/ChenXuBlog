@@ -1,36 +1,37 @@
 <template>
   <div class="elegant-home">
-    <MouseTrail />
+    <!-- Background Transition Layer (White to Bamboo Green) -->
+    <div class="bg-transition-layer" :style="{ opacity: Math.min(1, scrollProgress * 1.2) }"></div>
+
     <!-- Global Effects -->
     <BlossomCanvas />
     <RainCanvas />
 
     <!-- Section 1: Hero (Blossoms) -->
     <section class="hero-section">
-      <div class="mist-overlay"></div>
+      <!-- 初曦视差 -->
+      <SunriseParallax :progress="scrollProgress" />
+
       <div class="hero-content reveal-blur" ref="heroText">
         <h1 class="elegant-title">
-          <div class="title-line size-m">Amid</div>
-          <div class="title-line size-l">April mists</div>
-          <div class="title-line size-s">and</div>
-          <div class="title-line size-xl text-gradient alt">
-            bl<span class="title-line text-gradient alt size-l">🌸</span>ss<span
-              class=""
-              >🌸</span
-            >ms
-          </div>
+          <div class="title-line size-m">Amid April mists and</div>
+          <div class="title-line size-x">bl🌸ss🌸ms</div>
+          <div class="title-line size-s cn-title">烟花三月</div>
         </h1>
-        <p class="hero-subtitle">晨煦的个人空间 · 烟花三月</p>
+        <p class="hero-subtitle">晨煦的博客 · <span class="highlight-gold">诗与暖阳</span></p>
 
         <div class="scroll-indicator">
-          <div class="mouse"></div>
-          <span>SCROLL TO INITIATE</span>
+          <div class="line-indicator"></div>
+          <div class="line-indicator"></div>
         </div>
       </div>
     </section>
 
     <!-- Section 2: Progressive Introduction with Rain & Thunder -->
     <section class="intro-section zen-canvas" ref="introSection">
+      <!-- 视差生长的竹子背景 -->
+      <BambooParallax :progress="bambooProgress" />
+
       <div class="zen-watermark v-observe fade-in-scroll">C.X_UNIVERSE</div>
 
       <div class="zen-container">
@@ -225,7 +226,7 @@
                     <span class="h-index">01</span>
                     <h2>ARTICLES <span class="cn-text">文章</span></h2>
                     <p>记录代码与灵感的灵光一现。</p>
-                    <router-link to="/blog" class="explore-btn"
+                    <router-link to="/article" class="explore-btn"
                       >Enter Module_</router-link
                     >
                   </div>
@@ -291,13 +292,6 @@
       </div>
     </section>
 
-    <!-- Articles Section -->
-    <section class="articles-section">
-      <div class="articles-container">
-        <BlogList title="最新文章" />
-      </div>
-    </section>
-
     <!-- Footer -->
     <section class="footer-section">
       <div class="footer-note reveal-up v-observe">
@@ -313,17 +307,19 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import BlossomCanvas from "../components/effects/BlossomCanvas.vue";
 import RainCanvas from "../components/effects/RainCanvas.vue";
-import MouseTrail from "../components/effects/MouseTrail.vue";
-import BlogList from "../components/BlogList.vue";
 import CyberMonitor from "../components/CyberMonitor.vue";
+import SunriseParallax from "../components/effects/SunriseParallax.vue";
+import BambooParallax from "../components/effects/BambooParallax.vue";
 
-const titleLinesRef = ref<NodeListOf<HTMLElement> | null>(null);
 const introSection = ref<HTMLElement | null>(null);
 const introSectionHeight = ref<number | undefined>(undefined);
 
 const hScrollWrapper = ref<HTMLElement | null>(null);
 const hScrollTrack = ref<HTMLElement | null>(null);
 const hScrollStripes = ref<HTMLElement | null>(null);
+
+const scrollProgress = ref(0);
+const bambooProgress = ref(0);
 
 let observer: IntersectionObserver | null = null;
 
@@ -356,30 +352,19 @@ const setupObserver = () => {
   });
 };
 
-// Title 3D Parallax
+// Global Scroll Progression & Effects
 const handleTitleParallax = () => {
   const scrollY = window.scrollY;
-  const progress = Math.min(scrollY / window.innerHeight, 1);
-  if (titleLinesRef.value) {
-    titleLinesRef.value.forEach((line, index) => {
-      const factor = (index + 1) * 40;
-      const rotate = progress * factor;
-      const translate = progress * factor * 1.5;
-      line.style.transform = `rotateX(${rotate}deg) translateZ(${translate}px)`;
-    });
-  }
+  const wh = window.innerHeight;
+  const progress = Math.min(scrollY / wh, 1);
+  scrollProgress.value = progress;
 
-  // Fade subtitle and indicator
-  const subtitle = document.querySelector(".hero-subtitle") as HTMLElement;
-  if (subtitle) {
-    subtitle.style.opacity = Math.max(0, 1 - progress * 2).toString();
-    subtitle.style.transform = `translateY(${-progress * 150}px)`;
-  }
-  const scrollIndicator = document.querySelector(
-    ".scroll-indicator",
-  ) as HTMLElement;
-  if (scrollIndicator) {
-    scrollIndicator.style.opacity = Math.max(0, 1 - progress * 3).toString();
+  // 竹子视差计算 (intro-section 滚动进度)
+  // 当 introSection 的 top 从 wh 减小到 0 时，bambooProgress 从 0 增长到 1
+  if (introSection.value) {
+    const rect = introSection.value.getBoundingClientRect();
+    const distanceScrolled = wh - rect.top;
+    bambooProgress.value = Math.max(0, Math.min(1, distanceScrolled / wh));
   }
 
   // Fade out blossom and fade in rain based on scroll progress
@@ -431,11 +416,6 @@ onMounted(() => {
   window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("scroll", handleTitleParallax, { passive: true });
 
-  // querySelectorAll returns a static NodeList, so it works fine here
-  titleLinesRef.value = document.querySelectorAll(
-    ".elegant-title .title-line",
-  ) as NodeListOf<HTMLElement>;
-
   setTimeout(() => {
     document.querySelector(".hero-content")?.classList.add("is-revealed");
   }, 100);
@@ -451,12 +431,25 @@ onBeforeUnmount(() => {
 <style scoped>
 /* Base Styles */
 .elegant-home {
-  background: #030305;
   color: #fff;
   font-family: "JetBrains Mono", monospace;
   /* overflow-x: hidden causes position:sticky to break in scroll listeners, use clip */
   overflow-x: clip;
   cursor: none; /* Hide default cursor */
+  background: linear-gradient(to top, #FFF9F0, #FFF5E6);
+  position: relative;
+  z-index: 0;
+}
+
+.bg-transition-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #6a7664; /* Bamboo Green */
+  z-index: -1;
+  pointer-events: none;
 }
 
 .elegant-home a,
@@ -492,9 +485,7 @@ onBeforeUnmount(() => {
 
 /* Section 1: Hero */
 .hero-section {
-  background-image: url("../assets/sukra.jpg");
-  background-size: auto 100vw;
-  background-position: center;
+  background: transparent;
   position: relative;
   height: 100vh;
   display: flex;
@@ -503,123 +494,87 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.mist-overlay {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: #030305cc;
-  backdrop-filter: blur(10px);
-  z-index: 0;
-  pointer-events: none;
-}
-
 .hero-content {
   position: relative;
   z-index: 1;
   text-align: center;
   pointer-events: auto;
+  margin-top: -10vh; /* Shift content slightly up */
 }
 
 .elegant-title {
-  perspective: 1500px;
-  transform-style: preserve-3d;
-  font-family: "aria", sans-serif;
-  line-height: 1.1;
+  font-family: "Inter", "Helvetica Neue", "PingFang SC", sans-serif;
+  line-height: 1.4;
   margin: 0;
-  font-weight: 1000;
-  letter-spacing: 5px;
+  font-weight: 300;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 0.8rem;
 }
 
 .title-line {
-  transform-style: preserve-3d;
-  will-change: transform;
-  background: linear-gradient(120deg, #fff, #b2b2b2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  will-change: transform, opacity;
+  color: #5A5A5A;
 }
-
-.size-xl {
-  font-size: 8rem;
-  margin-top: -10px;
-}
-.size-l {
-  font-size: 5rem;
+.size-x{
+  font-size: 6rem;
+  letter-spacing: -0.05em;
+  opacity: 0.90;
+  font-weight: 900;
 }
 .size-m {
-  font-size: 3rem;
-  opacity: 0.8;
-}
-.size-s {
-  font-size: 2rem;
-  opacity: 0.6;
-  margin-top: -10px;
+  font-size: 4.5rem;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+  font-weight: 900;
 }
 
-.text-gradient.alt {
-  background: linear-gradient(120deg, #ff7aa2, #00f0ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-  text-transform: lowercase;
+.size-s.cn-title {
+  font-size: 2.5rem;
+  letter-spacing: 0.3em;
+  color: #C07A6B;
+  opacity: 0.85;
+  font-weight: 400;
 }
 
 .hero-subtitle {
-  margin-top: 30px;
-  font-size: 1.2rem;
-  letter-spacing: 6px;
-  color: #aaa;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  margin-top: 1.8rem;
+  font-size: 2rem;
+  letter-spacing: 0.2em;
+  color: #8B9A7A;
+  font-family: "Inter", "JetBrains Mono", sans-serif;
+  font-weight: 800;
+  opacity: 0.8;
+  /* right-align or adjust if needed */
+}
+
+.highlight-gold {
+  color: #C9A87C;
 }
 
 .scroll-indicator {
   position: absolute;
-  bottom: -12vh;
+  bottom: -40vh;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #666;
-  font-size: 0.7rem;
-  letter-spacing: 3px;
-  opacity: 0.7;
+  gap: 6px;
+  opacity: 0.6;
+  animation: pulseFade 2s infinite ease-in-out;
 }
 
-.mouse {
-  width: 20px;
-  height: 35px;
-  border: 2px solid #666;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  position: relative;
+.line-indicator {
+  width: 30px;
+  height: 2px;
+  background-color: #D4C5B0;
 }
 
-.mouse::before {
-  content: "";
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #00f0ff;
-  animation: scrollWheel 2s infinite;
-}
-
-@keyframes scrollWheel {
-  0% {
-    transform: translate(-50%, 0);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(-50%, 15px);
-    opacity: 0;
-  }
+@keyframes pulseFade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 
 /* Section 2: Soft Zen Canvas */
@@ -631,10 +586,10 @@ onBeforeUnmount(() => {
   padding: 8rem 0;
   display: flex;
   justify-content: center;
-  background: #030305;
+  background: transparent;
   font-family: "PingFang SC", "Noto Sans SC", sans-serif;
-  color: #e2e8f0;
-  overflow: hidden;
+  color: #3A3A3A; /* Adjusted to dark for light background */
+  overflow: visible; /* 允许竹子向上溢出抵达 Section 1 */
 }
 
 .zen-watermark {
@@ -645,7 +600,7 @@ onBeforeUnmount(() => {
   font-size: 15vw;
   font-family: "JetBrains Mono", monospace;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.015);
+  color: rgba(90, 90, 90, 0.03); /* subtle dark watermark */
   letter-spacing: -2px;
   pointer-events: none;
   z-index: 0;
@@ -1182,7 +1137,7 @@ onBeforeUnmount(() => {
 .h-scroll-wrapper {
   height: 400vh; /* 4 panels -> 400vh space */
   position: relative;
-  background: #030305a2;
+  background: #536169;
   backdrop-filter: blur(6px);
   z-index: 1;
 }
@@ -1381,23 +1336,10 @@ onBeforeUnmount(() => {
   transform: translateX(10px);
 }
 
-/* Articles Section */
-.articles-section {
-  position: relative;
-  min-height: 100vh;
-  background: #030305;
-  padding: 8rem 10vw;
-  z-index: 1;
-}
-
-.articles-container {
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
+/* Footer */
 .footer-section {
   padding: 20vh 10vw 10vh 10vw;
-  background: #030305;
+  background: #61796b;
   display: flex;
   flex-direction: column;
   align-items: center;
