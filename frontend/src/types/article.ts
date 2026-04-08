@@ -14,8 +14,11 @@ export interface Article {
 }
 
 export interface Articles {
-  articles: Article[];
+  items: Article[];
   total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
 }
 
 export interface ArticleUpdate {

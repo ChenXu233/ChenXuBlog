@@ -117,10 +117,10 @@ const fetchArticles = async (page = 1) => {
       params.tag = props.tag;
     }
     if (keyword.value) {
-      params.keyword = keyword.value;
+      params.search = keyword.value;
     }
     const data = await blogService.getBlogList(params);
-    articles.value = data.articles;
+    articles.value = data.items;
     total.value = data.total;
   } catch (error) {
     console.error("加载文章列表失败:", error);
