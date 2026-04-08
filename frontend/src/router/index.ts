@@ -41,6 +41,16 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
+    path: "/article",
+    name: "article",
+    component: () => import("../views/Article.vue"),
+    meta: {
+      title: "文章列表",
+      keepAlive: true,
+      transition: "slide-right",
+    },
+  },
+  {
     path: "/article/:id",
     name: "article-detail",
     component: () => import("../views/ArticleDetail.vue"),
@@ -77,6 +87,33 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("../views/UserProfile.vue"),
     meta: {
       title: "用户中心",
+      transition: "slide-right",
+    },
+  },
+  {
+    path: "/archive",
+    name: "archive",
+    component: () => import("../views/Archive.vue"),
+    meta: {
+      title: "归档",
+      transition: "slide-right",
+    },
+  },
+  {
+    path: "/friend",
+    name: "friend",
+    component: () => import("../views/Friend.vue"),
+    meta: {
+      title: "友链",
+      transition: "slide-right",
+    },
+  },
+  {
+    path: "/diary",
+    name: "diary",
+    component: () => import("../views/Diary.vue"),
+    meta: {
+      title: "随谈",
       transition: "slide-right",
     },
   },
