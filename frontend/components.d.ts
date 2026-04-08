@@ -20,6 +20,7 @@ declare module 'vue' {
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     Error: typeof import('./src/components/Error.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
+    LiquidGlass: typeof import('./src/components/LiquidGlass.vue')['default']
     LoadingOverlay: typeof import('./src/components/LoadingOverlay.vue')['default']
     MarkdownEditor: typeof import('./src/components/MarkdownEditor.vue')['default']
     MouseTrail: typeof import('./src/components/effects/MouseTrail.vue')['default']

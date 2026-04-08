@@ -1,7 +1,10 @@
 <template>
   <div class="elegant-home">
     <!-- Background Transition Layer (White to Bamboo Green) -->
-    <div class="bg-transition-layer" :style="{ opacity: Math.min(1, scrollProgress * 1.2) }"></div>
+    <div
+      class="bg-transition-layer"
+      :style="{ opacity: Math.min(1, scrollProgress * 1.2) }"
+    ></div>
 
     <!-- Global Effects -->
     <BlossomCanvas />
@@ -18,7 +21,9 @@
           <div class="title-line size-x">bl🌸ss🌸ms</div>
           <div class="title-line size-s cn-title">烟花三月</div>
         </h1>
-        <p class="hero-subtitle">晨煦的博客 · <span class="highlight-gold">诗与暖阳</span></p>
+        <p class="hero-subtitle">
+          晨煦的博客 · <span class="highlight-gold">诗与暖阳</span>
+        </p>
 
         <div class="scroll-indicator">
           <div class="line-indicator"></div>
@@ -35,129 +40,139 @@
       <div class="zen-watermark v-observe fade-in-scroll">C.X_UNIVERSE</div>
 
       <div class="zen-container">
-        <!-- 板块一：开门见山 -->
-        <div class="zen-block block-intro v-observe reveal-up">
-          <div class="zen-hero-name">
-            <span>晨</span>
-            <span>煦</span>
-          </div>
-          <div class="zen-biography">
-            <div class="zen-subtitle">ChenXu233 // SYS.ADMIN</div>
-            <div class="zen-prose">
-              烟花三月，雾与花之间，我
-              <span class="hl-soft">type</span> 了一行宇宙。
+        <!-- 融合板块：梯形布局（1/3文字 + 2/3头像系统） -->
+        <div class="zen-block block-fused v-observe reveal-up">
+          <!-- 左侧梯形 - 文字区域 -->
+          <div class="fused-left">
+            <div class="zen-hero-name">
+              <span>晨</span>
+              <span>煦</span>
             </div>
-            <div class="zen-quote">
-              “发呆不是浪费生命，是给生命留出编译的时间。”
+            <div class="zen-text-col">
+              <div class="zen-biography">
+                <div class="zen-subtitle">ChenXu233 // SYS.ADMIN</div>
+                <div class="zen-prose">
+                  烟花三月，雾与花之间，我
+                  <span class="hl-soft">type</span> 了一行宇宙。
+                </div>
+                <div class="zen-quote">
+                  “发呆不是浪费生命，是给生命留出编译的时间。”
+                </div>
+              </div>
+              <div class="status-text">
+                <h3>我是一位”全干工程师”。</h3>
+                <p>
+                  写代码、聊哲学、推物理、焊电路、发呆、胡思乱想、吃白饭。总之啥都干。
+                </p>
+                <p class="status-summary">
+                  🌸🌸🌸<br />
+                  幻想自己已不小心创造了AGI，<br />
+                  思考宇宙的本源却发现世界就是一个巨大的自指悖论。<br />
+                  把思绪写成诗，把春光当作背景，欢迎来到我的思维宇宙~ <br />
+                  🌸🌸🌸
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- 板块二：日常状态（Orbiting Avatar & Capsules） -->
-        <div class="zen-block block-status v-observe reveal-up delay-1">
-          <div class="status-text">
-            <h3>别人叫我“全干工程师”。不是全栈，是全都干——</h3>
-            <p>写代码、聊哲学、推物理、焊电路、发呆、胡思乱想、吃白饭。</p>
-            <p class="status-summary">
-              发呆是我最强的 debug 工具，<br />
-              吃白饭是我最低成本的快乐，<br />
-              至于哲学和物理——反正宇宙也没说我不能想。
-            </p>
-          </div>
-
-          <div class="zen-avatar-system">
-            <div class="enso-circle"></div>
-            <el-avatar
-              src="https://avatars.githubusercontent.com/u/91937041?v=4"
-              :size="120"
-              class="zen-avatar-core"
-            />
-            <!-- 横版胶囊状态小组件 -->
-            <div class="z-capsule cap-1">
-              <span class="c-emoji">🍚</span>
-              <div class="c-details">
-                <strong>吃白饭</strong><span>米饭是碳水，也是灵感燃料</span>
+          <!-- 右侧梯形 - Avatar系统 -->
+          <div class="fused-right">
+            <div class="zen-avatar-system">
+              <div class="enso-circle"></div>
+              <el-avatar
+                src="https://avatars.githubusercontent.com/u/91937041?v=4"
+                :size="120"
+                class="zen-avatar-core"
+              />
+              <!-- 横版胶囊状态小组件 -->
+              <div class="z-capsule cap-1">
+                <span class="c-emoji">🍚</span>
+                <div class="c-details">
+                  <strong>吃白饭</strong><span>米饭是碳水，也是灵感燃料</span>
+                </div>
               </div>
-            </div>
-            <div class="z-capsule cap-2">
-              <span class="c-emoji">⌨️</span>
-              <div class="c-details">
-                <strong>写代码</strong><span>Rust底层 / Py脚本 / TS诗</span>
+              <div class="z-capsule cap-2">
+                <span class="c-emoji">⌨️</span>
+                <div class="c-details">
+                  <strong>写代码</strong><span>Rust底层 / Py脚本 / TS诗</span>
+                </div>
               </div>
-            </div>
-            <div class="z-capsule cap-3">
-              <span class="c-emoji">🪐</span>
-              <div class="c-details">
-                <strong>聊哲学</strong><span>bug存不存在于未观测</span>
+              <div class="z-capsule cap-3">
+                <span class="c-emoji">🪐</span>
+                <div class="c-details">
+                  <strong>聊哲学</strong><span>bug存不存在于未观测</span>
+                </div>
               </div>
-            </div>
-            <div class="z-capsule cap-4">
-              <span class="c-emoji">📐</span>
-              <div class="c-details">
-                <strong>推物理</strong><span>从欧姆定律到量子力学</span>
+              <div class="z-capsule cap-4">
+                <span class="c-emoji">📐</span>
+                <div class="c-details">
+                  <strong>推物理</strong><span>从欧姆定律到量子力学</span>
+                </div>
               </div>
-            </div>
-            <div class="z-capsule cap-5">
-              <span class="c-emoji">😶‍🌫️</span>
-              <div class="c-details">
-                <strong>发呆</strong><span>发呆才是核心生产力</span>
+              <div class="z-capsule cap-5">
+                <span class="c-emoji">😶‍🌫️</span>
+                <div class="c-details">
+                  <strong>发呆</strong><span>发呆才是核心生产力</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- 板块三：技术野心 (Floating Windows 巧思) -->
-        <div class="zen-block block-ambition v-observe reveal-up delay-2">
-          <div class="ambition-header">探 索 边 界 // EXPLORATION</div>
-          <div class="floating-grid">
-            <div class="float-window win-glass">
-              <div class="win-dot red"></div>
-              <div class="win-dot yellow"></div>
-              <div class="win-dot green"></div>
-              <h4>[ YaoXiang ]</h4>
-              <p>
-                愿景：<strong>Type the Universe</strong>。<br />
-                欢迎来点 star，或者点 issue 骂我。<br />
-                <a
-                  href="https://github.com/ChenXu233/YaoXiang"
-                  target="_blank"
-                  class="cyber-link"
-                  >ChenXu233/YaoXiang ↗</a
-                >
-              </p>
-            </div>
-
-            <div class="float-window win-cyber">
-              <div class="win-status">System.IO.Hardware</div>
-              <h4>软硬协同</h4>
-              <p>
-                深入学习计算机组成原理，希望有一天能为“多核原生”做出自己的贡献，让软件和硬件不再互相甩锅。
-              </p>
-            </div>
-
-            <div class="float-window win-agape">
-              <div class="win-icon">⚙️</div>
-              <h4>AGI 执念</h4>
-              <p>听起来很中二但我是认真的：<br />实现能改变世界的 AGI。</p>
-            </div>
-
-            <div class="float-window win-neuro">
-              <div class="win-header">
-                <strong>脑电 + MR</strong>
-                <span class="win-badge">进度: 60%准率</span>
-              </div>
-              <p>
-                发个呆，光标就动了；想个类型，代码就生成了。<br />
-                目前能分辨“我在发呆”和“认真想bug”的区别。
-              </p>
-            </div>
-          </div>
-          <p class="ambition-footer">
-            对类型系统、计组、AGI、脑机接口感兴趣？欢迎脑暴。<strong
-              >发呆小广告位常年招租。</strong
-            >
-          </p>
+        <div class="ambition-header v-observe reveal-up delay-2">
+          探 索 边 界 // EXPLORATION
         </div>
+
+        <div class="float-windows-grid">
+          <div class="float-window win-glass">
+            <div class="win-dot red"></div>
+            <div class="win-dot yellow"></div>
+            <div class="win-dot green"></div>
+            <h4>[ YaoXiang ]</h4>
+            <p>
+              愿景：<strong>Type the Universe</strong>。<br />
+              欢迎来点 star，或者点 issue 骂我。<br />
+              <a
+                href="https://github.com/ChenXu233/YaoXiang"
+                target="_blank"
+                class="cyber-link"
+                >ChenXu233/YaoXiang ↗</a
+              >
+            </p>
+          </div>
+
+          <div class="float-window win-cyber">
+            <div class="win-status">System.IO.Hardware</div>
+            <h4>软硬协同</h4>
+            <p>
+              深入学习计算机组成原理，希望有一天能为”多核原生”做出自己的贡献，让软件和硬件不再互相甩锅。
+            </p>
+          </div>
+
+          <div class="float-window win-agape">
+            <div class="win-icon">⚙️</div>
+            <h4>AGI 执念</h4>
+            <p>听起来很中二但我是认真的：<br />实现能改变世界的 AGI。</p>
+          </div>
+
+          <div class="float-window win-neuro">
+            <div class="win-header">
+              <strong>脑电 + MR</strong>
+              <span class="win-badge">进度: 60%准率</span>
+            </div>
+            <p>
+              发个呆，光标就动了；想个类型，代码就生成了。<br />
+              目前能分辨”我在发呆”和”认真想bug”的区别。
+            </p>
+          </div>
+        </div>
+
+        <p class="ambition-footer v-observe reveal-up delay-2">
+          对类型系统、计组、AGI、脑机接口感兴趣？欢迎脑暴。<strong
+            >发呆小广告位常年招租。</strong
+          >
+        </p>
 
         <!-- 板块四：小工厂出品 + 联系方式 -->
         <div class="zen-block block-factory v-observe reveal-up delay-3">
@@ -213,80 +228,77 @@
     <!-- Section 3: Horizontal Scroll Module -->
     <section class="h-scroll-wrapper" ref="hScrollWrapper">
       <div class="h-scroll-sticky">
-        <!-- 倾斜栏珊背景 -->
-        <div class="h-scroll-bg-stripes" ref="hScrollStripes"></div>
+        <!-- 视差背景图层 -->
+        <div class="h-parallax-bgs" ref="hParallaxBgs">
+          <div v-for="(n, i) in 4" :key="n" class="h-bg-wrapper">
+            <div
+              class="h-bg-image"
+              :ref="
+                (el) => {
+                  if (el) listBgImages[i] = el as HTMLElement;
+                }
+              "
+              :style="{
+                backgroundImage: `url(https://picsum.photos/seed/${
+                  n * 35
+                }/1920/1080)`,
+              }"
+            ></div>
+          </div>
+        </div>
+
         <div class="h-scroll-track" ref="hScrollTrack">
           <!-- Card 1 -->
           <div class="h-scroll-panel">
-            <div class="h-card">
-              <div class="h-card-inner">
-                <div class="h-card-front">
-                  <div class="h-card-bg bg-1"></div>
-                  <div class="h-card-content">
-                    <span class="h-index">01</span>
-                    <h2>ARTICLES <span class="cn-text">文章</span></h2>
-                    <p>记录代码与灵感的灵光一现。</p>
-                    <router-link to="/article" class="explore-btn"
-                      >Enter Module_</router-link
-                    >
-                  </div>
-                </div>
+            <LiquidGlass>
+              <div class="h-card-content">
+                <span class="h-index">01</span>
+                <h2>ARTICLES <span class="cn-text">文章</span></h2>
+                <p>记录代码与灵感的灵光一现。</p>
+                <router-link to="/article" class="explore-btn"
+                  >Enter Module_</router-link
+                >
               </div>
-            </div>
+            </LiquidGlass>
           </div>
           <!-- Card 2 -->
           <div class="h-scroll-panel">
-            <div class="h-card">
-              <div class="h-card-inner">
-                <div class="h-card-front">
-                  <div class="h-card-bg bg-2"></div>
-                  <div class="h-card-content">
-                    <span class="h-index">02</span>
-                    <h2>ARCHIVE <span class="cn-text">归档</span></h2>
-                    <p>时间轴上铭刻的所有过往与踪迹。</p>
-                    <router-link to="/archive" class="explore-btn"
-                      >Enter Module_</router-link
-                    >
-                  </div>
-                </div>
+            <LiquidGlass>
+              <div class="h-card-content">
+                <span class="h-index">02</span>
+                <h2>ARCHIVE <span class="cn-text">归档</span></h2>
+                <p>时间轴上铭刻的所有过往与踪迹。</p>
+                <router-link to="/archive" class="explore-btn"
+                  >Enter Module_</router-link
+                >
               </div>
-            </div>
+            </LiquidGlass>
           </div>
           <!-- Card 3 -->
           <div class="h-scroll-panel">
-            <div class="h-card">
-              <div class="h-card-inner">
-                <div class="h-card-front">
-                  <div class="h-card-bg bg-3"></div>
-                  <div class="h-card-content">
-                    <span class="h-index">03</span>
-                    <h2>LINKS <span class="cn-text">友链</span></h2>
-                    <p>数字航海家的中转站与星图网路。</p>
-                    <router-link to="/friend" class="explore-btn"
-                      >Enter Module_</router-link
-                    >
-                  </div>
-                </div>
+            <LiquidGlass>
+              <div class="h-card-content">
+                <span class="h-index">03</span>
+                <h2>LINKS <span class="cn-text">友链</span></h2>
+                <p>数字航海家的中转站与星图网路。</p>
+                <router-link to="/friend" class="explore-btn"
+                  >Enter Module_</router-link
+                >
               </div>
-            </div>
+            </LiquidGlass>
           </div>
           <!-- Card 4 -->
           <div class="h-scroll-panel">
-            <div class="h-card">
-              <div class="h-card-inner">
-                <div class="h-card-front">
-                  <div class="h-card-bg bg-4"></div>
-                  <div class="h-card-content">
-                    <span class="h-index">04</span>
-                    <h2>DIARY <span class="cn-text">随谈</span></h2>
-                    <p>抛开代码架构，回归纯粹的片语轻言。</p>
-                    <router-link to="/diary" class="explore-btn"
-                      >Enter Module_</router-link
-                    >
-                  </div>
-                </div>
+            <LiquidGlass>
+              <div class="h-card-content">
+                <span class="h-index">04</span>
+                <h2>DIARY <span class="cn-text">随谈</span></h2>
+                <p>抛开代码架构，回归纯粹的片语轻言。</p>
+                <router-link to="/diary" class="explore-btn"
+                  >Enter Module_</router-link
+                >
               </div>
-            </div>
+            </LiquidGlass>
           </div>
         </div>
       </div>
@@ -310,13 +322,13 @@ import RainCanvas from "../components/effects/RainCanvas.vue";
 import CyberMonitor from "../components/CyberMonitor.vue";
 import SunriseParallax from "../components/effects/SunriseParallax.vue";
 import BambooParallax from "../components/effects/BambooParallax.vue";
-
 const introSection = ref<HTMLElement | null>(null);
 const introSectionHeight = ref<number | undefined>(undefined);
 
 const hScrollWrapper = ref<HTMLElement | null>(null);
 const hScrollTrack = ref<HTMLElement | null>(null);
-const hScrollStripes = ref<HTMLElement | null>(null);
+const hParallaxBgs = ref<HTMLElement | null>(null);
+const listBgImages = ref<HTMLElement[]>([]);
 
 const scrollProgress = ref(0);
 const bambooProgress = ref(0);
@@ -398,10 +410,30 @@ const handleScroll = () => {
   // Using fixed percentage prevents scroll bugs
   hScrollTrack.value.style.transform = `translate3d(-${progress * 75}%, 0, 0)`;
 
-  // 让栏珊背景向右移动（视差层）
-  if (hScrollStripes.value) {
-    hScrollStripes.value.style.transform = `translate3d(${progress * 25}%, 0, 0)`;
+  // 同步视差背景容器的位置
+  if (hParallaxBgs.value) {
+    hParallaxBgs.value.style.transform = `translate3d(-${
+      progress * 75
+    }%, 0, 0)`;
   }
+
+  // 计算每个视差背景的相对位置和接管阈值
+  listBgImages.value.forEach((img, i) => {
+    // localOffset 范围：-i 到 3-i。当局部进度为 0 时，说明这块卡片在正中间
+    const localOffset = progress * 3 - i;
+    const isTakeover = Math.abs(localOffset) < 0.15; // 居中阈值
+
+    if (isTakeover) {
+      img.classList.add("is-takeover");
+      img.style.transform = `translate3d(0, 0, 0) scale(1)`; // 直接弹入，缩放到1
+    } else {
+      img.classList.remove("is-takeover");
+      // 视差位移：每远离 1 个卡面宽度，对应背景位移部分 20%
+      img.style.transform = `translate3d(${
+        localOffset * 20
+      }%, 0, 0) scale(1.1)`;
+    }
+  });
 };
 
 onMounted(() => {
@@ -436,7 +468,7 @@ onBeforeUnmount(() => {
   /* overflow-x: hidden causes position:sticky to break in scroll listeners, use clip */
   overflow-x: clip;
   cursor: none; /* Hide default cursor */
-  background: linear-gradient(to top, #FFF9F0, #FFF5E6);
+  background: linear-gradient(to top, #fff9f0, #fff5e6);
   position: relative;
   z-index: 0;
 }
@@ -515,12 +547,12 @@ onBeforeUnmount(() => {
 
 .title-line {
   will-change: transform, opacity;
-  color: #5A5A5A;
+  color: #5a5a5a;
 }
-.size-x{
+.size-x {
   font-size: 6rem;
   letter-spacing: -0.05em;
-  opacity: 0.90;
+  opacity: 0.9;
   font-weight: 900;
 }
 .size-m {
@@ -533,7 +565,7 @@ onBeforeUnmount(() => {
 .size-s.cn-title {
   font-size: 2.5rem;
   letter-spacing: 0.3em;
-  color: #C07A6B;
+  color: #c07a6b;
   opacity: 0.85;
   font-weight: 400;
 }
@@ -542,7 +574,7 @@ onBeforeUnmount(() => {
   margin-top: 1.8rem;
   font-size: 2rem;
   letter-spacing: 0.2em;
-  color: #8B9A7A;
+  color: #8b9a7a;
   font-family: "Inter", "JetBrains Mono", sans-serif;
   font-weight: 800;
   opacity: 0.8;
@@ -550,7 +582,7 @@ onBeforeUnmount(() => {
 }
 
 .highlight-gold {
-  color: #C9A87C;
+  color: #c9a87c;
 }
 
 .scroll-indicator {
@@ -569,12 +601,17 @@ onBeforeUnmount(() => {
 .line-indicator {
   width: 30px;
   height: 2px;
-  background-color: #D4C5B0;
+  background-color: #d4c5b0;
 }
 
 @keyframes pulseFade {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 /* Section 2: Soft Zen Canvas */
@@ -588,7 +625,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   background: transparent;
   font-family: "PingFang SC", "Noto Sans SC", sans-serif;
-  color: #3A3A3A; /* Adjusted to dark for light background */
+  color: #3a3a3a; /* Adjusted to dark for light background */
   overflow: visible; /* 允许竹子向上溢出抵达 Section 1 */
 }
 
@@ -609,6 +646,7 @@ onBeforeUnmount(() => {
 
 .zen-block {
   z-index: 2;
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
 }
 
@@ -616,93 +654,125 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   padding: 0 2rem;
   display: flex;
   flex-direction: column;
   gap: 8rem;
 }
 
-/* BLOCK 1: INTRO */
-.block-intro {
+/* BLOCK FUSED: 梯形融合布局（1/3文字 + 2/3头像） */
+.block-fused {
   display: flex;
-  align-items: center;
-  gap: 4rem;
+  align-items: stretch;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  overflow: visible;
+  min-height: 500px;
+  isolation: isolate;
 }
+
+/* 左侧梯形 - 文字区域 */
+.fused-left {
+  flex: 0 0 60%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 3rem;
+  gap: 2rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+  position: relative;
+  z-index: 2;
+}
+
+/* 右侧梯形 - Avatar区域 */
+.fused-right {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* 晨煦名字 - 水平排列，最左边 */
 .zen-hero-name {
   display: flex;
+  position: relative;
   flex-direction: column;
-  font-size: 4.5rem;
-  font-weight: 200;
-  letter-spacing: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  font-size: 5rem;
+  font-weight: 500;
+  letter-spacing: 0.3rem;
   color: #fff;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  padding-right: 3rem;
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  padding-right: 2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+/* 文字内容列 - biography + status */
+.zen-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
 }
 .zen-biography {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.2rem;
 }
 .zen-subtitle {
   font-family: "JetBrains Mono", monospace;
   color: rgba(255, 255, 255, 0.4);
-  font-size: 1rem;
+  font-size: 0.9rem;
   letter-spacing: 2px;
 }
 .zen-prose {
-  font-size: 1.8rem;
-  font-weight: 300;
+  font-size: 1.5rem;
+  font-weight: bold;
   line-height: 1.6;
 }
 .hl-soft {
   color: #f4b3c2;
-  font-style: italic;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono";
   font-weight: bold;
 }
 .zen-quote {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   color: rgba(255, 255, 255, 0.6);
   border-left: 2px solid rgba(255, 255, 255, 0.2);
   padding-left: 1rem;
   font-style: italic;
 }
-
-/* BLOCK 2: STATUS & ORBIT AVATAR */
-.block-status {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 24px;
-  padding: 4rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
 .status-text {
-  flex: 1;
-  max-width: 500px;
+  max-width: none;
 }
 .status-text h3 {
-  font-size: 1.5rem;
-  font-weight: 400;
-  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
   color: #f4b3c2;
 }
 .status-text p {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.7);
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
 }
 .status-summary {
   background: rgba(0, 0, 0, 0.3);
-  padding: 1.5rem;
+  padding: 1rem 1.2rem;
   border-radius: 12px;
   border-left: 3px solid rgba(244, 179, 194, 0.4);
-  font-size: 1rem !important;
+  font-size: 0.9rem !important;
 }
 
 .zen-avatar-system {
@@ -740,8 +810,8 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 0.8rem;
   background: rgba(20, 22, 28, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   padding: 0.6rem 1.2rem 0.6rem 0.6rem;
   border-radius: 50px;
@@ -818,33 +888,29 @@ onBeforeUnmount(() => {
 }
 
 /* BLOCK 3: AMBITION */
-.block-ambition {
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
-}
 .ambition-header {
   font-size: 1rem;
   letter-spacing: 4px;
   color: rgba(255, 255, 255, 0.3);
   text-align: center;
   font-family: "JetBrains Mono", monospace;
+  margin-bottom: -4rem;
 }
-.floating-grid {
+.float-windows-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
-  position: relative;
+  margin-bottom: -5rem;
 }
 .float-window {
+  position: relative;
   background: rgba(25, 28, 36, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 2.5rem;
   transition: all 0.3s ease;
-  position: relative;
   overflow: hidden;
 }
 .float-window:hover {
@@ -868,12 +934,8 @@ onBeforeUnmount(() => {
 /* 浮窗巧思设计 */
 .win-glass {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
 }
+
 .win-dot {
   width: 10px;
   height: 10px;
@@ -952,7 +1014,7 @@ onBeforeUnmount(() => {
   text-align: center;
   color: rgba(255, 255, 255, 0.5);
   font-size: 1.1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 /* BLOCK 4: FACTORY & CONTACT */
@@ -1078,26 +1140,34 @@ onBeforeUnmount(() => {
     padding: 0 1.5rem;
     gap: 4rem;
   }
-  .block-intro {
+  .block-fused {
     flex-direction: column;
+    min-height: auto;
+    gap: 3rem;
+  }
+  .fused-left {
+    flex: none;
+    width: 100%;
+    clip-path: none;
+    padding: 3rem 2rem;
     text-align: center;
-    gap: 2rem;
-    border: none;
+    align-items: center;
   }
   .zen-hero-name {
     border-right: none;
     padding-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 2rem;
+    padding-bottom: 1.5rem;
     flex-direction: row;
     justify-content: center;
     gap: 1rem;
+    font-size: 2.5rem;
   }
-  .block-status {
-    flex-direction: column;
+  .fused-right {
+    flex: none;
+    width: 100%;
+    clip-path: none;
     padding: 2rem;
-    gap: 4rem;
-    text-align: center;
   }
   .zen-avatar-system {
     width: 100%;
@@ -1137,7 +1207,7 @@ onBeforeUnmount(() => {
 .h-scroll-wrapper {
   height: 400vh; /* 4 panels -> 400vh space */
   position: relative;
-  background: #536169;
+  background: #2a3136; /* 调整底色更深，映衬图片 */
   backdrop-filter: blur(6px);
   z-index: 1;
 }
@@ -1152,22 +1222,46 @@ onBeforeUnmount(() => {
   align-items: center;
 }
 
-.h-scroll-bg-stripes {
+.h-parallax-bgs {
   position: absolute;
-  top: -50vh;
-  left: -50vw;
-  width: 300vw; /* 足够宽以支持反向移动 */
-  height: 200vh;
-  background: repeating-linear-gradient(
-    30deg,
-    rgba(255, 255, 255, 0.02) 0px,
-    rgba(255, 255, 255, 0.02) 60px,
-    transparent 60px,
-    transparent 120px
-  );
-  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 400vw;
+  height: 100vh;
+  display: flex;
+  z-index: -1;
   will-change: transform;
-  pointer-events: none;
+}
+
+.h-bg-wrapper {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.h-bg-image {
+  position: absolute;
+  top: 0;
+  left: -25vw;
+  width: 150vw; /* 留出25vw的视差余裕 */
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  filter: blur(4px) grayscale(50%);
+  transform: translate3d(0, 0, 0) scale(1.1);
+  transition:
+    transform 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.5s ease,
+    filter 0.5s ease;
+  will-change: transform, opacity, filter;
+}
+
+.h-bg-image.is-takeover {
+  opacity: 0.6;
+  filter: blur(0px) grayscale(0%);
+  /* transform 被 JS 控制为弹入并居中 */
 }
 
 .h-scroll-track {
@@ -1188,90 +1282,17 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
-.h-card {
-  width: 100%;
-  max-width: 900px;
-  height: 60vh;
-  position: relative;
-  border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
-  perspective: 1500px;
-}
-
-.h-card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.h-card-front {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.h-card-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.3;
-  transition:
-    opacity 0.5s,
-    transform 5s ease-out;
-}
-
-.h-card:hover .h-card-bg {
-  opacity: 0.5;
-  transform: scale(1.05);
-}
-
-.bg-1 {
-  background-image: radial-gradient(
-    circle at 80% 20%,
-    rgba(255, 122, 162, 0.2),
-    transparent
-  );
-}
-.bg-2 {
-  background-image: radial-gradient(
-    circle at 20% 80%,
-    rgba(0, 240, 255, 0.2),
-    transparent
-  );
-}
-.bg-3 {
-  background-image: radial-gradient(
-    circle at center,
-    rgba(100, 50, 255, 0.2),
-    transparent
-  );
-}
-.bg-4 {
-  background-image: radial-gradient(
-    circle at 50% 0%,
-    rgba(255, 200, 100, 0.2),
-    transparent
-  );
-}
-
 .h-card-content {
   position: relative;
   z-index: 2;
   padding: 4rem;
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.7) 0%,
     rgba(0, 0, 0, 0) 100%
   );
-  height: 100%;
-  width: 100%;
+  height: 50vh;
+  width: 50vw;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -1281,7 +1302,7 @@ onBeforeUnmount(() => {
 .h-index {
   font-family: "Cinzel", serif;
   font-size: 5rem;
-  color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.15);
   position: absolute;
   right: 5vh;
   top: 5vh;
@@ -1293,6 +1314,7 @@ onBeforeUnmount(() => {
   margin: 0 0 1rem 0;
   letter-spacing: 5px;
   font-family: "Cinzel", serif;
+  color: #fff;
 }
 
 .cn-text {
@@ -1303,7 +1325,7 @@ onBeforeUnmount(() => {
 
 .h-card-content p {
   font-size: 1.2rem;
-  color: #aaa;
+  color: #ddd;
   max-width: 60%;
   margin-bottom: 3rem;
   line-height: 1.8;
@@ -1338,8 +1360,8 @@ onBeforeUnmount(() => {
 
 /* Footer */
 .footer-section {
-  padding: 20vh 10vw 10vh 10vw;
-  background: #61796b;
+  padding: 1vh 5vw 5vh 10vw;
+  background: #a8b7cb;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1372,13 +1394,6 @@ onBeforeUnmount(() => {
   }
   .h-scroll-panel {
     padding: 0 5vw;
-  }
-  .h-card-content {
-    padding: 2rem;
-    background: rgba(0, 0, 0, 0.6);
-  }
-  .h-card-content p {
-    max-width: 100%;
   }
 }
 </style>
