@@ -9,7 +9,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppBar: typeof import('./src/components/AppBar.vue')['default']
+    BambooParallax: typeof import('./src/components/effects/BambooParallax.vue')['default']
     BlogCard: typeof import('./src/components/BlogCard.vue')['default']
+    BlogList: typeof import('./src/components/BlogList.vue')['default']
     BlossomCanvas: typeof import('./src/components/effects/BlossomCanvas.vue')['default']
     Comment: typeof import('./src/components/Comment.vue')['default']
     CommentItem: typeof import('./src/components/CommentItem.vue')['default']
@@ -24,5 +26,6 @@ declare module 'vue' {
     RainCanvas: typeof import('./src/components/effects/RainCanvas.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SunriseParallax: typeof import('./src/components/effects/SunriseParallax.vue')['default']
   }
 }

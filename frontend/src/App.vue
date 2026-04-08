@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <LoadingOverlay :show="loading" />
+    <MouseTrail />
     <AppBar v-if="$route.meta.showAppBar !== false" />
     <router-view v-slot="{ Component }">
       <transition>
@@ -18,6 +19,7 @@ import { nextTick } from "vue";
 import AppBar from "./components/AppBar.vue";
 import Footer from "./components/Footer.vue";
 import LoadingOverlay from "./components/LoadingOverlay.vue";
+import MouseTrail from "./components/effects/MouseTrail.vue";
 
 const route = useRoute();
 const loading = ref(false);
