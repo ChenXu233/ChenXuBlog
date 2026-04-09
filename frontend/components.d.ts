@@ -12,9 +12,11 @@ declare module 'vue' {
     BlogCard: typeof import('./src/components/BlogCard.vue')['default']
     BlogList: typeof import('./src/components/BlogList.vue')['default']
     BlossomCanvas: typeof import('./src/components/effects/BlossomCanvas.vue')['default']
+    Browser: typeof import('./src/components/WarmOS/Apps/browser/index.vue')['default']
     Comment: typeof import('./src/components/Comment.vue')['default']
     CommentItem: typeof import('./src/components/CommentItem.vue')['default']
     CommentList: typeof import('./src/components/CommentList.vue')['default']
+    ContextMenu: typeof import('./src/components/WarmOS/ContextMenu.vue')['default']
     DockBar: typeof import('./src/components/WarmOS/DockBar.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     Error: typeof import('./src/components/Error.vue')['default']
@@ -28,5 +30,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SunriseParallax: typeof import('./src/components/effects/SunriseParallax.vue')['default']
     SystemPanel: typeof import('./src/components/WarmOS/SystemPanel.vue')['default']
+    Terminal: typeof import('./src/components/WarmOS/Apps/terminal/index.vue')['default']
+    Window: typeof import('./src/components/WarmOS/Window.vue')['default']
   }
 }
