@@ -25,7 +25,6 @@ defineProps<{
   height: 100vh;
   pointer-events: none;
   z-index: 0;
-  overflow: hidden;
 }
 
 .sunrise-effect {

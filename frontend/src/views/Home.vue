@@ -3,7 +3,7 @@
     <!-- Background Transition Layer (White to Bamboo Green) -->
     <div
       class="bg-transition-layer"
-      :style="{ opacity: Math.min(1, scrollProgress * 1.2) }"
+      :style="{ opacity: Math.min(1, scrollProgress * 1.5) }"
     ></div>
 
     <!-- Global Effects -->
@@ -225,85 +225,6 @@
       </div>
     </section>
 
-    <!-- Section 3: Horizontal Scroll Module -->
-    <section class="h-scroll-wrapper" ref="hScrollWrapper">
-      <div class="h-scroll-sticky">
-        <!-- 视差背景图层 -->
-        <div class="h-parallax-bgs" ref="hParallaxBgs">
-          <div v-for="(n, i) in 4" :key="n" class="h-bg-wrapper">
-            <div
-              class="h-bg-image"
-              :ref="
-                (el) => {
-                  if (el) listBgImages[i] = el as HTMLElement;
-                }
-              "
-              :style="{
-                backgroundImage: `url(https://picsum.photos/seed/${
-                  n * 35
-                }/1920/1080)`,
-              }"
-            ></div>
-          </div>
-        </div>
-
-        <div class="h-scroll-track" ref="hScrollTrack">
-          <!-- Card 1 -->
-          <div class="h-scroll-panel">
-            <LiquidGlass>
-              <div class="h-card-content">
-                <span class="h-index">01</span>
-                <h2>ARTICLES <span class="cn-text">文章</span></h2>
-                <p>记录代码与灵感的灵光一现。</p>
-                <router-link to="/article" class="explore-btn"
-                  >Enter Module_</router-link
-                >
-              </div>
-            </LiquidGlass>
-          </div>
-          <!-- Card 2 -->
-          <div class="h-scroll-panel">
-            <LiquidGlass>
-              <div class="h-card-content">
-                <span class="h-index">02</span>
-                <h2>ARCHIVE <span class="cn-text">归档</span></h2>
-                <p>时间轴上铭刻的所有过往与踪迹。</p>
-                <router-link to="/archive" class="explore-btn"
-                  >Enter Module_</router-link
-                >
-              </div>
-            </LiquidGlass>
-          </div>
-          <!-- Card 3 -->
-          <div class="h-scroll-panel">
-            <LiquidGlass>
-              <div class="h-card-content">
-                <span class="h-index">03</span>
-                <h2>LINKS <span class="cn-text">友链</span></h2>
-                <p>数字航海家的中转站与星图网路。</p>
-                <router-link to="/friend" class="explore-btn"
-                  >Enter Module_</router-link
-                >
-              </div>
-            </LiquidGlass>
-          </div>
-          <!-- Card 4 -->
-          <div class="h-scroll-panel">
-            <LiquidGlass>
-              <div class="h-card-content">
-                <span class="h-index">04</span>
-                <h2>DIARY <span class="cn-text">随谈</span></h2>
-                <p>抛开代码架构，回归纯粹的片语轻言。</p>
-                <router-link to="/diary" class="explore-btn"
-                  >Enter Module_</router-link
-                >
-              </div>
-            </LiquidGlass>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Footer -->
     <section class="footer-section">
       <div class="footer-note reveal-up v-observe">
@@ -320,12 +241,6 @@ import RainCanvas from "../components/effects/RainCanvas.vue";
 import SunriseParallax from "../components/effects/SunriseParallax.vue";
 import BambooParallax from "../components/effects/BambooParallax.vue";
 const introSection = ref<HTMLElement | null>(null);
-const introSectionHeight = ref<number | undefined>(undefined);
-
-const hScrollWrapper = ref<HTMLElement | null>(null);
-const hScrollTrack = ref<HTMLElement | null>(null);
-const hParallaxBgs = ref<HTMLElement | null>(null);
-const listBgImages = ref<HTMLElement[]>([]);
 
 const scrollProgress = ref(0);
 const bambooProgress = ref(0);
@@ -347,18 +262,6 @@ const setupObserver = () => {
 
   const elements = document.querySelectorAll(".v-observe");
   elements.forEach((el) => observer?.observe(el));
-
-  setTimeout(() => {
-    if (introSection.value) {
-      introSectionHeight.value = introSection.value.offsetHeight;
-    }
-  }, 300);
-
-  window.addEventListener("resize", () => {
-    if (introSection.value) {
-      introSectionHeight.value = introSection.value.offsetHeight;
-    }
-  });
 };
 
 // Global Scroll Progression & Effects
@@ -389,52 +292,6 @@ const handleTitleParallax = () => {
   }
 };
 
-// Horizontal Scroll Logic
-const handleScroll = () => {
-  // Mobile fallback: disable horizontal JS scroll
-  if (window.innerWidth <= 768) return;
-
-  if (!hScrollWrapper.value || !hScrollTrack.value) return;
-
-  const rect = hScrollWrapper.value.getBoundingClientRect();
-  const windowHeight = window.innerHeight;
-
-  // Calculate progress of the scroll through the wrapper
-  // When rect.top is 0, progress is 0.
-  // When rect.top is -(rect.height - windowHeight), progress is 1.
-  const maxScroll = rect.height - windowHeight;
-  let progress = -rect.top / maxScroll;
-  progress = Math.max(0, Math.min(1, progress));
-
-  // 4 panels = 400vw width. Max translate needs to be exactly -(4 - 1) * 100vw = -300vw (or -75% of track width)
-  // Using fixed percentage prevents scroll bugs
-  hScrollTrack.value.style.transform = `translate3d(-${progress * 75}%, 0, 0)`;
-
-  // 同步视差背景容器的位置
-  if (hParallaxBgs.value) {
-    hParallaxBgs.value.style.transform = `translate3d(-${
-      progress * 75
-    }%, 0, 0)`;
-  }
-
-  // 计算每个视差背景的相对位置和接管阈值
-  listBgImages.value.forEach((img, i) => {
-    // localOffset 范围：-i 到 3-i。当局部进度为 0 时，说明这块卡片在正中间
-    const localOffset = progress * 3 - i;
-    const isTakeover = Math.abs(localOffset) < 0.15; // 居中阈值
-
-    if (isTakeover) {
-      img.classList.add("is-takeover");
-      img.style.transform = `translate3d(0, 0, 0) scale(1)`; // 直接弹入，缩放到1
-    } else {
-      img.classList.remove("is-takeover");
-      // 视差位移：每远离 1 个卡面宽度，对应背景位移部分 20%
-      img.style.transform = `translate3d(${
-        localOffset * 20
-      }%, 0, 0) scale(1.1)`;
-    }
-  });
-};
 
 onMounted(() => {
   setupObserver();
@@ -446,7 +303,6 @@ onMounted(() => {
     mainRain.style.opacity = "0";
   }
 
-  window.addEventListener("scroll", handleScroll, { passive: true });
   window.addEventListener("scroll", handleTitleParallax, { passive: true });
 
   setTimeout(() => {
@@ -455,7 +311,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("scroll", handleScroll);
   window.removeEventListener("scroll", handleTitleParallax);
   if (observer) observer.disconnect();
   document.body.classList.remove("home-hide-scrollbar");
@@ -525,7 +380,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .hero-content {
@@ -1190,161 +1044,6 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Section 3: Horizontal Scroll */
-.h-scroll-wrapper {
-  height: 400vh; /* 4 panels -> 400vh space */
-  position: relative;
-  background: #2a3136; /* 调整底色更深，映衬图片 */
-  backdrop-filter: blur(6px);
-  z-index: 1;
-}
-
-.h-scroll-sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-
-.h-parallax-bgs {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 400vw;
-  height: 100vh;
-  display: flex;
-  z-index: -1;
-  will-change: transform;
-}
-
-.h-bg-wrapper {
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-
-.h-bg-image {
-  position: absolute;
-  top: 0;
-  left: -25vw;
-  width: 150vw; /* 留出25vw的视差余裕 */
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.15;
-  filter: blur(4px) grayscale(50%);
-  transform: translate3d(0, 0, 0) scale(1.1);
-  transition:
-    transform 0.6s cubic-bezier(0.25, 1, 0.5, 1),
-    opacity 0.5s ease,
-    filter 0.5s ease;
-  will-change: transform, opacity, filter;
-}
-
-.h-bg-image.is-takeover {
-  opacity: 0.6;
-  filter: blur(0px) grayscale(0%);
-  /* transform 被 JS 控制为弹入并居中 */
-}
-
-.h-scroll-track {
-  display: flex;
-  width: 400vw;
-  height: 100%;
-  will-change: transform;
-  z-index: 1; /* 确保卡片在栏珊背景上方 */
-}
-
-.h-scroll-panel {
-  width: 100vw;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 10vw;
-  box-sizing: border-box;
-}
-
-.h-card-content {
-  position: relative;
-  z-index: 2;
-  padding: 4rem;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  height: 50vh;
-  width: 50vw;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.h-index {
-  font-family: "Cinzel", serif;
-  font-size: 5rem;
-  color: rgba(255, 255, 255, 0.15);
-  position: absolute;
-  right: 5vh;
-  top: 5vh;
-  font-weight: bold;
-}
-
-.h-card-content h2 {
-  font-size: 3.5rem;
-  margin: 0 0 1rem 0;
-  letter-spacing: 5px;
-  font-family: "Cinzel", serif;
-  color: #fff;
-}
-
-.cn-text {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 1.5rem;
-  color: #ff7aa2;
-}
-
-.h-card-content p {
-  font-size: 1.2rem;
-  color: #ddd;
-  max-width: 60%;
-  margin-bottom: 3rem;
-  line-height: 1.8;
-}
-
-.explore-btn {
-  align-self: flex-start;
-  color: #00f0ff;
-  text-decoration: none;
-  font-size: 1.2rem;
-  border-bottom: 2px solid transparent;
-  padding-bottom: 5px;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.explore-btn::after {
-  content: "→";
-  transition: transform 0.3s;
-}
-
-.explore-btn:hover {
-  border-color: #00f0ff;
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-}
-
-.explore-btn:hover::after {
-  transform: translateX(10px);
-}
-
 /* Footer */
 .footer-section {
   padding: 1vh 5vw 5vh 10vw;
@@ -1365,31 +1064,12 @@ onBeforeUnmount(() => {
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .size-xl {
-    font-size: 4rem;
-  }
-  .size-l {
-    font-size: 3rem;
-  }
-  .size-m {
-    font-size: 2rem;
-  }
-  .glass-panel {
-    width: 90%;
-    padding: 2rem;
-  }
-  .h-scroll-panel {
-    padding: 0 5vw;
-  }
-}
-
 @media (max-width: 768px) {
   .size-x { font-size: 3.5rem; }
   .size-m { font-size: 2.5rem; }
   .size-s.cn-title { font-size: 1.5rem; }
   .hero-subtitle { font-size: 1.2rem; }
-  
+
   .zen-container {
     padding: 0 1rem;
     gap: 3rem;
@@ -1405,57 +1085,12 @@ onBeforeUnmount(() => {
   .zen-prose { font-size: 1.1rem; }
   .zen-quote { font-size: 1.1rem; }
 
-  /* Disable horizontal scroll structure natively */
-  .h-scroll-wrapper {
-    height: auto !important;
-    padding: 2rem 0;
-  }
-  .h-scroll-sticky {
-    position: relative !important;
-    height: auto !important;
-    width: 100% !important;
-    display: block !important;
-  }
-  .h-scroll-track {
-    width: 100% !important;
-    flex-direction: column !important;
-    transform: none !important;
-    gap: 2rem;
-  }
-  .h-scroll-panel {
-    width: 100% !important;
-    height: auto !important;
-    padding: 0 1rem;
-  }
-  .h-card-content {
-    width: 100% !important;
-    height: auto !important;
-    padding: 2rem !important;
-    min-height: 40vh;
-  }
-  .h-card-content h2 { font-size: 2rem; }
-  .h-card-content p { max-width: 100%; font-size: 1rem; }
-  .h-index {
-    font-size: 3rem;
-    right: 1rem;
-    top: 1rem;
-  }
-  .h-parallax-bgs {
-    display: none !important; /* hide complex side background elements on mobile */
-  }
-
   .f-left, .f-right {
     padding: 1.5rem;
     flex: 1;
   }
   .float-window {
     padding: 1.5rem;
-  }
-  
-  /* Fallback for the background on mobile */
-  .h-scroll-wrapper {
-    background: #2a3136 url('https://picsum.photos/seed/mobile/1920/1080') no-repeat center center / cover;
-    background-blend-mode: overlay;
   }
 }
 </style>
