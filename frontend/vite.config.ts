@@ -13,6 +13,14 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  server: {
+    proxy: {
+      "/apis": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     vue(),
     tailwindcss(),

@@ -22,7 +22,7 @@
           <div class="title-line size-s cn-title">烟花三月</div>
         </h1>
         <p class="hero-subtitle">
-          晨煦的博客 · <span class="highlight-gold">诗与暖阳</span>
+          晨煦的小窝 · <span class="highlight-gold">诗与暖阳</span>
         </p>
 
         <div class="scroll-indicator">
@@ -290,7 +290,6 @@ const handleTitleParallax = () => {
     rainCanvas.style.opacity = rainOpacity.toString();
   }
 };
-
 
 onMounted(() => {
   setupObserver();
@@ -1059,10 +1058,18 @@ onBeforeUnmount(() => {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .size-x { font-size: 3.5rem; }
-  .size-m { font-size: 2.5rem; }
-  .size-s.cn-title { font-size: 1.5rem; }
-  .hero-subtitle { font-size: 1.2rem; }
+  .size-x {
+    font-size: 3.5rem;
+  }
+  .size-m {
+    font-size: 2.5rem;
+  }
+  .size-s.cn-title {
+    font-size: 1.5rem;
+  }
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
 
   .zen-container {
     padding: 0 1rem;
@@ -1076,10 +1083,15 @@ onBeforeUnmount(() => {
     padding-bottom: 1rem;
   }
 
-  .zen-prose { font-size: 1.1rem; }
-  .zen-quote { font-size: 1.1rem; }
+  .zen-prose {
+    font-size: 1.1rem;
+  }
+  .zen-quote {
+    font-size: 1.1rem;
+  }
 
-  .f-left, .f-right {
+  .f-left,
+  .f-right {
     padding: 1.5rem;
     flex: 1;
   }
