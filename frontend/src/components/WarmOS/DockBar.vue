@@ -9,6 +9,15 @@
       {{ activeTooltip }}
     </div>
 
+    <!-- 动态全局右键菜单 -->
+    <ContextMenu
+      :visible="contextMenuVisible"
+      :x="contextMenuX"
+      :y="contextMenuY"
+      :items="contextMenuItems"
+      @update:visible="val => contextMenuVisible = val"
+    />
+
     <!-- 系统状态面板 -->
     <SystemPanel v-model="showPanel" />
 
@@ -72,13 +81,8 @@
 
                 <div class="section-title mt-4">常用应用</div>
                 <div class="nav-panel-list">
-                  <div class="app-list-item" @click="showNavPanel = false">
-                    <i class="fa fa-window-maximize text-blue-500"></i>
-                    <span>Terminal</span>
-                  </div>
-                  <div class="app-list-item" @click="showNavPanel = false">
-                    <i class="fa fa-folder-open text-yellow-500"></i>
-                    <span>文件管理器</span>
+                  <div class="app-list-item">
+                    <span>暂无</span>
                   </div>
                 </div>
               </div>
@@ -99,27 +103,19 @@
 
               <div class="divider"></div>
 
-              <!-- 应用图标区 -->
-              <div
+              <!-- 运行中的应用列表 -->
+              <div 
+                v-for="app in openApps" 
+                :key="app.id" 
                 class="dock-item"
-                @mouseenter="showTooltip($event, '浏览器')"
+                :class="{ active: activeAppId === app.id, minimized: app.minimized }"
+                @click.stop="toggleAppVisibility(app)"
+                @contextmenu.prevent.stop="handleContextMenu($event, app)"
+                @mouseenter="showTooltip($event, app.title)"
                 @mouseleave="hideTooltip"
               >
-                <i
-                  class="fa fa-lg dock-icon fa-chrome"
-                  style="color: #4285f4"
-                ></i>
-              </div>
-
-              <div
-                class="dock-item"
-                @mouseenter="showTooltip($event, '终端')"
-                @mouseleave="hideTooltip"
-              >
-                <i
-                  class="fa fa-lg dock-icon fa-terminal"
-                  style="color: #333"
-                ></i>
+                <i :class="['fa fa-lg dock-icon', app.icon]"></i>
+                <div class="dock-indicator" v-if="activeAppId === app.id"></div>
               </div>
 
               <div class="divider"></div>
@@ -150,6 +146,8 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import LiquidGlass from "../LiquidGlass.vue";
 import SystemPanel from "./SystemPanel.vue";
+import ContextMenu, { type MenuItem } from "./ContextMenu.vue";
+import { openApps, activeAppId, toggleAppVisibility, closeApp, minimizeApp, type AppConfig } from '@/stores/warmos'
 
 const route = useRoute();
 
@@ -183,6 +181,38 @@ const hideTooltip = () => {
   activeTooltip.value = "";
 };
 
+// 右键菜单状态
+const contextMenuVisible = ref(false);
+const contextMenuX = ref(0);
+const contextMenuY = ref(0);
+const contextMenuItems = ref<MenuItem[]>([]);
+
+const handleContextMenu = (e: MouseEvent, app: AppConfig) => {
+  contextMenuItems.value = [
+    {
+      label: app.minimized ? '恢复应用' : '最小化',
+      icon: 'fa-window-minimize',
+      action: () => toggleAppVisibility(app)
+    },
+    { separator: true },
+    {
+      label: '退出应用',
+      icon: 'fa-times',
+      color: '#ff5f56',
+      action: () => closeApp(app.id)
+    }
+  ];
+  
+  contextMenuX.value = e.clientX;
+  contextMenuY.value = e.clientY - 10;
+  contextMenuVisible.value = true;
+  hideTooltip();
+};
+
+const hideContextMenu = () => {
+  contextMenuVisible.value = false;
+};
+
 // 交互操作
 const handleMouseEnter = () => {
   isHovered.value = true;
@@ -208,11 +238,13 @@ const toggleNavPanel = () => {
 const closePanels = () => {
   showPanel.value = false;
   showNavPanel.value = false;
+  hideContextMenu();
 };
 
 // 导航数据
 const navItems = ref([
   { name: "首页", path: "/home", icon: "fa-home" },
+  { name: "WarmOS", path: "/warmos", icon: "fa-compass" },
   { name: "文章", path: "/article", icon: "fa-file-text" },
   { name: "归档", path: "/archive", icon: "fa-archive" },
   { name: "随谈", path: "/diary", icon: "fa-comments" },
