@@ -15,10 +15,19 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       title: "首页",
       keepAlive: true,
-      showAppBar: false,
       showFooter: false,
       transition: "slide-right",
     },
+  },
+  {
+    path: "/warmos",
+    name: "warmos",
+    component: () => import("../views/WarmOS/index.vue"),
+    meta: {
+      title: "Warmos",
+      keepAlive: true,
+      showFooter: false,
+    }
   },
   {
     path: "/login",

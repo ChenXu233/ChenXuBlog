@@ -7,13 +7,13 @@
         <component :is="Component" :key="$route.path" />
       </transition>
     </router-view>
-    <DockBar />
-    <Footer v-if="$route.meta.showFooter !== false" />
+    <DockBar v-if="!isWarmOSRoute && !inIframe" />
+    <Footer v-if="$route.meta.showFooter !== false && !isWarmOSRoute && !inIframe" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { nextTick } from "vue";
 import Footer from "./components/Footer.vue";
@@ -23,6 +23,18 @@ import MouseTrail from "./components/effects/MouseTrail.vue";
 
 const route = useRoute();
 const loading = ref(false);
+
+const isWarmOSRoute = computed(() => {
+  return route.path.startsWith('/warmos') || route.name === 'WarmOS';
+});
+
+const inIframe = computed(() => {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+});
 
 watch(
   () => route.path,

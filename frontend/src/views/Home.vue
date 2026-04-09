@@ -52,8 +52,7 @@
               <div class="zen-biography">
                 <div class="zen-subtitle">ChenXu233 // SYS.ADMIN</div>
                 <div class="zen-prose">
-                  烟花三月，雾与花之间，我
-                  <span class="hl-soft">type</span> 了一行宇宙。
+                  烟花三月雨，滴碎万竿梢。翠影参差云外摇，清籁穿林杪。
                 </div>
                 <div class="zen-quote">
                   “发呆不是浪费生命，是给生命留出编译的时间。”
@@ -81,7 +80,7 @@
               <div class="enso-circle"></div>
               <el-avatar
                 src="https://avatars.githubusercontent.com/u/91937041?v=4"
-                :size="120"
+                :size="260"
                 class="zen-avatar-core"
               />
               <!-- 横版胶囊状态小组件 -->
@@ -595,11 +594,6 @@ onBeforeUnmount(() => {
   font-size: 1.5rem;
   font-weight: bold;
   line-height: 1.6;
-}
-.hl-soft {
-  color: #f4b3c2;
-  font-family: "JetBrains Mono";
-  font-weight: bold;
 }
 .zen-quote {
   font-size: 1.5rem;

@@ -116,7 +116,7 @@ function generateForest() {
   const bambooCount = Math.max(5, Math.floor(vw / 300));
   
   for (let i = 0; i < bambooCount; i++) {
-    const rnd = seed(i+114514);
+    const rnd = seed(191981 + i);
     const x = -vw * 0.1 + rnd() * (vw * 1.2);
     const zIndex = Math.floor(rnd() * 10);
     const baseWidth = 15 + (zIndex * 2.5) + rnd() * 20; 
