@@ -15,7 +15,7 @@
       :x="contextMenuX"
       :y="contextMenuY"
       :items="contextMenuItems"
-      @update:visible="val => contextMenuVisible = val"
+      @update:visible="(val) => (contextMenuVisible = val)"
     />
 
     <!-- 系统状态面板 -->
@@ -49,6 +49,47 @@
             <div class="island-menu" :class="{ show: viewState === 'menu' }">
               <!-- 预留的顶部间距 -->
               <div class="menu-spacer"></div>
+              <div class="user-panel">
+                <button
+                  type="button"
+                  class="user-card"
+                  @click.stop="handleUserEntry"
+                >
+                  <div class="user-card-avatar-shell">
+                    <img
+                      :src="authStore.avatarUrl || '/img/default-avatar.png'"
+                      :alt="userCardTitle"
+                      class="user-card-avatar"
+                    />
+                    <span
+                      class="user-card-status"
+                      :class="{ active: authStore.isAuthenticated }"
+                    ></span>
+                  </div>
+
+                  <div class="user-card-copy">
+                    <span class="user-card-kicker">{{ userCardKicker }}</span>
+                    <span class="user-card-title">{{ userCardTitle }}</span>
+                    <span class="user-card-meta">{{ userCardMeta }}</span>
+                  </div>
+
+                  <div class="user-card-accessory">
+                    <span class="user-card-badge">{{ userCardBadge }}</span>
+                    <i class="fa fa-angle-right user-card-arrow"></i>
+                  </div>
+                </button>
+
+                <button
+                  v-if="authStore.isAuthenticated"
+                  type="button"
+                  class="user-logout-button"
+                  @click.stop="handleLogout"
+                >
+                  <i class="fa fa-sign-out"></i>
+                  <span>退出登录</span>
+                </button>
+              </div>
+
               <!-- 全局搜索框 -->
               <div class="search-box-wrapper">
                 <div class="search-box">
@@ -78,13 +119,6 @@
                     <span>{{ item.name }}</span>
                   </router-link>
                 </div>
-
-                <div class="section-title mt-4">常用应用</div>
-                <div class="nav-panel-list">
-                  <div class="app-list-item">
-                    <span>暂无</span>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -104,11 +138,14 @@
               <div class="divider"></div>
 
               <!-- 运行中的应用列表 -->
-              <div 
-                v-for="app in openApps" 
-                :key="app.id" 
+              <div
+                v-for="app in openApps"
+                :key="app.id"
                 class="dock-item"
-                :class="{ active: activeAppId === app.id, minimized: app.minimized }"
+                :class="{
+                  active: activeAppId === app.id,
+                  minimized: app.minimized,
+                }"
                 @click.stop="toggleAppVisibility(app)"
                 @contextmenu.prevent.stop="handleContextMenu($event, app)"
                 @mouseenter="showTooltip($event, app.title)"
@@ -122,7 +159,14 @@
 
               <!-- 实时 FPS 显示 -->
               <div class="dock-fps-widget" title="当前帧率">
-                <span class="fps-value" :style="{ color: fps >= 45 ? '#10b981' : (fps >= 30 ? '#f59e0b' : '#ef4444') }">{{ fps }}</span>
+                <span
+                  class="fps-value"
+                  :style="{
+                    color:
+                      fps >= 45 ? '#10b981' : fps >= 30 ? '#f59e0b' : '#ef4444',
+                  }"
+                  >{{ fps }}</span
+                >
                 <span class="fps-label">FPS</span>
               </div>
 
@@ -143,13 +187,22 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import LiquidGlass from "../LiquidGlass.vue";
 import SystemPanel from "./SystemPanel.vue";
 import ContextMenu, { type MenuItem } from "./ContextMenu.vue";
-import { openApps, activeAppId, toggleAppVisibility, closeApp, minimizeApp, type AppConfig } from '@/stores/warmos'
+import {
+  openApps,
+  activeAppId,
+  toggleAppVisibility,
+  closeApp,
+  type AppConfig,
+} from "@/stores/warmos";
+import { useAuthStore } from "@/stores/authStore";
 
 const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
 
 // UI 核心状态
 const isHovered = ref(false);
@@ -190,19 +243,19 @@ const contextMenuItems = ref<MenuItem[]>([]);
 const handleContextMenu = (e: MouseEvent, app: AppConfig) => {
   contextMenuItems.value = [
     {
-      label: app.minimized ? '恢复应用' : '最小化',
-      icon: 'fa-window-minimize',
-      action: () => toggleAppVisibility(app)
+      label: app.minimized ? "恢复应用" : "最小化",
+      icon: "fa-window-minimize",
+      action: () => toggleAppVisibility(app),
     },
     { separator: true },
     {
-      label: '退出应用',
-      icon: 'fa-times',
-      color: '#ff5f56',
-      action: () => closeApp(app.id)
-    }
+      label: "退出应用",
+      icon: "fa-times",
+      color: "#ff5f56",
+      action: () => closeApp(app.id),
+    },
   ];
-  
+
   contextMenuX.value = e.clientX;
   contextMenuY.value = e.clientY - 10;
   contextMenuVisible.value = true;
@@ -239,6 +292,45 @@ const closePanels = () => {
   showPanel.value = false;
   showNavPanel.value = false;
   hideContextMenu();
+};
+
+// 用户操作
+const userCardKicker = computed(() =>
+  authStore.isAuthenticated ? "个人空间" : "欢迎回来",
+);
+const userCardTitle = computed(() =>
+  authStore.isAuthenticated ? authStore.username : "登录 ChenXuBlog",
+);
+const userCardMeta = computed(() =>
+  authStore.isAuthenticated
+    ? "进入个人主页与账户设置"
+    : "登录后同步头像、资料与个性化内容",
+);
+const userCardBadge = computed(() =>
+  authStore.isAuthenticated ? "在线" : "访客",
+);
+
+const handleUserEntry = () => {
+  closePanels();
+
+  if (authStore.isAuthenticated && authStore.currentUser?.uuid) {
+    router.push({
+      name: "user-profile",
+      params: { id: authStore.currentUser.uuid },
+    });
+    return;
+  }
+
+  router.push({
+    name: "login",
+    query: { redirect: route.fullPath },
+  });
+};
+
+const handleLogout = () => {
+  authStore.logout();
+  closePanels();
+  router.push("/home");
 };
 
 // 导航数据
@@ -436,10 +528,10 @@ onUnmounted(() => {
 
 /* 3. Menu 二次展开高态 */
 .island-wrapper.menu {
-  max-width: 800px; /* 依据内部内容(也就是底框)撑开最大边界 */
-  height: 480px; /* 二次平滑拔高！ */
+  max-width: 860px; /* 依据内部内容(也就是底框)撑开最大边界 */
+  height: 560px; /* 给账户卡、搜索和宫格留出更舒展的空间 */
   transform: translateY(0) scale(1);
-  border-radius: 32px;
+  border-radius: 34px;
 }
 
 /* 控制内部元素，使得它在横向自适应宽度，从而撑开 wrapper 到 max-width 极限 */
@@ -546,7 +638,7 @@ onUnmounted(() => {
 
 /* ======== 第二层：主导航菜单 (Menu) ======== */
 .island-menu {
-  width: 360px;
+  width: 432px;
   margin: 0 auto;
   opacity: 0;
   pointer-events: none;
@@ -566,19 +658,326 @@ onUnmounted(() => {
 }
 
 .menu-spacer {
-  height: 24px;
+  height: 28px;
+}
+
+.user-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px 20px;
+}
+
+.user-card,
+.user-logout-button {
+  border: none;
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+}
+
+.user-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 92px;
+  padding: 16px 18px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.5),
+    rgba(244, 248, 255, 0.62)
+  );
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease;
+  text-align: left;
+}
+
+.user-card::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 23px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.34),
+    rgba(255, 255, 255, 0.08)
+  );
+  pointer-events: none;
+}
+
+.user-card::after {
+  content: "";
+  position: absolute;
+  top: -36px;
+  right: -8px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.42),
+    transparent 65%
+  );
+  opacity: 0.75;
+  transition:
+    transform 0.32s ease,
+    opacity 0.32s ease;
+  pointer-events: none;
+}
+
+.user-card:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.user-card:hover::after {
+  transform: scale(1.08) translateX(-6px);
+  opacity: 1;
+}
+
+.user-card-avatar-shell {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(170, 204, 255, 0.58)
+  );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    0 8px 18px rgba(61, 112, 186, 0.16);
+}
+
+.user-card-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.user-card-status {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.16);
+}
+
+.user-card-status.active {
+  background: #34c759;
+  animation: user-status-pulse 2.4s ease-in-out infinite;
+}
+
+.user-card-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.user-card-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(74, 85, 104, 0.72);
+}
+
+.user-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.user-card-meta {
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(55, 65, 81, 0.72);
+}
+
+.user-card-accessory {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 8px;
+}
+
+.user-card-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(31, 41, 55, 0.74);
+}
+
+.user-card-arrow {
+  color: rgba(71, 85, 105, 0.72);
+  font-size: 16px;
+  transition: transform 0.24s ease;
+}
+
+.user-card:hover .user-card-arrow {
+  transform: translateX(2px);
+}
+
+.user-logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.44);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(15, 23, 42, 0.05);
+  font-size: 13px;
+  font-weight: 600;
+  color: #c2410c;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.user-logout-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 12px 20px rgba(15, 23, 42, 0.08);
+}
+
+@keyframes user-status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.16);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(52, 199, 89, 0.06);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .user-card {
+    background: linear-gradient(
+        135deg,
+        rgba(35, 43, 56, 0.94),
+        rgba(20, 27, 38, 0.82)
+      ),
+      radial-gradient(
+        circle at top left,
+        rgba(64, 139, 255, 0.22),
+        transparent 42%
+      );
+    box-shadow:
+      0 18px 36px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .user-card::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.02)
+    );
+  }
+
+  .user-card-avatar-shell {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.18),
+      rgba(74, 144, 226, 0.34)
+    );
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.12),
+      0 8px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  .user-card-avatar {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .user-card-status {
+    border-color: rgba(15, 23, 42, 0.92);
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.26);
+  }
+
+  .user-card-kicker {
+    color: rgba(203, 213, 225, 0.62);
+  }
+
+  .user-card-title {
+    color: #f8fafc;
+  }
+
+  .user-card-meta {
+    color: rgba(226, 232, 240, 0.7);
+  }
+
+  .user-card-badge {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    color: rgba(226, 232, 240, 0.82);
+  }
+
+  .user-card-arrow {
+    color: rgba(226, 232, 240, 0.72);
+  }
+
+  .user-logout-button {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 10px 20px rgba(0, 0, 0, 0.18);
+    color: #fdba74;
+  }
+
+  .user-logout-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 14px 24px rgba(0, 0, 0, 0.22);
+  }
 }
 
 .search-box-wrapper {
-  margin-bottom: 16px;
-  padding: 0 16px;
+  margin-bottom: 20px;
+  padding: 0 20px;
 }
 .search-box {
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  padding: 8px 16px;
+  border-radius: 22px;
+  padding: 10px 18px;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.05) inset,
     0 1px 0 rgba(255, 255, 255, 0.5);
@@ -619,7 +1018,7 @@ onUnmounted(() => {
 }
 
 .start-content {
-  padding: 0 24px;
+  padding: 0 28px 6px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -628,7 +1027,7 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 600;
   color: #666;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   padding-left: 4px;
 }
 @media (prefers-color-scheme: dark) {
@@ -636,15 +1035,11 @@ onUnmounted(() => {
     color: #aaa;
   }
 }
-.mt-4 {
-  margin-top: 16px;
-}
-
 .nav-panel-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  row-gap: 20px;
-  column-gap: 16px;
+  row-gap: 24px;
+  column-gap: 18px;
   justify-items: center;
 }
 .nav-grid-item {
@@ -666,15 +1061,15 @@ onUnmounted(() => {
 }
 
 .nav-grid-item .icon-wrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.6);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   color: #555;
   transition: background-color 0.2s;
 }
@@ -699,7 +1094,7 @@ onUnmounted(() => {
   }
 }
 .nav-grid-item span {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
 }
 

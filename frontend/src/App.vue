@@ -7,8 +7,12 @@
         <component :is="Component" :key="$route.path" />
       </transition>
     </router-view>
-    <DockBar v-if="!isWarmOSRoute && !inIframe" />
-    <Footer v-if="$route.meta.showFooter !== false && !isWarmOSRoute && !inIframe" />
+    <DockBar
+      v-if="!isWarmOSRoute && !inIframe && $route.meta.showDockBar !== false"
+    />
+    <Footer
+      v-if="$route.meta.showFooter !== false && !isWarmOSRoute && !inIframe"
+    />
   </div>
 </template>
 
@@ -25,7 +29,7 @@ const route = useRoute();
 const loading = ref(false);
 
 const isWarmOSRoute = computed(() => {
-  return route.path.startsWith('/warmos') || route.name === 'WarmOS';
+  return route.path.startsWith("/warmos") || route.name === "WarmOS";
 });
 
 const inIframe = computed(() => {

@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  type RouteRecordRaw,
+} from "vue-router";
 import { useTokenStore } from "../stores/token";
 import { usePermissionStore } from "../stores/permission";
 import { permissionService } from "../service/permission";
@@ -27,7 +31,7 @@ const routes: Array<RouteRecordRaw> = [
       title: "Warmos",
       keepAlive: true,
       showFooter: false,
-    }
+    },
   },
   {
     path: "/login",
@@ -37,6 +41,8 @@ const routes: Array<RouteRecordRaw> = [
       title: "登录",
       keepAlive: true,
       transition: "slide-right",
+      showFooter: false,
+      showDockBar: false,
     },
   },
   {
@@ -161,12 +167,6 @@ router.beforeEach(async (to, _from, next) => {
   // 需要认证的路由
   if (to.meta.requiresAuth && !tokenStore.isAuthenticated) {
     next({ name: "login", query: { redirect: to.fullPath } });
-    return;
-  }
-
-  // 已登录用户访问登录页，重定向到首页
-  if (to.name === "login" && tokenStore.isAuthenticated) {
-    next({ name: "home" });
     return;
   }
 
