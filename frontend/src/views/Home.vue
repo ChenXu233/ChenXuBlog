@@ -65,7 +65,7 @@
                 </p>
                 <p class="status-summary">
                   🌸🌸🌸<br />
-                  幻想自己已不小心创造了AGI，<br />
+                  总幻想自己已不小心创造了AGI，<br />
                   思考宇宙的本源却发现世界就是一个巨大的自指悖论。<br />
                   把思绪写成诗，把春光当作背景，欢迎来到我的思维宇宙~ <br />
                   🌸🌸🌸
@@ -87,25 +87,26 @@
               <div class="z-capsule cap-1">
                 <span class="c-emoji">🍚</span>
                 <div class="c-details">
-                  <strong>吃白饭</strong><span>米饭是碳水，也是灵感燃料</span>
+                  <strong>吃白饭</strong><span>谁都阻止不了我干饭的热情</span>
                 </div>
               </div>
               <div class="z-capsule cap-2">
                 <span class="c-emoji">⌨️</span>
                 <div class="c-details">
-                  <strong>写代码</strong><span>Rust底层 / Py脚本 / TS诗</span>
+                  <strong>写代码</strong
+                  ><span>Rust底层 / Py脚本 / TS类型体操</span>
                 </div>
               </div>
               <div class="z-capsule cap-3">
                 <span class="c-emoji">🪐</span>
                 <div class="c-details">
-                  <strong>聊哲学</strong><span>bug存不存在于未观测</span>
+                  <strong>聊哲学</strong><span>上帝已死！类型永存！</span>
                 </div>
               </div>
               <div class="z-capsule cap-4">
                 <span class="c-emoji">📐</span>
                 <div class="c-details">
-                  <strong>推物理</strong><span>从欧姆定律到量子力学</span>
+                  <strong>玩物理</strong><span>波粒二象性，启动！！！</span>
                 </div>
               </div>
               <div class="z-capsule cap-5">
@@ -130,8 +131,8 @@
             <div class="win-dot green"></div>
             <h4>[ YaoXiang ]</h4>
             <p>
-              愿景：<strong>Type the Universe</strong>。<br />
-              欢迎来点 star，或者点 issue 骂我。<br />
+              该语言的豪言壮语：<strong>Type the Universe</strong>。<br />
+              欢迎来点 star，或者点 issue 骂我。总之轻点喷。<br />
               <a
                 href="https://github.com/ChenXu233/YaoXiang"
                 target="_blank"
@@ -145,51 +146,72 @@
             <div class="win-status">System.IO.Hardware</div>
             <h4>软硬协同</h4>
             <p>
-              深入学习计算机组成原理，希望有一天能为”多核原生”做出自己的贡献，让软件和硬件不再互相甩锅。
+              深入学习计算机组成原理，希望有一天能为”多核原生”做出自己的贡献。毕竟现在谁没个十二核二十四线程的，总要有办法既简单又高效的利用多核吧？
             </p>
           </div>
 
           <div class="float-window win-agape">
             <div class="win-icon">⚙️</div>
             <h4>AGI 执念</h4>
-            <p>听起来很中二但我是认真的：<br />实现能改变世界的 AGI。</p>
+            <p>
+              听起来很中二，但我依旧是有着改变世界的余念：<br />实现能改变世界的
+              AGI。
+            </p>
           </div>
 
           <div class="float-window win-neuro">
             <div class="win-header">
-              <strong>脑电 + MR</strong>
-              <span class="win-badge">进度: 60%准率</span>
+              <strong>脑电 + MR + 3D眼动追踪</strong>
+              <span class="win-badge">进度: 脑内地图中</span>
             </div>
             <p>
-              发个呆，光标就动了；想个类型，代码就生成了。<br />
-              目前能分辨”我在发呆”和”认真想bug”的区别。
+              这又是一个我想改变世界的方向。<br />
+              <strong>具体来说</strong
+              >：将手机屏幕放到MR中，并用脑电+眼动追踪来控制屏幕上的光标和输入。实现真正的无肢体交互。<br />
+              <strong>我的目标是</strong>：成为下一个乔布斯！
             </p>
           </div>
         </div>
 
         <p class="ambition-footer v-observe reveal-up delay-2">
           对类型系统、计组、AGI、脑机接口感兴趣？欢迎脑暴。<strong
-            >发呆小广告位常年招租。</strong
+            >总之我什么都内聊~。</strong
           >
         </p>
 
-        <!-- 板块四：小工厂出品 + 联系方式 -->
+        <!-- 板块四：技能模块 + 联系方式 -->
         <div class="zen-block block-factory v-observe reveal-up delay-3">
           <div class="factory-split">
             <div class="f-left">
-              <h4>炫技 + 思考小工厂</h4>
+              <h4>我会做什么？</h4>
               <ul class="f-list">
                 <li>
-                  <strong>奇奇怪怪的实验</strong>：用 TS 写会发朋友圈的机器人
+                  <strong>全栈工程师</strong>：热烈推崇前后端分离， FastAPI
+                  拥护者， Vue 爱好者，反对 Java 腐烂的 SpringBoot 。
                 </li>
                 <li>
-                  <strong>软硬结合翻车现场</strong>：焊电路板烫到手，但 LED
-                  居然亮了
+                  <strong>Rust Leaner</strong>： Rust 重写一切！
+                  内存安全、性能、优雅的类型系统，还有那令人愉悦的编译器错误提示，都是我爱上Rust的理由。
                 </li>
-                <li><strong>发呆产物</strong>：用 Python 远程控制家里花洒</li>
-                <li><strong>瞎折腾记录</strong>：从“脑控小灯”到“脑控 IDE”</li>
                 <li>
-                  <strong>写写诗</strong>：代码诗与文字诗，质量随发呆时长波动
+                  <strong>Nonebot2 开发者</strong>：经常写一些无厘头的 Bot
+                  插件，比如话多排行榜，水印大师，抑或是？色色保存器？
+                </li>
+                <li>
+                  <strong>热爱探索边界</strong>：硬件还是软件？ 系统编程 or
+                  脚本编程，总之我全都要！
+                </li>
+                <li>
+                  <strong>物理</strong
+                  >：对世界的本质抱有朴素的直觉，相信一切都有大一统的美学，量子力学只是我的借口，真正的物理是数学！
+                </li>
+                <li>
+                  <strong>AGI</strong
+                  >：如果我是小说主角，我一定是那个改变世界的人！
+                </li>
+                <li>
+                  <strong>形而上学砖家</strong
+                  >：物理学的尽头是数学，数学的尽头是哲学，哲学的尽头是形而上。
                 </li>
               </ul>
             </div>
@@ -201,7 +223,7 @@
                 <div class="c-joke">
                   > 发呆时长 > 10,000 hrs<br />
                   > 发呆领域资深专家<br />
-                  > 可接发呆咨询（收费：一杯奶茶）
+                  > 可接发呆咨询，价格面议<br />
                 </div>
                 <div class="c-links">
                   <a
@@ -210,8 +232,10 @@
                     class="c-btn"
                     ><i class="icon">G</i> GitHub</a
                   >
-                  <a href="#" class="c-btn"
-                    ><i class="icon">R</i> 小红书·晨煦发呆中</a
+                  <a
+                    href="https://www.xiaohongshu.com/user/profile/66b02a79000000001d0306be"
+                    class="c-btn"
+                    ><i class="icon">R</i> 小红书·牛肉厨</a
                   >
                   <a href="mailto:chenxu233@type.universe" class="c-btn"
                     ><i class="icon">M</i> chenxu233@type.universe</a
@@ -226,6 +250,9 @@
 
     <!-- Footer -->
     <section class="footer-section">
+      <div class="bottomtip v-observe fade-in-scroll">
+        到底啦~可以点击下面的小DockBar去看看别的哦~
+      </div>
       <div class="footer-note reveal-up v-observe">
         © 2026 ChenXuBlog. A blend of technology and blooming spring.
       </div>
@@ -832,6 +859,7 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.2rem;
+  color: #f4b3c2;
 }
 .win-neuro h4 {
   margin-bottom: 0;
@@ -1040,7 +1068,6 @@ onBeforeUnmount(() => {
 /* Footer */
 .footer-section {
   padding: 1vh 5vw 5vh 10vw;
-  background: #a8b7cb;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1054,6 +1081,15 @@ onBeforeUnmount(() => {
   font-size: 0.8rem;
   text-align: center;
   letter-spacing: 1px;
+}
+
+.bottomtip {
+  font-size: 1.5rem;
+  color: #ffffff;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+  font-family: "Inter", "Helvetica Neue", "PingFang SC", sans-serif;
+  font-weight: 500;
 }
 
 /* Responsive */

@@ -45,7 +45,7 @@ const initBlossomCanvas = () => {
       this.size = Math.random() * 4 + 3;
       this.speedX = Math.random() * 1 - 0.5;
       this.speedY = Math.random() * 1.5 + 0.8;
-      this.opacity = Math.random() * 0.5 + 0.2;
+      this.opacity = Math.random() * 0.5 + 0.5;
       this.angle = Math.random() * 360;
       this.spin = (Math.random() - 0.5) * 0.1;
     }
@@ -79,7 +79,7 @@ const initBlossomCanvas = () => {
       ctx.rotate(this.angle);
 
       const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size * 2);
-      grad.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
+      grad.addColorStop(0, `rgba(255, 199, 199, ${this.opacity})`);
       grad.addColorStop(1, `rgba(255, 122, 162, ${this.opacity})`);
 
       ctx.fillStyle = grad;

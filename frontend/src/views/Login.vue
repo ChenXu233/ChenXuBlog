@@ -1,38 +1,49 @@
 <template>
-  <div class="login-container">
-    <form @submit.prevent="handleLogin" class="login-form">
-      <router-link to="/" class="nav-brand">返回首页</router-link>
-      <h2>用户登录</h2>
+  <div class="login-wrapper">
+    <BlossomCanvas />
+    <div class="login-container">
+      <LiquidGlass
+        border-radius="24px"
+        bg-color="rgba(255, 255, 255, 0.4)"
+        class="glass-panel"
+      >
+        <form @submit.prevent="handleLogin" class="login-form">
+          <router-link to="/" class="nav-brand">返回首页</router-link>
+          <h2>用户登录</h2>
 
-      <div class="form-group">
-        <label for="evidence">用户名或邮箱</label>
-        <input
-          type="text"
-          id="evidence"
-          v-model="form.evidence"
-          required
-          placeholder="请输入用户名或邮箱"
-        />
-      </div>
+          <div class="form-group">
+            <label for="evidence">用户名或邮箱</label>
+            <input
+              type="text"
+              id="evidence"
+              v-model="form.evidence"
+              required
+              placeholder="请输入用户名或邮箱"
+            />
+          </div>
 
-      <div class="form-group">
-        <label for="password">密码</label>
-        <input
-          type="password"
-          id="password"
-          v-model="form.password"
-          required
-          placeholder="请输入密码"
-        />
-      </div>
+          <div class="form-group">
+            <label for="password">密码</label>
+            <input
+              type="password"
+              id="password"
+              v-model="form.password"
+              required
+              placeholder="请输入密码"
+            />
+          </div>
 
-      <button type="submit" class="login-btn">登录</button>
+          <button type="submit" class="login-btn">登录</button>
 
-      <div class="register-link">
-        <span>没有账号？</span>
-        <router-link to="/register" class="register-link">立即注册</router-link>
-      </div>
-    </form>
+          <div class="register-link">
+            <span>没有账号？</span>
+            <router-link to="/register" class="register-link-btn"
+              >立即注册</router-link
+            >
+          </div>
+        </form>
+      </LiquidGlass>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -40,40 +51,29 @@ import { reactive } from "vue";
 import { post } from "../utils/request";
 import { useRouter, useRoute } from "vue-router";
 import type { UserLoginResponse } from "../types/user";
-import { useTokenStore } from "../stores/token";
-import { usePermissionStore } from "../stores/permission";
-import { permissionService } from "../service/permission";
+import { useAuthStore } from "../stores/authStore";
 import { resetPermissionState } from "../router";
+import LiquidGlass from "../components/LiquidGlass.vue";
+import BlossomCanvas from "../components/effects/BlossomCanvas.vue";
 
 const router = useRouter();
 const route = useRoute();
-const tokenStore = useTokenStore();
-const permissionStore = usePermissionStore();
+const authStore = useAuthStore();
 
 const form = reactive({
   evidence: "",
   password: "",
 });
 
-const loadPermissions = async () => {
-  try {
-    const res = await permissionService.getPermissions();
-    permissionStore.setPermissions(res.permissions);
-  } catch {
-    permissionStore.clearPermissions();
-  }
-};
-
 const handleLogin = () => {
   console.log("登录表单数据:", form);
   post<UserLoginResponse>("/auth/login", form).then(async (res) => {
     if (res.status === 200) {
-      tokenStore.setToken(res.data.access_token);
-      if (res.data.refresh_token) {
-        tokenStore.setRefreshToken(res.data.refresh_token);
-      }
       resetPermissionState();
-      await loadPermissions();
+      // 设置 token 和权限
+      await authStore.login(res.data.access_token, res.data.refresh_token);
+      // 获取用户信息
+      await authStore.fetchUserInfo();
       console.log("登录成功:", res);
       const redirect = route.query.redirect as string;
       router.push(redirect || "/home");
@@ -83,34 +83,36 @@ const handleLogin = () => {
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.login-wrapper {
+  position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  perspective: 500px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #abb8c3 0%, #3d4a5d 100%);
+}
+
+.login-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 420px;
+  z-index: 10;
+  perspective: 1000px;
+}
+
+.glass-panel {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.glass-panel:hover {
+  transform: translateY(-5px) scale(1.02) rotateX(2deg) rotateY(2deg);
 }
 
 .login-form {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
   padding: 2.5rem 3rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 420px;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-  transform-style: preserve-3d;
-}
-
-.login-form:hover {
-  transform: translateY(-5px) scale(1.01) rotateY(30deg) translateZ(20px);
-  perspective: 10px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 }
 
 h2 {
@@ -120,17 +122,13 @@ h2 {
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: 1px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .nav-brand {
   display: block;
   text-align: center;
   margin-bottom: 1rem;
-  color: #667eea;
+  color: #555;
   font-weight: 600;
   text-decoration: none;
   font-size: 0.95rem;
@@ -140,7 +138,7 @@ h2 {
 }
 
 .nav-brand:hover {
-  color: #764ba2;
+  color: #222;
   transform: scale(1.05);
 }
 
@@ -152,111 +150,72 @@ h2 {
 label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #666;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 input {
   width: 100%;
   padding: 0.9rem 1rem;
-  border: 2px solid #e1e5e9;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: white;
+  background: rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
+  color: #333;
 }
 
 input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
 
 input::placeholder {
-  color: #a0aec0;
-  transition: color 0.3s ease;
-}
-
-input:focus::placeholder {
-  color: #cbd5e0;
+  color: #666;
 }
 
 .login-btn {
   width: 100%;
   padding: 0.9rem;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: rgba(0, 0, 0, 0.7);
   color: white;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.login-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #764ba2, #667eea);
-  transition: all 0.5s ease;
-  z-index: -1;
-}
-
-.login-btn:hover::before {
-  left: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .login-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.login-btn:active {
-  transform: translateY(0);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .register-link {
   margin-top: 1.5rem;
   text-align: center;
-  color: #666;
   font-size: 0.95rem;
+  color: #444;
 }
 
-.register-link a {
-  color: #667eea;
-  text-decoration: none;
+.register-link-btn {
+  color: #111;
   font-weight: 600;
-  transition: all 0.3s ease;
-  position: relative;
+  text-decoration: none;
+  margin-left: 0.5rem;
+  transition: color 0.3s ease;
 }
 
-.register-link a::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  transition: width 0.3s ease;
-  border-radius: 2px;
-}
-
-.register-link a:hover {
-  color: #764ba2;
-}
-
-.register-link a:hover::after {
-  width: 100%;
+.register-link-btn:hover {
+  text-decoration: underline;
+  color: #000;
 }
 </style>
