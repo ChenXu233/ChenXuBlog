@@ -1,8 +1,10 @@
 export interface User {
+  id: number;
   uuid: string;
   username: string;
   email: string;
-  avatar_url: string;
+  bio?: string;
+  avatar_url?: string;
 }
 
 export interface UserLogin {

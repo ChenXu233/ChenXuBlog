@@ -21,10 +21,11 @@ user = APIRouter(prefix="/apis/v1/user", tags=["user"])
 async def get_user_info(user: User = Depends(get_access_token_user)):
     user_response = UserResponse(
         id=user.id,
+        uuid=user.uuid,
         username=user.username,
         email=user.email,
-        avatar=user.user_info.avatar,
-        bio=user.user_info.introduction,
+        avatar=user.user_info.avatar if user.user_info else None,
+        bio=user.user_info.introduction if user.user_info else None,
     )
     return user_response
 

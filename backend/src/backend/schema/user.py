@@ -11,6 +11,7 @@ class UserCreate(BaseModel):
 
 class UserResponse(BaseModel):
     id: int = Field(..., description="用户ID")
+    uuid: str = Field(..., description="用户UUID")
     username: str = Field(..., description="用户名")
     email: str = Field(..., description="邮箱")
     bio: Optional[str] = Field(..., description="个人简介")

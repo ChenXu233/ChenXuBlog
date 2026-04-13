@@ -24,6 +24,33 @@ def require_permissions(
         )
         permission_manager.add_permission(required_permission, permission_description)
 
+    async def permission_check(user: User = Depends(get_access_token_user)):
+        """权限检查依赖函数"""
+        logger.info(
+            f"Checking permission: {required_permission} for user {user.uuid}"
+        )
+        if not user.has_permission(required_permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Permission '{required_permission}' is required to access this resource.",
+            )
+        return user
+
+    return permission_check
+
+
+def require_permissions_decorator(
+    required_permission: str, permission_description: str | None = None
+):
+    """
+    权限装饰器版本，用于直接装饰路由函数。
+    """
+    if not any(p.code == required_permission for p in permission_manager.permissions):
+        logger.trace(
+            f"Adding permission: {required_permission} - {permission_description}"
+        )
+        permission_manager.add_permission(required_permission, permission_description)
+
     def decorator(func):
         @wraps(func)
         async def wrapper(
