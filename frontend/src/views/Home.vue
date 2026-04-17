@@ -59,7 +59,7 @@
                 </div>
               </div>
               <div class="status-text">
-                <h3>我是一位”全干工程师”。</h3>
+                <h3>我是一位“全干工程师”。</h3>
                 <p>
                   写代码、聊哲学、推物理、焊电路、发呆、胡思乱想、吃白饭。总之啥都干。
                 </p>
@@ -119,11 +119,6 @@
           </div>
         </div>
 
-        <!-- 板块三：技术野心 (Floating Windows 巧思) -->
-        <div class="ambition-header v-observe reveal-up delay-2">
-          探 索 边 界 // EXPLORATION
-        </div>
-
         <div class="float-windows-grid">
           <div class="float-window win-glass">
             <div class="win-dot red"></div>
@@ -146,7 +141,7 @@
             <div class="win-status">System.IO.Hardware</div>
             <h4>软硬协同</h4>
             <p>
-              深入学习计算机组成原理，希望有一天能为”多核原生”做出自己的贡献。毕竟现在谁没个十二核二十四线程的，总要有办法既简单又高效的利用多核吧？
+              深入学习计算机组成原理，希望有一天能为“多核原生”做出自己的贡献。毕竟现在谁没个十二核二十四线程的，总要有办法既简单又高效的利用多核吧？
             </p>
           </div>
 
@@ -175,7 +170,7 @@
 
         <p class="ambition-footer v-observe reveal-up delay-2">
           对类型系统、计组、AGI、脑机接口感兴趣？欢迎脑暴。<strong
-            >总之我什么都内聊~。</strong
+            >总之我什么都能聊~。</strong
           >
         </p>
 
@@ -251,10 +246,18 @@
     <!-- Footer -->
     <section class="footer-section">
       <div class="bottomtip v-observe fade-in-scroll">
-        到底啦~可以点击下面的小DockBar去看看别的哦~
+        <span class="tip-text">到这里结束啦，点击下方悬浮窗探索更多</span>
       </div>
       <div class="footer-note reveal-up v-observe">
-        © 2026 ChenXuBlog. A blend of technology and blooming spring.
+        <span class="copyright">© 2026 ChenXuBlog</span>
+        <span class="separator">·</span>
+        <a
+          href="https://beian.miit.gov.cn/"
+          target="_blank"
+          rel="noopener"
+          class="icp-link"
+          >浙ICP备2026024319号-1</a
+        >
       </div>
     </section>
   </div>
@@ -764,14 +767,6 @@ onBeforeUnmount(() => {
 }
 
 /* BLOCK 3: AMBITION */
-.ambition-header {
-  font-size: 1rem;
-  letter-spacing: 4px;
-  color: rgba(255, 255, 255, 0.3);
-  text-align: center;
-  font-family: "JetBrains Mono", monospace;
-  margin-bottom: -4rem;
-}
 .float-windows-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1020,30 +1015,30 @@ onBeforeUnmount(() => {
   .block-fused {
     flex-direction: column;
     min-height: auto;
-    gap: 3rem;
   }
   .fused-left {
     flex: none;
     width: 100%;
     flex-direction: column;
     clip-path: none;
-    padding: 3rem 2rem;
+    padding: 3rem 1rem;
     text-align: center;
     align-items: center;
   }
   .zen-hero-name {
     padding-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 1.5rem;
+    padding-bottom: 0rem;
     justify-content: center;
     gap: 1rem;
-    font-size: 2.5rem;
+    font-size: 5rem;
+    flex-direction: row;
   }
   .fused-right {
     flex: none;
     width: 100%;
     clip-path: none;
-    padding: 2rem;
+    padding: 1rem;
   }
   .zen-avatar-system {
     width: 100%;
@@ -1067,7 +1062,7 @@ onBeforeUnmount(() => {
 
 /* Footer */
 .footer-section {
-  padding: 1vh 5vw 5vh 10vw;
+  padding: 5vh 5vw 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1075,21 +1070,51 @@ onBeforeUnmount(() => {
   z-index: 1;
 }
 
+.bottomtip {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 2rem;
+  font-family: "PingFang SC", "Noto Sans SC", sans-serif;
+  letter-spacing: 0.3em;
+}
+
+.tip-text {
+  position: relative;
+}
+
+.tip-text::before,
+.tip-text::after {
+  content: "~";
+  margin: 0 0.5em;
+  opacity: 0.4;
+}
+
 .footer-note {
-  margin-top: 15vh;
-  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
   font-size: 0.8rem;
-  text-align: center;
   letter-spacing: 1px;
 }
 
-.bottomtip {
-  font-size: 1.5rem;
-  color: #ffffff;
-  opacity: 0.7;
-  margin-bottom: 1rem;
-  font-family: "Inter", "Helvetica Neue", "PingFang SC", sans-serif;
-  font-weight: 500;
+.copyright {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.separator {
+  opacity: 0.3;
+}
+
+.icp-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-family: "JetBrains Mono", monospace;
+  transition: color 0.3s ease;
+}
+
+.icp-link:hover {
+  color: #f4b3c2;
 }
 
 /* Responsive */
@@ -1113,10 +1138,10 @@ onBeforeUnmount(() => {
   }
 
   .zen-hero-name {
-    font-size: 2rem;
+    font-size: 4rem;
     flex-direction: row;
     gap: 0.5rem;
-    padding-bottom: 1rem;
+    padding-bottom: 0rem;
   }
 
   .zen-prose {

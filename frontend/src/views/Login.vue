@@ -44,6 +44,11 @@
         </form>
       </LiquidGlass>
     </div>
+    <div class="login-footer">
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener"
+        >浙ICP备2026024319号-1</a
+      >
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -88,6 +93,8 @@ const handleLogin = () => {
   min-height: 100vh;
   overflow: hidden;
   background: linear-gradient(135deg, #abb8c3 0%, #3d4a5d 100%);
+  display: flex;
+  flex-direction: column;
 }
 
 .login-container {
@@ -217,5 +224,24 @@ input::placeholder {
 .register-link-btn:hover {
   text-decoration: underline;
   color: #000;
+}
+
+.login-footer {
+  position: fixed;
+  bottom: calc(1rem + 8vh);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.login-footer a {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.login-footer a:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 </style>

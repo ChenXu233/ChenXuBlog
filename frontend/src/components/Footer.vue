@@ -14,6 +14,11 @@
     </div>
     <div class="footer-copyright">
       <p>© 2024 ChenXu博客 保留所有权利</p>
+      <p class="icp-info">
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener"
+          >浙ICP备2026024319号-1</a
+        >
+      </p>
     </div>
   </footer>
 </template>
@@ -83,6 +88,20 @@ import { RouterLink } from "vue-router";
   padding-top: 20px;
   border-top: 1px solid var(--color-border);
   font-size: 13px;
+}
+
+.icp-info {
+  margin-top: 8px;
+  margin-bottom: 8vh;
+}
+
+.icp-info a {
+  color: var(--color-text-light);
+  text-decoration: none;
+}
+
+.icp-info a:hover {
+  color: var(--color-primary);
 }
 
 @media (max-width: 768px) {
