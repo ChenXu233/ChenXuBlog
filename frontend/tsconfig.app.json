@@ -3,10 +3,10 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"]
     },
-    "ignoreDeprecations": "6.0",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

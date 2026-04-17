@@ -6,7 +6,9 @@
     <article v-else-if="article" class="article-container">
       <header class="article-header">
         <div class="tags" v-if="article.tags_name?.length">
-          <span v-for="tag in article.tags_name" :key="tag" class="tag">{{ tag }}</span>
+          <span v-for="tag in article.tags_name" :key="tag" class="tag">{{
+            tag
+          }}</span>
         </div>
         <h1 class="article-title">{{ article.title }}</h1>
         <div class="article-meta">
@@ -33,7 +35,11 @@
 
       <footer class="article-footer">
         <div class="actions">
-          <button @click="handleLike" class="action-btn" :class="{ active: hasLiked }">
+          <button
+            @click="handleLike"
+            class="action-btn"
+            :class="{ active: hasLiked }"
+          >
             <i class="fa fa-thumbs-up"></i> 点赞 {{ article.like }}
           </button>
           <button v-if="canEdit" @click="goToEdit" class="action-btn">
@@ -77,6 +83,11 @@ const article = ref<Article | null>(null);
 const loading = ref(true);
 const hasLiked = ref(false);
 const commentListRef = ref<InstanceType<typeof CommentList> | null>(null);
+
+// 暴露给父组件
+defineExpose({
+  commentListRef,
+});
 
 const renderedContent = computed(() => {
   return article.value ? md.render(article.value.body) : "";
