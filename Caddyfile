@@ -1,0 +1,10 @@
+chenxu233.cn {
+    root * /var/www/html
+    encode gzip
+    file_server
+
+    @api {
+        path /apis/*
+    }
+    reverse_proxy @api backend:8000
+}
