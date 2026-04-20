@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class PermissionsResponse(BaseModel):
-    permissions: List[bool]
+    permissions: List[str]
 
 
 class Permission(BaseModel):
