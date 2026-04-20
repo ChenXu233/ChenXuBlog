@@ -1,34 +1,80 @@
 <template>
-  <article class="blog-card" @click="goToDetail">
-    <div class="card-cover" v-if="article.cover_url">
-      <img :src="article.cover_url" :alt="article.title" />
-    </div>
-    <div class="card-content">
-      <div class="card-tags" v-if="article.tags_name?.length">
-        <span v-for="tag in article.tags_name" :key="tag" class="tag">{{ tag }}</span>
+  <article
+    class="glass-panel group relative overflow-hidden cursor-pointer blog-card flex flex-col md:flex-row h-full md:h-64"
+    @click="goToDetail"
+    @mousemove="handleMouseMove"
+    @mouseleave="handleMouseLeave"
+    ref="cardRef"
+    :style="{
+      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+    }"
+  >
+    <div class="h-48 md:h-full md:w-1/3 flex-shrink-0 overflow-hidden relative">
+      <img
+        v-if="article.cover_url"
+        :src="article.cover_url"
+        :alt="article.title"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 filter sepia-[0.3] contrast-[0.9] group-hover:sepia-0 group-hover:contrast-100"
+      />
+      <div
+        v-else
+        class="w-full h-full bg-primary/10 flex items-center justify-center"
+      >
+        <i class="fa fa-image text-4xl text-primary/30"></i>
       </div>
-      <h3 class="card-title">{{ article.title }}</h3>
-      <p class="card-excerpt">{{ excerpt }}</p>
-      <div class="card-meta">
-        <span class="meta-item">
-          <i class="fa fa-calendar"></i>
+      <div
+        class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-bg/80 to-transparent pointer-events-none"
+      ></div>
+    </div>
+    <div class="p-6 md:p-8 flex flex-col flex-1">
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <span
+          v-for="tag in article.tags_name"
+          :key="tag"
+          class="px-2 py-1 text-[10px] uppercase tracking-widest font-mono rounded bg-primary/10 text-primary border border-primary/20"
+        >
+          {{ tag }}
+        </span>
+      </div>
+      <h3
+        class="text-xl font-bold mb-3 text-text group-hover:text-primary transition-colors line-clamp-2"
+      >
+        {{ article.title }}
+      </h3>
+      <p class="text-text-light text-sm line-clamp-3 mb-4 flex-1">
+        {{ excerpt }}
+      </p>
+      <div
+        class="flex items-center text-xs text-text-light font-mono gap-4 uppercase tracking-wider"
+      >
+        <span class="flex items-center gap-1.5">
+          <i class="fa fa-calendar-o opacity-70"></i>
           {{ formatDate(article.created_at) }}
         </span>
-        <span class="meta-item">
-          <i class="fa fa-eye"></i>
+        <span class="flex items-center gap-1.5 ml-auto">
+          <i class="fa fa-eye opacity-70"></i>
           {{ article.view_count }}
         </span>
-        <span class="meta-item">
-          <i class="fa fa-heart"></i>
+        <span class="flex items-center gap-1.5">
+          <i class="fa fa-heart-o opacity-70"></i>
           {{ article.like }}
         </span>
       </div>
     </div>
+
+    <!-- 3D 光泽反射层 -->
+    <div
+      class="pointer-events-none absolute inset-0 z-10 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+      :style="{
+        background: `radial-gradient(circle at ${mouseX}px ${mouseY}px, rgba(255,255,255,0.4) 0%, transparent 60%)`,
+        mixBlendMode: 'overlay',
+      }"
+    ></div>
   </article>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import type { Article } from "../types/article";
 
@@ -55,91 +101,45 @@ const formatDate = (dateStr: string) => {
 const goToDetail = () => {
   router.push(`/article/${props.article.id}`);
 };
+
+// 3D Tilt Effect
+const cardRef = ref<HTMLElement | null>(null);
+const rotateX = ref(0);
+const rotateY = ref(0);
+const mouseX = ref(0);
+const mouseY = ref(0);
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (!cardRef.value) return;
+  const rect = cardRef.value.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  mouseX.value = x;
+  mouseY.value = y;
+
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+
+  // 阻尼系数越小倾斜越大
+  rotateY.value = ((x - centerX) / centerX) * 5;
+  rotateX.value = -((y - centerY) / centerY) * 5;
+};
+
+const handleMouseLeave = () => {
+  rotateX.value = 0;
+  rotateY.value = 0;
+};
 </script>
 
 <style scoped>
 .blog-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.3s ease;
 }
-
 .blog-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
-.card-cover {
-  height: 160px;
-  overflow: hidden;
-}
-
-.card-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.blog-card:hover .card-cover img {
-  transform: scale(1.05);
-}
-
-.card-content {
-  padding: 16px;
-}
-
-.card-tags {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.tag {
-  padding: 4px 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 12px;
-  border-radius: 20px;
-}
-
-.card-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-excerpt {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #999;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  box-shadow: var(--shadow-glow), var(--shadow-soft);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 </style>

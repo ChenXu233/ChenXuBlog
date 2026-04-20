@@ -1,9 +1,9 @@
 <template>
   <div
     class="liquid_glass-wrapper"
-    :style="{ 
+    :style="{
       '--border-radius': borderRadius || '16px',
-      '--bg-color': bgColor || 'rgba(0, 0, 0, 0.12)'
+      '--bg-color': bgColor || 'rgba(0, 0, 0, 0.12)',
     }"
   >
     <!-- SVG Filter Definition -->
@@ -58,6 +58,7 @@ defineProps<{
   z-index: 0;
   border-radius: inherit;
   overflow: hidden;
+  pointer-events: none;
 
   mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="0" y="0" width="100%" height="100%" rx="0" ry="0" fill="white"/></svg>'),
     url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="5" y="5" width="calc(100% - 10px)" height="calc(100% - 10px)" rx="21" ry="21" fill="white"/></svg>');
@@ -71,12 +72,14 @@ defineProps<{
   z-index: 2;
   border-radius: var(--border-radius, 16px);
   background: var(--bg-color);
+  pointer-events: none;
 }
 
 .liquid_glass-sharp {
   position: absolute;
   inset: 0;
   z-index: 3;
+  pointer-events: none;
 
   box-shadow:
     inset 1px 1px 0px 0px rgba(255, 255, 255, 0.5),
@@ -88,6 +91,7 @@ defineProps<{
   position: absolute;
   inset: 1px;
   z-index: 2;
+  pointer-events: none;
 
   box-shadow:
     inset 2px 2px 6px 2px rgba(255, 255, 255, 0.2),
@@ -98,6 +102,10 @@ defineProps<{
 .liquid_glass-content {
   position: relative;
   z-index: 4;
+  flex: 1;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>

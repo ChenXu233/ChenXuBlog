@@ -1,185 +1,144 @@
 <template>
-  <div>
-    <!-- Custom Cursor -->
+  <div class="cursor-container">
     <div
-      ref="cursorRef"
-      class="custom-cursor"
-      :class="{ 'is-hover': isHovering }"
+      class="cursor-dot"
+      :class="{ 'is-hidden': isHovering }"
+      :style="{ transform: `translate3d(${mouseX}px, ${mouseY}px, 0)` }"
     >
-      <span v-if="!isHovering" class="sakura">🌸</span>
-      <svg
-        v-else
-        class="lightsaber"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-      >
-        <line
-          x1="12"
-          y1="0"
-          x2="12"
-          y2="24"
-          stroke="#00f0ff"
-          stroke-width="2"
-        />
-        <line
-          x1="0"
-          y1="12"
-          x2="24"
-          y2="12"
-          stroke="#00f0ff"
-          stroke-width="2"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="4"
-          fill="#fff"
-          stroke="#00f0ff"
-          stroke-width="2"
-        />
-      </svg>
+      <span class="sakura">🌸</span>
     </div>
 
-    <!-- Trail Canvas -->
-    <canvas ref="trailCanvasRef" id="trail-canvas"></canvas>
+    <div
+      class="cursor-ring"
+      :class="{ 'is-magnetic': isHovering }"
+      :style="{
+        transform: `translate3d(${ringX}px, ${ringY}px, 0)`,
+        width: `${ringW}px`,
+        height: `${ringH}px`,
+        borderRadius: ringRadius,
+      }"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
-const cursorRef = ref<HTMLElement | null>(null);
-const trailCanvasRef = ref<HTMLCanvasElement | null>(null);
+const mouseX = ref(-100);
+const mouseY = ref(-100);
 
-let cursorX = 0;
-let cursorY = 0;
+const ringX = ref(-100);
+const ringY = ref(-100);
+const ringW = ref(40);
+const ringH = ref(40);
+const ringRadius = ref("50%");
+
 const isHovering = ref(false);
-let cursorRAF = 0;
-let trailAnimationId: number;
-const mouseTrail: { x: number; y: number; life: number }[] = [];
 
-// ============ Custom Cursor ============
+let targetRingX = -100;
+let targetRingY = -100;
+let targetRingW = 40;
+let targetRingH = 40;
+let targetRadius = "50%";
 
-const handleCursorMove = (e: MouseEvent) => {
-  cursorX = e.clientX;
-  cursorY = e.clientY;
+let rafId = 0;
+
+const handleMouseMove = (e: MouseEvent) => {
+  mouseX.value = e.clientX;
+  mouseY.value = e.clientY;
 
   const target = e.target as HTMLElement;
-  if (
-    target &&
-    (target.tagName === "A" ||
-      target.tagName === "BUTTON" ||
-      target.closest("a") ||
-      target.closest("button") ||
-      target.closest(".explore-btn") ||
-      target.closest(".cyber-link"))
-  ) {
+  const clickable = target.closest(
+    'a, button, input, .cursor-pointer, .glass-panel, [role="button"]',
+  );
+
+  if (clickable) {
     isHovering.value = true;
+    const rect = clickable.getBoundingClientRect();
+
+    const padding = 8;
+
+    targetRingW = rect.width + padding * 2;
+    targetRingH = rect.height + padding * 2;
+    targetRingX = rect.left - padding;
+    targetRingY = rect.top - padding;
+
+    const style = window.getComputedStyle(clickable);
+    if (style.borderRadius && style.borderRadius !== "0px") {
+      targetRadius = style.borderRadius;
+    } else {
+      targetRadius = "12px";
+    }
   } else {
     isHovering.value = false;
+
+    targetRingW = 40;
+    targetRingH = 40;
+    targetRingX = mouseX.value - targetRingW / 2;
+    targetRingY = mouseY.value - targetRingH / 2;
+    targetRadius = "50%";
   }
 };
 
-const updateCursor = () => {
-  if (cursorRef.value) {
-    cursorRef.value.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
+const updatePhysics = () => {
+  if (!isHovering.value) {
+    targetRingX = mouseX.value - targetRingW / 2;
+    targetRingY = mouseY.value - targetRingH / 2;
   }
-  cursorRAF = requestAnimationFrame(updateCursor);
-};
 
-// ============ Trail Canvas ============
+  ringX.value += (targetRingX - ringX.value) * 0.15;
+  ringY.value += (targetRingY - ringY.value) * 0.15;
+  ringW.value += (targetRingW - ringW.value) * 0.15;
+  ringH.value += (targetRingH - ringH.value) * 0.15;
 
-const handleMouseMoveTrail = (e: MouseEvent) => {
-  const x = e.clientX;
-  const y = e.clientY + window.scrollY;
-
-  mouseTrail.push({ x, y, life: 1.0 });
-  if (mouseTrail.length > 50) {
-    mouseTrail.shift();
+  if (ringRadius.value !== targetRadius) {
+    ringRadius.value = targetRadius;
   }
+
+  rafId = requestAnimationFrame(updatePhysics);
 };
-
-const initTrailCanvas = () => {
-  const canvas = trailCanvasRef.value;
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  const resizeCtx = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  };
-  window.addEventListener("resize", resizeCtx);
-  resizeCtx();
-
-  const drawTrail = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    if (mouseTrail.length > 0) {
-      for (let i = 0; i < mouseTrail.length; i++) {
-        const p = mouseTrail[i]!;
-        p.life -= 0.05;
-        if (p.life <= 0) continue;
-
-        const renderY = p.y - window.scrollY;
-        const isSakura = i % 2 === 0;
-
-        ctx.beginPath();
-        ctx.fillStyle = isSakura
-          ? `rgba(255, 122, 162, ${p.life * 0.8})`
-          : `rgba(0, 240, 255, ${p.life * 0.8})`;
-        ctx.arc(p.x, renderY, p.life * 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    while (mouseTrail.length > 0 && mouseTrail[0]!.life <= 0) {
-      mouseTrail.shift();
-    }
-
-    trailAnimationId = requestAnimationFrame(drawTrail);
-  };
-  drawTrail();
-};
-
-// ============ Lifecycle ============
 
 onMounted(() => {
-  window.addEventListener("mousemove", handleCursorMove);
-  window.addEventListener("mousemove", handleMouseMoveTrail);
-  updateCursor();
-  initTrailCanvas();
+  window.addEventListener("mousemove", handleMouseMove);
+  rafId = requestAnimationFrame(updatePhysics);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("mousemove", handleCursorMove);
-  window.removeEventListener("mousemove", handleMouseMoveTrail);
-  cancelAnimationFrame(cursorRAF);
-  if (trailAnimationId) cancelAnimationFrame(trailAnimationId);
+  window.removeEventListener("mousemove", handleMouseMove);
+  if (rafId) cancelAnimationFrame(rafId);
 });
 </script>
 
 <style scoped>
-/* Custom Cursor */
-.custom-cursor {
+.cursor-container {
+  pointer-events: none;
   position: fixed;
   top: 0;
   left: 0;
-  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
   z-index: 10000;
-  will-change: transform;
-  margin-left: -12px;
-  margin-top: -12px;
+  overflow: visible; /* 改为 visible 防止容器拦截事件 */
+}
+
+.cursor-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: -12px;
+  margin-top: -12px;
   width: 24px;
   height: 24px;
+}
+
+.cursor-container * {
+  pointer-events: none !important;
 }
 
 .sakura {
@@ -196,9 +155,10 @@ onBeforeUnmount(() => {
     opacity: 0.8;
   }
   50% {
-    transform: scale(1.4) rotate(180deg);
+    transform: scale(1.2) rotate(180deg);
     opacity: 1;
-    filter: drop-shadow(0 0 8px rgba(255, 122, 162, 0.8));
+    filter: drop-shadow(0 0 8px rgba(255, 122, 162, 0.8))
+      drop-shadow(0 0 16px rgba(0, 212, 255, 0.5));
   }
   100% {
     transform: scale(1) rotate(360deg);
@@ -206,32 +166,29 @@ onBeforeUnmount(() => {
   }
 }
 
-.lightsaber {
-  width: 24px;
-  height: 24px;
-  animation: pulse-lightsaber 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.cursor-dot.is-hidden {
+  opacity: 0.1;
+  transform: scale(0.5);
 }
 
-@keyframes pulse-lightsaber {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 4px #00f0ff);
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    filter: drop-shadow(0 0 10px #00f0ff);
-    transform: scale(1.15) rotate(45deg);
-  }
-}
-
-/* Trail Canvas */
-#trail-canvas {
-  position: fixed;
+.cursor-ring {
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  border: 1px solid var(--color-primary-light);
+  box-shadow: 0 0 12px var(--color-primary-light);
   pointer-events: none;
-  z-index: 9999;
+
+  transition:
+    border-radius 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 0.3s ease,
+    backdrop-filter 0.3s ease,
+    border-color 0.3s ease;
+
+  will-change: width, height, transform, border-radius;
+}
+
+.cursor-ring.is-magnetic {
+  border-color: var(--color-primary);
 }
 </style>

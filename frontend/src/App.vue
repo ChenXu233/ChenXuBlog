@@ -1,9 +1,10 @@
 <template>
-  <div id="app">
+  <div id="app" class="min-h-screen transition-colors duration-300">
+    <div class="noise-overlay"></div>
     <LoadingOverlay :show="loading" />
-    <MouseTrail />
+    <MouseTrail v-if="!inIframe" />
     <router-view v-slot="{ Component }">
-      <transition>
+      <transition name="fade" mode="out-in">
         <component :is="Component" :key="$route.path" />
       </transition>
     </router-view>
@@ -51,3 +52,16 @@ watch(
   },
 );
 </script>
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>

@@ -1,17 +1,61 @@
-@import "tailwindcss";
+@layer utilities {
+  .shell-shadow {
+    box-shadow:
+      var(--shadow-soft),
+      inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  }
+
+  .dark .shell-shadow {
+    box-shadow:
+      var(--shadow-soft),
+      inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  }
+}
 
 :root {
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-bg: #ffffff;
-  --color-bg-secondary: #f8fafc;
-  --color-text: #1e293b;
-  --color-text-light: #64748b;
-  --color-border: #e2e8f0;
-  --radius: 8px;
+  --color-primary: #d97736;
+  --color-primary-hover: #b85e25;
+  --color-primary-light: rgba(217, 119, 54, 0.15);
+  --color-bg: #fdfcf9;
+  --color-bg-secondary: #f4f1ea;
+  --color-text: #3c3833;
+  --color-text-light: #807a73;
+  --color-border: rgba(140, 130, 115, 0.2);
+  --color-glass-bg: rgba(253, 252, 249, 0.65);
+  --radius: 12px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --transition: 0.2s ease;
+  --shadow-soft: 0 10px 40px -10px rgba(110, 100, 85, 0.15);
+  --shadow-glow: 0 0 15px rgba(217, 119, 54, 0.3);
+  --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.dark {
+  --color-bg: #1e1b18;
+  --color-bg-secondary: #2a2622;
+  --color-text: #e8e3dc;
+  --color-text-light: #a39d95;
+  --color-glass-bg: rgba(42, 38, 34, 0.5);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 15px rgba(217, 119, 54, 0.4);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+  cursor: none;
+  /* 隐藏原生光标，我们使用了自定义 CustomCursor */
+}
+
+.dark .glass-panel {
+  box-shadow:
+    var(--shadow-soft),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
 html body.home-hide-scrollbar::-webkit-scrollbar {
