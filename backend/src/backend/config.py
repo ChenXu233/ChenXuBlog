@@ -20,6 +20,10 @@ class AppConfig(BaseSettings):
     MAIL_FROM: str
     MAIL_PORT: int
     MAIL_SERVER: str
+    # 管理员配置
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = "123456"
+    ADMIN_EMAIL: str = "admin@example.com"
 
     class Config:
         env_file = ".env"  # 指定 .env 文件路径

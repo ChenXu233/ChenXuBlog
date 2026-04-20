@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.config import CONFIG
 from backend.database import get_db
 from backend.logger import logger
-from backend.model.user import User
+from backend.model.user import Role, User
 
 
 def _generate_token(user_uuid: str, token_type: str, expires_delta: timedelta, secret_key: str) -> str:
@@ -107,8 +107,16 @@ async def get_access_token_user(
     db: AsyncSession = Depends(get_db),
 ) -> User:
     """获取访问令牌中的用户信息"""
+    from sqlalchemy.orm import selectinload
     user_uuid = decode_access_token(token).get("sub", None)
-    user = await db.execute(select(User).where(User.uuid == user_uuid))
+    user = await db.execute(
+        select(User)
+        .options(
+            selectinload(User.roles).selectinload(Role.permissions),
+            selectinload(User.user_info),
+        )
+        .where(User.uuid == user_uuid)
+    )
     user = user.scalars().first()
     if user is None:
         raise HTTPException(

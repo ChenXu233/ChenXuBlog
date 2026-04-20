@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.config import CONFIG
 from backend.logger import logger
 from backend.model.user import Permission, Role, User
 from backend.utils.permission import permission_manager
@@ -27,6 +28,15 @@ async def init_permissions(db: AsyncSession):
             description=permission.description,
         )
         db.add(_permission)
+
+    # 确保 admin:access 权限存在
+    admin_access = Permission(
+        target="admin",
+        action="access",
+        description="访问管理后台",
+    )
+    db.add(admin_access)
+
     await db.commit()
 
 
@@ -63,9 +73,9 @@ async def create_admin_user(db: AsyncSession):
         .first()
     )
     admin_user = User(
-        username="admin",
-        password="123456",
-        email="admin@example.com",
+        username=CONFIG.ADMIN_USERNAME,
+        password=CONFIG.ADMIN_PASSWORD,
+        email=CONFIG.ADMIN_EMAIL,
         roles=[superuser_role],
     )
     db.add(admin_user)

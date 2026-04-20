@@ -18,6 +18,7 @@ class Comment(Base):
     blog_id: Mapped[int] = mapped_column(ForeignKey("blogs.id"), index=True)
     blog: Mapped["Blog"] = relationship("Blog")
     content: Mapped[str] = mapped_column(Text)
+    parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("comments.id"), index=True)
     replies: Mapped[list["Comment"]] = relationship(
         "Comment", back_populates="parent", cascade="all, delete-orphan"
     )
