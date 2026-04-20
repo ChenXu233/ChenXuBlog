@@ -2,8 +2,8 @@ import { get, post } from "../utils/request";
 import type { User, UserUpdate } from "../types/user";
 
 export const userService = {
-  async getUserInfo(id: string): Promise<User> {
-    const res = await get<User>(`/user/${id}`);
+  async getUserInfo(uuid: string): Promise<User> {
+    const res = await get<User>(`/user/info/${uuid}`);
     return res.data;
   },
 

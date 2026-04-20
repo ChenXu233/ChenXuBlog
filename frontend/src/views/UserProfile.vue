@@ -6,30 +6,36 @@
 
     <div v-else-if="user" class="profile-container">
       <div class="profile-header">
-        <el-avatar :src="user.avatar_url" :size="100" />
+        <el-avatar :src="user.avatar" :size="100" />
         <div class="user-info">
           <h1 class="username">{{ user.username }}</h1>
           <p class="email">{{ user.email }}</p>
         </div>
-        <button v-if="isOwnProfile" @click="showEditDialog = true" class="edit-btn">
+        <button
+          v-if="isOwnProfile"
+          @click="showEditDialog = true"
+          class="edit-btn"
+        >
           <i class="fa fa-edit"></i> 编辑资料
         </button>
       </div>
 
       <div class="profile-stats">
         <div class="stat-item">
-          <span class="stat-value">{{ articles.length }}</span>
+          <span class="stat-value">{{ articles?.length ?? 0 }}</span>
           <span class="stat-label">文章</span>
         </div>
       </div>
 
       <div class="articles-section">
         <h2>他的文章</h2>
-        <div v-if="articles.length === 0" class="empty-state">
-          暂无文章
-        </div>
+        <div v-if="!articles?.length" class="empty-state">暂无文章</div>
         <div v-else class="articles-grid">
-          <BlogCard v-for="article in articles" :key="article.id" :article="article" />
+          <BlogCard
+            v-for="article in articles || []"
+            :key="article.id"
+            :article="article"
+          />
         </div>
         <div v-if="totalPages > 1" class="pagination">
           <button
@@ -51,7 +57,11 @@
     </div>
 
     <!-- 编辑资料弹窗 -->
-    <div v-if="showEditDialog" class="edit-dialog-overlay" @click.self="showEditDialog = false">
+    <div
+      v-if="showEditDialog"
+      class="edit-dialog-overlay"
+      @click.self="showEditDialog = false"
+    >
       <div class="edit-dialog">
         <h3>编辑资料</h3>
         <div class="form-group">
@@ -64,12 +74,14 @@
         </div>
         <div class="form-group">
           <label>头像 URL</label>
-          <input v-model="editForm.avatar_url" type="text" />
+          <input v-model="editForm.avatar" type="text" />
         </div>
         <div class="dialog-actions">
-          <button @click="showEditDialog = false" class="cancel-btn">取消</button>
+          <button @click="showEditDialog = false" class="cancel-btn">
+            取消
+          </button>
           <button @click="handleUpdate" class="save-btn" :disabled="saving">
-            {{ saving ? '保存中...' : '保存' }}
+            {{ saving ? "保存中..." : "保存" }}
           </button>
         </div>
       </div>
@@ -104,11 +116,11 @@ const saving = ref(false);
 const editForm = ref<{
   username: string;
   email: string;
-  avatar_url: string;
+  avatar: string;
 }>({
   username: "",
   email: "",
-  avatar_url: "",
+  avatar: "",
 });
 
 const isOwnProfile = computed(() => {
@@ -126,7 +138,7 @@ const fetchUserInfo = async () => {
     editForm.value = {
       username: user.value.username,
       email: user.value.email,
-      avatar_url: user.value.avatar_url || "",
+      avatar: user.value.avatar || "",
     };
   } catch (error) {
     showError("加载用户信息失败");
@@ -157,7 +169,7 @@ const handleUpdate = async () => {
     const data: UserUpdate = {
       username: editForm.value.username,
       email: editForm.value.email,
-      avatar_url: editForm.value.avatar_url,
+      avatar: editForm.value.avatar,
     };
     const updated = await userService.updateUserInfo(user.value.uuid, data);
     user.value = updated;

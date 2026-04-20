@@ -4,7 +4,7 @@ export interface User {
   username: string;
   email: string;
   bio?: string;
-  avatar_url?: string;
+  avatar?: string;
 }
 
 export interface UserLogin {
@@ -25,7 +25,7 @@ export interface UserRegisterResponse {
 export interface UserUpdate {
   username: string;
   email: string;
-  avatar_url: string;
+  avatar: string;
 }
 
 export interface UserLoginResponse {

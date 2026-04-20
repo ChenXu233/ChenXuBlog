@@ -24,8 +24,8 @@ const redirectToLogin = () => {
   window.location.href = "/login";
 };
 
-// 创建错误组件实例的函数
-export const showError = (
+// 创建弹窗组件实例的函数
+const createPopup = (
   message: string,
   title?: string,
   type?: "error" | "warning" | "info" | "success",
@@ -59,6 +59,11 @@ export const showError = (
     document.body.removeChild(container);
   };
 };
+
+export const showError = createPopup;
+
+export const showSuccess = (message: string, title?: string) =>
+  createPopup(message, title, "success");
 
 type ErrorHandler = (error: unknown) => void;
 
@@ -197,6 +202,9 @@ export const get = <T>(url: string, params?: object) =>
 
 export const del = <T>(url: string, data?: object) =>
   request<T>({ method: "delete", url, data });
+
+export const put = <T>(url: string, data?: object) =>
+  request<T>({ method: "put", url, data });
 
 export const post = <T>(url: string, data?: object) => {
   // 如果是 FormData，让浏览器自动设置 Content-Type

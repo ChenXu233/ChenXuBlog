@@ -132,6 +132,46 @@ const routes: Array<RouteRecordRaw> = [
       transition: "slide-right",
     },
   },
+  {
+    path: "/admin",
+    component: () => import("../views/admin/AdminLayout.vue"),
+    meta: {
+      requiresAuth: true,
+      requiresPermission: "admin:access",
+    },
+    children: [
+      {
+        path: "",
+        name: "dashboard",
+        component: () => import("../views/admin/Dashboard.vue"),
+        meta: { requiresPermission: "user:read" },
+      },
+      {
+        path: "users",
+        name: "user-manage",
+        component: () => import("../views/admin/UserManage.vue"),
+        meta: { requiresPermission: "user:read" },
+      },
+      {
+        path: "roles",
+        name: "role-manage",
+        component: () => import("../views/admin/RoleManage.vue"),
+        meta: { requiresPermission: "user:read" },
+      },
+      {
+        path: "articles",
+        name: "article-manage",
+        component: () => import("../views/admin/ArticleManage.vue"),
+        meta: { requiresPermission: "blog:read" },
+      },
+      {
+        path: "comments",
+        name: "comment-manage",
+        component: () => import("../views/admin/CommentManage.vue"),
+        meta: { requiresPermission: "comment:read" },
+      },
+    ],
+  },
 ];
 
 const router = createRouter({

@@ -106,11 +106,11 @@
                 <div class="section-title">所有页面</div>
                 <div class="nav-panel-grid">
                   <router-link
-                    v-for="item in navItems"
+                    v-for="item in allNavItems"
                     :key="item.path"
                     :to="item.path"
                     class="nav-grid-item"
-                    :class="{ active: route.path === item.path }"
+                    :class="{ active: route.path.startsWith(item.path) }"
                     @click="showNavPanel = false"
                   >
                     <div class="icon-wrapper">
@@ -199,10 +199,12 @@ import {
   type AppConfig,
 } from "@/stores/warmos";
 import { useAuthStore } from "@/stores/authStore";
+import { usePermissionStore } from "@/stores/permission";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const permissionStore = usePermissionStore();
 
 // UI 核心状态
 const isHovered = ref(false);
@@ -343,23 +345,41 @@ const navItems = ref([
   { name: "友链", path: "/friend", icon: "fa-users" },
 ]);
 
+// 管理员入口（仅超管可见）
+const adminNavItem = computed(() => {
+  if (!authStore.isAuthenticated) return null;
+  if (permissionStore.hasPermission("admin:access")) {
+    return { name: "管理后台", path: "/admin", icon: "fa-cog" };
+  }
+  return null;
+});
+
+// 完整导航列表（含管理员入口）
+const allNavItems = computed(() => {
+  const items = [...navItems.value];
+  if (adminNavItem.value) {
+    items.push(adminNavItem.value);
+  }
+  return items;
+});
+
 const currentMenuName = computed(() => {
   const item =
-    navItems.value.find(
+    allNavItems.value.find(
       (i) => route.path.startsWith(i.path) && i.path !== "/",
-    ) || navItems.value[0];
+    ) || allNavItems.value[0];
   if (route.path === "/" || route.path === "/home")
-    return navItems.value[0]?.name ?? "首页";
+    return allNavItems.value[0]?.name ?? "首页";
   return item?.name || "应用容器";
 });
 
 const currentIcon = computed(() => {
   const item =
-    navItems.value.find(
+    allNavItems.value.find(
       (i) => route.path.startsWith(i.path) && i.path !== "/",
-    ) || navItems.value[0];
+    ) || allNavItems.value[0];
   if (route.path === "/" || route.path === "/home")
-    return navItems.value[0]?.icon ?? "fa-home";
+    return allNavItems.value[0]?.icon ?? "fa-home";
   return item?.icon || "fa-compass";
 });
 
@@ -538,6 +558,7 @@ onUnmounted(() => {
 .island-content {
   display: flex;
   flex-direction: column;
+  justify-content: flex-end; /* 将内容沉底，使下方的 Dock 贴合底部边沿 */
   align-items: center;
   width: max-content; /* 最核心魔法：由内部内容驱动容器实际宽度！ */
   height: 100%; /* 满高，供 flex 自动布局 */
@@ -649,6 +670,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   flex: 1; /* 撑满纵向高度，压住底部的 Dock */
+  min-height: 0; /* 极其重要：允许在 dock 模式下压缩到 0 高度 */
   overflow: hidden; /* 防止未激活时内容干扰 */
 }
 .island-menu.show {
@@ -666,6 +688,9 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 12px;
   padding: 0 20px 20px;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .user-card,
@@ -971,6 +996,9 @@ onUnmounted(() => {
 .search-box-wrapper {
   margin-bottom: 20px;
   padding: 0 20px;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 .search-box {
   display: flex;
@@ -1050,6 +1078,10 @@ onUnmounted(() => {
   color: #333;
   width: 100%;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
+  cursor: pointer;
 }
 .nav-grid-item:hover {
   transform: scale(1.05);
@@ -1152,7 +1184,7 @@ onUnmounted(() => {
     opacity 0.3s ease,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 10;
-  height: 60px; /* 固定高宽，为整个组件奠定拓宽基础 */
+  height: 40px; /* 固定高宽，为整个组件奠定拓宽基础 */
   flex-shrink: 0;
 }
 .island-dock.show {
