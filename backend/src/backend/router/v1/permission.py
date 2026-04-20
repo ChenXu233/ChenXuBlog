@@ -16,7 +16,7 @@ async def have_permission(
     user: User = Depends(get_access_token_user),
 ):
     for i in user.roles:
-        if permission_code in i.permissions:
+        if i.has_permission(permission_code):
             return True
     return False
 
@@ -27,7 +27,11 @@ async def get_permission(
     user: User = Depends(get_access_token_user),
 ):
     permissions = []
-    for i in user.roles:
-        permissions.extend(i.permissions)
+    seen = set()
+    for role in user.roles:
+        for p in role.permissions:
+            if p.code not in seen:
+                seen.add(p.code)
+                permissions.append(p.code)
 
     return PermissionsResponse(permissions=permissions)

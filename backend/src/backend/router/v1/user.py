@@ -31,21 +31,22 @@ async def get_user_info(user: User = Depends(get_access_token_user)):
 
 
 @user.get(
-    "/info/{user_id}",
+    "/info/{user_uuid}",
     response_model=UserResponse,
     dependencies=[Depends(require_permissions("user:read"))],
 )
-async def get_user_info_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
-    user = (await db.execute(select(User).where(User.id == user_id))).scalars().first()
+async def get_user_info_by_id(user_uuid: str, db: AsyncSession = Depends(get_db)):
+    user = (await db.execute(select(User).where(User.uuid == user_uuid))).scalars().first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     user_response = UserResponse(
         id=user.id,
+        uuid=user.uuid,
         username=user.username,
         email=user.email,
-        avatar=user.user_info.avatar,
-        bio=user.user_info.introduction,
+        avatar=user.user_info.avatar if user.user_info else None,
+        bio=user.user_info.introduction if user.user_info else None,
     )
     return user_response
 
