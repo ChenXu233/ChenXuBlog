@@ -1,18 +1,20 @@
 <template>
-  <div id="app" class="min-h-screen transition-colors duration-300">
+  <div id="app" class="app-wrapper">
     <div class="noise-overlay"></div>
     <LoadingOverlay :show="loading" />
     <MouseTrail v-if="!inIframe" />
-    <router-view v-slot="{ Component }">
+    <router-view v-slot="{ Component }" class="app-content">
       <transition name="fade" mode="out-in">
         <component :is="Component" :key="$route.path" />
       </transition>
     </router-view>
     <DockBar
       v-if="!isWarmOSRoute && !inIframe && $route.meta.showDockBar !== false"
+      class="app-bottom"
     />
     <Footer
       v-if="$route.meta.showFooter !== false && !isWarmOSRoute && !inIframe"
+      class="app-bottom"
     />
   </div>
 </template>
@@ -52,6 +54,21 @@ watch(
   },
 );
 </script>
+<style scoped>
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s;
+}
+.app-content {
+  flex: 1;
+}
+.app-bottom {
+  margin-top: auto;
+}
+</style>
+
 <style>
 .fade-enter-active,
 .fade-leave-active {

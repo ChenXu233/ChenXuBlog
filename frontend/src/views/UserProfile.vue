@@ -32,7 +32,7 @@
         <div v-if="!articles?.length" class="empty-state">暂无文章</div>
         <div v-else class="articles-grid">
           <BlogCard
-            v-for="article in articles || []"
+            v-for="article in articles"
             :key="article.id"
             :article="article"
           />
@@ -74,7 +74,15 @@
         </div>
         <div class="form-group">
           <label>头像 URL</label>
-          <input v-model="editForm.avatar" type="text" />
+          <input v-model="editForm.avatar" type="text" @blur="validateAvatar" />
+          <span v-if="avatarError" class="field-error">{{ avatarError }}</span>
+          <div v-if="editForm.avatar" class="avatar-preview">
+            <img
+              :src="editForm.avatar"
+              alt="头像预览"
+              @error="handleAvatarError"
+            />
+          </div>
         </div>
         <div class="dialog-actions">
           <button @click="showEditDialog = false" class="cancel-btn">
@@ -95,7 +103,7 @@ import { useRoute } from "vue-router";
 import { userService } from "../service/user";
 import { useUserStore } from "../stores/userStore";
 import { useTokenStore } from "../stores/token";
-import { showError } from "../utils/request";
+import { showError, showSuccess } from "../utils/request";
 import BlogCard from "../components/BlogCard.vue";
 import type { User, UserUpdate } from "../types/user";
 import type { Article } from "../types/article";
@@ -112,6 +120,7 @@ const pageSize = ref(10);
 const total = ref(0);
 const showEditDialog = ref(false);
 const saving = ref(false);
+const avatarError = ref("");
 
 const editForm = ref<{
   username: string;
@@ -127,9 +136,40 @@ const isOwnProfile = computed(() => {
   return tokenStore.isAuthenticated && userStore.id === route.params.id;
 });
 
-const totalPages = computed(() => {
-  return Math.ceil(total.value / pageSize.value);
-});
+const totalPages = computed(() => Math.ceil(total.value / pageSize.value));
+
+const validateEmail = (email: string) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+};
+
+const validateForm = () => {
+  if (
+    !editForm.value.username ||
+    editForm.value.username.length < 2 ||
+    editForm.value.username.length > 20
+  ) {
+    showError("用户名长度需要在2-20个字符之间", "输入错误");
+    return false;
+  }
+  if (editForm.value.email && !validateEmail(editForm.value.email)) {
+    showError("请输入正确的邮箱格式", "输入错误");
+    return false;
+  }
+  return true;
+};
+
+const validateAvatar = () => {
+  if (editForm.value.avatar && !editForm.value.avatar.startsWith("http")) {
+    avatarError.value = "头像URL需要以http://或https://开头";
+  } else {
+    avatarError.value = "";
+  }
+};
+
+const handleAvatarError = () => {
+  avatarError.value = "头像图片加载失败，请检查URL是否正确";
+};
 
 const fetchUserInfo = async () => {
   loading.value = true;
@@ -163,7 +203,7 @@ const fetchUserArticles = async (page = 1) => {
 };
 
 const handleUpdate = async () => {
-  if (!user.value) return;
+  if (!user.value || !validateForm()) return;
   saving.value = true;
   try {
     const data: UserUpdate = {
@@ -178,7 +218,7 @@ const handleUpdate = async () => {
       name: updated.username,
     });
     showEditDialog.value = false;
-    showError("保存成功", "提示", "success");
+    showSuccess("保存成功", "提示");
   } catch (error) {
     showError("保存失败");
   } finally {
@@ -383,6 +423,28 @@ onMounted(() => {
 .form-group input:focus {
   outline: none;
   border-color: var(--color-primary, #667eea);
+}
+
+.field-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #f56c6c;
+}
+
+.avatar-preview {
+  margin-top: 12px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-border, #e1e5e9);
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .dialog-actions {

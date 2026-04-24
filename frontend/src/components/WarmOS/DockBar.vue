@@ -74,19 +74,15 @@
                   </div>
 
                   <div class="user-card-accessory">
-                    <span class="user-card-badge">{{ userCardBadge }}</span>
-                    <i class="fa fa-angle-right user-card-arrow"></i>
+                    <span
+                      v-if="authStore.isAuthenticated"
+                      class="user-card-badge logout-badge"
+                      @click.stop="handleLogout"
+                    >
+                      <i class="fa fa-sign-out"></i>
+                      <span>退出登录</span>
+                    </span>
                   </div>
-                </button>
-
-                <button
-                  v-if="authStore.isAuthenticated"
-                  type="button"
-                  class="user-logout-button"
-                  @click.stop="handleLogout"
-                >
-                  <i class="fa fa-sign-out"></i>
-                  <span>退出登录</span>
                 </button>
               </div>
 
@@ -861,6 +857,30 @@ onUnmounted(() => {
   color: rgba(31, 41, 55, 0.74);
 }
 
+.logout-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-badge:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.05);
+}
+
+.logout-badge i {
+  font-size: 12px;
+}
+
 .user-card-arrow {
   color: rgba(71, 85, 105, 0.72);
   font-size: 16px;
@@ -975,6 +995,16 @@ onUnmounted(() => {
 
   .user-card-arrow {
     color: rgba(226, 232, 240, 0.72);
+  }
+
+  .logout-badge {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    color: #f87171;
+  }
+
+  .logout-badge:hover {
+    background: rgba(239, 68, 68, 0.25);
   }
 
   .user-logout-button {
