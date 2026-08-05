@@ -1,3 +1,197 @@
-.claude
-.ruff_cache
-.spec-workflow
+# ============================================
+# ChenXuBlog - .gitignore
+# 完全体版本 - 前后端一体项目
+# ============================================
+
+# --------------------------------------------
+# 通用配置
+# --------------------------------------------
+
+# IDE 和编辑器
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Claude AI
+.claude/
+
+# 缓存
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+cython_debug/
+
+# 日志
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*~
+
+
+# --------------------------------------------
+# 后端 (Python/FastAPI)
+# --------------------------------------------
+
+# Python 字节码
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Python 打包
+build/
+dist/
+downloads/
+*.egg-info/
+*.egg
+MANIFEST
+develop-eggs/
+install/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PEP 582
+__pypackages__/
+
+# PDM
+.pdm.toml
+.pdm-python
+.pdm-build/
+pdm.lock
+
+# Poetry
+poetry.lock
+
+# 测试与覆盖率
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+cover/
+
+# Sphinx 文档
+docs/_build/
+
+# Jupyter
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# MkDocs
+site/
+
+# 环境变量 (敏感)
+.env
+.env.local
+.env.*.local
+
+# 后端数据目录 (运行时生成)
+backend/logs/*
+backend/data/*
+!backend/data/
+!backend/data/database/
+!backend/data/img/
+
+# 特定后端文件
+backend/.ruff_cache/
+
+
+# --------------------------------------------
+# 前端 (Vue.js/TypeScript/pnpm/Vite)
+# --------------------------------------------
+
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+dist-ssr/
+*.local
+
+# pnpm
+.pnpm-store/
+.pnpm/
+
+# 自动生成的类型声明 (由 Vite 插件自动生成)
+auto-imports.d.ts
+components.d.ts
+
+# 日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 运行时环境变量
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+
+# --------------------------------------------
+# Docker 相关
+# --------------------------------------------
+
+.dockerignore
+
+
+# --------------------------------------------
+# CI/CD (配置保留, 缓存忽略)
+# --------------------------------------------
+
+.spec-workflow/
+
+
+# --------------------------------------------
+# 杂项
+# --------------------------------------------
+
+# 压缩包
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# 前端/后端各自 .gitignore 中已有但为了完整性在此也列出
+*.pyc
+*.pyo

@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: blog-backend-dev
+    command: >
+      sh -c "
+        pip install pdm -q &&
+        pdm install --dev -q &&
+        pdm run uvicorn backend:app --reload --host 0.0.0.0 --port 8000
+      "
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - DEBUG=true
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # 挂载源码和配置实现热重载
+      - ./backend/src:/app/src
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
+    networks:
+      - blog-dev-network
+
+  frontend:
+    image: node:22-alpine
+    container_name: blog-frontend-dev
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install --no-audit --no-fund -q &&
+        npx vite --host
+      "
+    ports:
+      - "5174:5173"
+    environment:
+      - VITE_API_PROXY=http://backend:8000
+      # Windows Docker 文件系统事件传递有问题，用轮询保证 HMR 生效
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - blog-dev-network
+
+networks:
+  blog-dev-network:
+    driver: bridge

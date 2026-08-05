@@ -1,0 +1,40 @@
+allowBuilds:
+  '0': e
+  '1': s
+  '2': b
+  '3': u
+  '4': i
+  '5': l
+  '6': d
+  '7': ' '
+  '8': '@'
+  '9': t
+  '10': a
+  '11': i
+  '12': l
+  '13': w
+  '14': i
+  '15': n
+  '16': d
+  '17': c
+  '18': s
+  '19': s
+  '20': /
+  '21': o
+  '22': x
+  '23': i
+  '24': d
+  '25': e
+  '26': ' '
+  '27': v
+  '28': u
+  '29': e
+  '30': '-'
+  '31': d
+  '32': e
+  '33': m
+  '34': i
+  '@tailwindcss/oxide': set this to true or false
+  esbuild: set this to true or false
+  vue-demi: set this to true or false
+onlyBuiltDependencies: '[esbuild,@tailwindcss/oxide,vue-demi]'
