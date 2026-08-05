@@ -680,11 +680,255 @@ export default defineNuxtConfig({
 2. 更新 Caddyfile（反代配置）
 3. 更新 `docker-compose.yml`
 4. 删除废弃文件（`frontend/src/` 旧代码）
-5. 端到端测试
+5. 最终集成 E2E（详见 §6）
 
 ---
 
-## 六、不做范围（YAGNI）
+## 六、E2E 测试计划
+
+每个阶段交付后，必须跑通对应 E2E 测试才能进入下一阶段。测试分为两层：
+
+| 层 | 工具 | 范围 | 运行方式 |
+|----|------|------|---------|
+| **API E2E** | `pytest` + `httpx.AsyncClient` | 后端接口，直接 HTTP 调用 | `cd backend && pytest tests/e2e_api/` |
+| **UI E2E** | Playwright（Nuxt 启动后） | 浏览器操作，全链路 | `cd frontend && npx playwright test` |
+
+### 6.1 阶段一 E2E：后端修复验证
+
+**API E2E 测试文件：** `backend/tests/e2e_api/test_phase1_backend.py`
+
+```python
+# 测试清单（全部通过 → 阶段一完成）
+def test_register_and_login():
+    """注册 → 登录 → 返回 access_token + refresh_token"""
+    # POST /apis/v1/auth/register
+    # POST /apis/v1/auth/login → 200
+
+def test_auth_refresh():
+    """用 refresh_token 刷新 access_token"""
+    # POST /apis/v1/auth/refresh → 新 token
+
+def test_blog_crud_authenticated():
+    """登录后：创建文章 → 获取 → 更新 → 删除"""
+    # POST /apis/v1/blog → 201
+    # GET /apis/v1/blog/{id} → 200
+    # PUT /apis/v1/blog/{id} → 200
+    # DELETE /apis/v1/blog/{id} → 204
+
+def test_blog_list_public():
+    """未登录可见文章列表"""
+    # GET /apis/v1/blog → 200, 分页
+
+def test_comment_public_read():
+    """未登录可见评论"""
+    # GET /apis/v1/comment/{blog_id} → 200
+
+def test_comment_auth_write():
+    """登录后才能写评论"""
+    # POST /apis/v1/comment → 201
+    # DELETE /apis/v1/comment/{id} → 204
+
+def test_bearer_auth():
+    """Authorization: Bearer 正常工作"""
+    # 用 Bearer token 访问受保护接口 → 200
+    # 无 token → 401
+    # 错误 token → 401
+
+def test_pagination():
+    """分页参数正常工作"""
+    # GET /apis/v1/blog?page=1&page_size=10 → 正确分页响应
+
+def test_permission_deny():
+    """普通用户访问 admin 接口 → 403"""
+    # GET /apis/v1/admin/users → 403
+
+def test_like_flow():
+    """点赞 → 取消点赞 → 点赞状态"""
+    # POST /apis/v1/blog/{id}/like → 200
+    # GET /apis/v1/blog/{id}/like → true
+    # POST /apis/v1/blog/{id}/like → 取消
+    # GET /apis/v1/blog/{id}/like → false
+```
+
+### 6.2 阶段一B E2E：MinIO 图床验证
+
+**API E2E 测试文件：** `backend/tests/e2e_api/test_phase1b_minio.py`
+
+```python
+def test_upload_image():
+    """上传图片 → 返回可访问 URL"""
+    # POST /apis/v1/img_bed (需 JWT)
+    # 响应含 url: "/images/{hash}.{ext}"
+
+def test_get_image():
+    """通过 hash 获取图片内容"""
+    # GET /apis/v1/img_bed/{hash} → 200, 正确 Content-Type
+
+def test_upload_no_auth():
+    """未登录无法上传"""
+    # POST /apis/v1/img_bed (无 JWT) → 401
+```
+
+### 6.3 阶段二 E2E：Nuxt 前端验证
+
+**UI E2E 测试文件：** `frontend/e2e/phase2_frontend.spec.ts`
+
+```ts
+test('首页渲染正常', async ({ page }) => {
+  // 访问 /home → 200, 可见标题/文章卡片
+})
+
+test('登录流程', async ({ page }) => {
+  // 访问 /login → 填写表单 → 提交 → 跳转 /home
+  // 导航栏显示用户信息
+})
+
+test('注册流程', async ({ page }) => {
+  // 访问 /register → 填写 -> 提交 → 提示成功
+})
+
+test('文章列表页', async ({ page }) => {
+  // 访问 /article → 显示文章列表
+})
+
+test('文章详情页', async ({ page }) => {
+  // 访问 /article/1 → 渲染 Markdown 内容
+})
+
+test('未登录访问受保护页面 → 重定向到登录', async ({ page }) => {
+  // 访问 /article/create → 302 → /login?redirect=...
+})
+
+test('API 401 自动弹 Toast', async ({ page }) => {
+  // 修改 token 失效 → 请求 API → 看到 Toast 提示
+})
+```
+
+### 6.4 阶段三 E2E：后端功能补全验证
+
+**API E2E 测试文件：** `backend/tests/e2e_api/test_phase3_features.py`
+
+```python
+def test_register_verify_flow():
+    """注册 → 获取验证邮件 token → 验证 → 用户已认证"""
+def test_forgot_password_flow():
+    """忘记密码 → 获取重置 token → 重置密码 → 新密码登录"""
+def test_admin_stats():
+    """管理员登录 → 获取仪表盘统计"""
+def test_admin_user_management():
+    """管理员查看用户列表 → 修改角色 → 删除用户"""
+def test_upload_avatar():
+    """上传头像 → 头像 URL 更新"""
+def test_article_cover():
+    """文章设置封面图 → 返回封面 URL"""
+def test_search():
+    """搜索文章 → 返回匹配结果"""
+```
+
+### 6.5 阶段四 + 四B E2E：前端页面完善 + 特效验证
+
+**UI E2E 测试文件：** `frontend/e2e/phase4_pages.spec.ts`
+
+```ts
+test('后台管理页面：仪表盘', async ({ page }) => {
+  // 登录 admin → 访问 /admin → 显示统计
+})
+
+test('后台管理页面：用户管理', async ({ page }) => {
+  // 登录 admin → 访问 /admin/users → 用户列表
+})
+
+test('后台管理页面：文章管理', async ({ page }) => {
+  // 登录 admin → 访问 /admin/articles → 文章列表 → 切换发布状态
+})
+
+test('404 页面', async ({ page }) => {
+  // 访问 /nonexistent → 显示 404 错误页面
+})
+
+test('文章详情页 TOC 导航', async ({ page }) => {
+  // 访问 /article/1 → 侧边栏 TOC → 点击跳转
+})
+
+test('评论嵌套回复', async ({ page }) => {
+  // 登录 → 写评论 → 回复评论 → 嵌套显示
+})
+
+// 阶段四B：特效验证（视觉回归）
+test('首页特效渲染', async ({ page }) => {
+  // 访问 /home → Canvas 元素存在
+  // 滚动 → 竹子产生视差
+  // 风力变化 → 雨滴/竹叶偏转
+})
+```
+
+### 6.6 阶段五 E2E：完整集成验证
+
+**已部署容器上运行的最终 E2E：**
+
+```bash
+#!/bin/bash
+# e2e/final_integration_test.sh
+
+echo "=== 1. 健康检查 ==="
+curl -f http://localhost/apis/v1/health || exit 1
+
+echo "=== 2. 静态资源 ==="
+curl -f http://localhost/_nuxt/... || exit 2  # Nuxt 的 JS/CSS 可访问
+
+echo "=== 3. 首页 SSR ==="
+curl -s http://localhost/home | grep -q "html" || exit 3
+
+echo "=== 4. API 端到端 ==="
+cd backend && pytest tests/e2e_api/ -v
+
+echo "=== 5. UI 端到端 ==="
+cd frontend && npx playwright test
+
+echo "=== 6. MinIO 图片 ==="
+curl -f http://localhost/apis/v1/img_bed/test-hash || exit 6
+
+echo "=== 7. Caddy 反代 ==="
+curl -s -o /dev/null -w "%{http_code}" http://localhost/apis/v1/blog | grep -q "200"
+
+echo "✅ 全部通过"
+```
+
+### 6.7 E2E 测试目录结构
+
+```
+backend/
+└── tests/
+    ├── e2e_api/
+    │   ├── conftest.py            # 共享 fixture（test client, auth headers）
+    │   ├── test_phase1_backend.py # 阶段一：后端修复
+    │   ├── test_phase1b_minio.py  # 阶段一B：MinIO
+    │   └── test_phase3_features.py# 阶段三：后端功能补全
+    └── conftest.py
+
+frontend/
+└── e2e/
+    ├── playwright.config.ts       # Playwright 配置
+    ├── phase2_frontend.spec.ts    # 阶段二：Nuxt 前端
+    └── phase4_pages.spec.ts       # 阶段四：页面完善 + 特效
+
+e2e/
+├── final_integration_test.sh      # 阶段五：完整集成测试
+└── README.md                     # 运行说明
+```
+
+### 6.8 测试驱动开发规则
+
+> 每个阶段完成时 → 该阶段所有 E2E 测试通过 → 才能进入下一阶段
+
+- 阶段一完成前，不能动 Nuxt 的代码
+- 阶段二完成前，不能写 MinIO 迁移
+- 每阶段新增功能必须有对应的 E2E 测试用例
+- 所有 E2E 测试保存在 git 中，随代码一起提交
+
+---
+
+## 八、不做范围（YAGNI）
 
 - ❌ Rust 插件系统
 - ❌ 分布式部署
@@ -700,7 +944,7 @@ export default defineNuxtConfig({
 
 ---
 
-## 七、文件清单
+## 九、文件清单
 
 ### 新增文件（后端）
 
@@ -730,6 +974,20 @@ export default defineNuxtConfig({
 | `schema/blog.py`       | 去掉 `like` 字段                             |
 | `utils/jwt.py`         | 支持 `Authorization: Bearer`                 |
 | `config.py`            | 新增 MinIO 配置项                            |
+
+### 新增文件（测试）
+
+| 文件 | 说明 |
+|------|------|
+| `backend/tests/e2e_api/conftest.py` | 共享 fixture（test client, auth headers） |
+| `backend/tests/e2e_api/test_phase1_backend.py` | 阶段一：后端修复 E2E |
+| `backend/tests/e2e_api/test_phase1b_minio.py` | 阶段一B：MinIO 图床 E2E |
+| `backend/tests/e2e_api/test_phase3_features.py` | 阶段三：后端功能补全 E2E |
+| `frontend/e2e/playwright.config.ts` | Playwright 配置 |
+| `frontend/e2e/phase2_frontend.spec.ts` | 阶段二：Nuxt 前端 E2E |
+| `frontend/e2e/phase4_pages.spec.ts` | 阶段四：页面完善 + 特效 E2E |
+| `e2e/final_integration_test.sh` | 阶段五：完整集成测试 |
+| `e2e/README.md` | 运行说明 |
 
 ### 新增文件（前端）
 
