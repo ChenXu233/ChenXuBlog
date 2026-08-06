@@ -53,17 +53,15 @@ async def create_comment(
     "/get/{blog_id}",
     name="get_comments",
     response_model=CommentsResponse,
-    dependencies=[Depends(require_permissions("comment:read", "read comment"))],
 )
 async def get_comments(
     blog_id: int = Path(..., ge=1),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_access_token_user),
 ):
     # 获取顶级评论（没有父评论的评论）
     result = await db.execute(
         select(CommentDB)
-        .where(CommentDB.blog_id == blog_id, CommentDB.parent.is_(None))
+        .where(CommentDB.blog_id == blog_id, CommentDB.parent_id.is_(None))
         .options(selectinload(CommentDB.replies))
         .order_by(CommentDB.created_at.desc())
     )
@@ -84,7 +82,6 @@ async def get_comments(
 async def get_comment(
     comment_id: int = Path(..., ge=1),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_access_token_user),
 ):
     result = await db.execute(select(CommentDB).where(CommentDB.id == comment_id))
     db_comment = result.scalars().first()

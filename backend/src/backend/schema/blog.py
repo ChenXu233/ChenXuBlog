@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -10,12 +11,11 @@ class BlogResponse(BaseModel):
     cover_url: Optional[str] = Field(..., description="Blog cover URL")
     body: str = Field(..., description="Blog body")
     tags_name: List[str] = Field(..., description="Blog tags")
-    created_at: int = Field(..., description="Blog creation time")
-    updated_at: int = Field(..., description="Blog update time")
+    created_at: datetime = Field(..., description="Blog creation time")
+    updated_at: datetime = Field(..., description="Blog update time")
     view_count: int = Field(..., description="Blog view count")
     likes_count: int = Field(..., description="Blog like count")
     published: bool = Field(..., description="Blog published status")
-    like: int = Field(..., description="Blog like count")
 
     class Config:
         from_attributes = True

@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.schema.blog import BlogResponse
+from backend.schema.blog import BlogResponse, BlogListResponse
 
 from ..database import Base
 
@@ -75,7 +75,35 @@ class Blog(Base):
 
     async def to_ResponseModel(self, db: AsyncSession) -> BlogResponse:
         await db.refresh(self, ["tags", "like"])
-        return BlogResponse.model_validate(self)
+        return BlogResponse(
+            id=self.id,
+            user_uuid=self.user_uuid,
+            title=self.title,
+            cover_url=self.cover_url,
+            body=self.body,
+            tags_name=[t.name for t in (self.tags or [])],
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+            view_count=self.view_count,
+            likes_count=len(self.like or []),
+            published=self.published,
+        )
+
+    def to_dict(self) -> dict:
+        """Convert to dict without triggering lazy loads."""
+        return {
+            "id": self.id,
+            "user_uuid": self.user_uuid,
+            "title": self.title,
+            "cover_url": self.cover_url,
+            "body": self.body,
+            "tags_name": [t.name for t in (self.tags or [])],
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "view_count": self.view_count,
+            "likes_count": len(self.like or []),
+            "published": self.published,
+        }
 
 
 class Tag(Base):

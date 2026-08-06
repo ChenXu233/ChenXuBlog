@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from math import ceil
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
 from sqlalchemy import func, or_, select
@@ -11,7 +11,7 @@ from backend.database import get_db
 from backend.model.blog import Blog, Tag
 from backend.model.user import User
 from backend.schema.blog import BlogCreate, BlogListResponse, BlogResponse
-from backend.utils.jwt import get_access_token_user
+from backend.utils.jwt import get_access_token_user, get_access_token_user_uuid
 from backend.utils.permission import require_permissions
 
 blog = APIRouter(prefix="/apis/v1/blog", tags=["blog"])
@@ -25,38 +25,33 @@ async def get_blogs(
     search: Optional[str] = Query(None, description="Search in title and body"),
     db: AsyncSession = Depends(get_db),
 ):
-    # 构建基础查询，只查询已发布的博客
     query = select(Blog).where(Blog.published == True)
 
-    # 如果有标签过滤，关联查询标签
     if tag:
         query = query.join(Blog.tags).where(Tag.name == tag)
 
-    # 如果有搜索条件，搜索标题和内容
     if search:
         search_pattern = f"%{search}%"
         query = query.where(
             or_(Blog.title.like(search_pattern), Blog.body.like(search_pattern))
         )
 
-    # 获取总数
     count_query = select(func.count()).select_from(query.subquery())
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
 
-    # 计算分页
     total_pages = ceil(total / page_size) if total > 0 else 1
     offset = (page - 1) * page_size
 
-    # 获取分页数据
     query = query.options(selectinload(Blog.tags), selectinload(Blog.like))
     query = query.order_by(Blog.created_at.desc()).offset(offset).limit(page_size)
 
     result = await db.execute(query)
-    blogs = result.scalars().all()
+    blogs = result.unique().scalars().all()
 
-    # 转换为响应格式（预加载已生效，无需额外refresh）
-    items = [BlogResponse.model_validate(b) for b in blogs]
+    items = []
+    for b in blogs:
+        items.append(await b.to_ResponseModel(db))
 
     return BlogListResponse(
         items=items,
@@ -70,23 +65,26 @@ async def get_blogs(
 @blog.get("/{id}", response_model=BlogResponse)
 async def get_blog(
     id: int = Path(..., gt=0),
-    token: str | None = Header(None, description="Access Token"),
+    authorization: str | None = Header(None, alias="Authorization"),
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Blog).where(Blog.id == id).options(selectinload(Blog.tags))
+        select(Blog).where(Blog.id == id).options(selectinload(Blog.tags), selectinload(Blog.like))
     )
-    db_blog: Optional[Blog] = result.scalars().first()
+    db_blog: Optional[Blog] = result.unique().scalars().first()
 
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
 
-    if token:
-        user = await get_access_token_user(token, db)
-        if db_blog.user_uuid != user.uuid and not db_blog.published:
-            raise HTTPException(
-                status_code=403, detail="You do not have permission to view this blog"
-            )
+    if authorization and authorization.startswith("Bearer "):
+        try:
+            user_uuid = get_access_token_user_uuid(authorization)
+            if db_blog.user_uuid != user_uuid and not db_blog.published:
+                raise HTTPException(
+                    status_code=403, detail="You do not have permission to view this blog"
+                )
+        except HTTPException:
+            pass
 
     if not db_blog.published:
         raise HTTPException(status_code=403, detail="This blog is not published yet")
@@ -114,8 +112,8 @@ async def update_blog(
     user: User = Depends(get_access_token_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Blog).where(Blog.id == id))
-    db_blog: Optional[Blog] = result.scalars().first()
+    result = await db.execute(select(Blog).where(Blog.id == id).options(selectinload(Blog.tags), selectinload(Blog.like)))
+    db_blog: Optional[Blog] = result.unique().scalars().first()
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
 
@@ -127,17 +125,33 @@ async def update_blog(
     db_blog.title = blog.title
     db_blog.body = blog.body
     db_blog.published = blog.published
-    db_blog.updated_at = datetime.now()
+    db_blog.updated_at = datetime.now(timezone.utc)
 
+    # Clear existing tags first
+    db_blog.tags = []
     for tag_name in blog.tags:
-        tag = await db.execute(Tag.select().where(Tag.name == tag_name))
-        if not tag.scalar():
-            tag = Tag(name=tag_name)
-            db.add(tag)
-        db_blog.tags.append(tag)
+        tag = await db.execute(select(Tag).where(Tag.name == tag_name))
+        existing = tag.scalar_one_or_none()
+        if not existing:
+            existing = Tag(name=tag_name)
+            db.add(existing)
+        db_blog.tags.append(existing)
 
     await db.commit()
-    return await db_blog.to_ResponseModel(db)
+    await db.refresh(db_blog, ["tags", "like"])
+    return BlogResponse(
+        id=db_blog.id,
+        user_uuid=db_blog.user_uuid,
+        title=db_blog.title,
+        cover_url=db_blog.cover_url,
+        body=db_blog.body,
+        tags_name=[t.name for t in (db_blog.tags or [])],
+        created_at=db_blog.created_at,
+        updated_at=db_blog.updated_at,
+        view_count=db_blog.view_count,
+        likes_count=len(db_blog.like or []),
+        published=db_blog.published,
+    )
 
 
 @blog.post(
@@ -158,14 +172,13 @@ async def create_blog(
 ):
     new_blog = Blog(
         user_uuid=user.uuid,
-        user=user,
         title=blog.title,
         body=blog.body,
         published=blog.published,
     )
 
     for tag_name in blog.tags:
-        tag = await db.execute(Tag.select().where(Tag.name == tag_name))
+        tag = await db.execute(select(Tag).where(Tag.name == tag_name))
         if not tag.scalar():
             tag = Tag(name=tag_name)
             db.add(tag)
@@ -173,6 +186,7 @@ async def create_blog(
 
     db.add(new_blog)
     await db.commit()
+    await db.refresh(new_blog, ["tags", "like"])
     return await new_blog.to_ResponseModel(db)
 
 
@@ -217,26 +231,23 @@ async def toggle_like(
     result = await db.execute(
         select(Blog).where(Blog.id == id).options(selectinload(Blog.like))
     )
-    db_blog: Optional[Blog] = result.scalars().first()
+    db_blog: Optional[Blog] = result.unique().scalars().first()
 
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
 
-    # 检查用户是否已经点赞（预加载已生效）
-    liked = any(u.uuid == user.uuid for u in db_blog.like)
+    liked = any(u.uuid == user.uuid for u in (db_blog.like or []))
 
     if liked:
-        # 取消点赞
-        db_blog.like = [u for u in db_blog.like if u.uuid != user.uuid]
+        db_blog.like = [u for u in (db_blog.like or []) if u.uuid != user.uuid]
         message = "Like removed"
     else:
-        # 添加点赞
         db_blog.like.append(user)
         message = "Like added"
 
     await db.commit()
 
-    return {"liked": not liked, "likes_count": len(db_blog.like), "message": message}
+    return {"liked": not liked, "likes_count": len(db_blog.like or []), "message": message}
 
 
 @blog.get("/{id}/like", name="get_like_status")
@@ -247,7 +258,7 @@ async def get_like_status(
     result = await db.execute(
         select(Blog).where(Blog.id == id).options(selectinload(Blog.like))
     )
-    db_blog: Optional[Blog] = result.scalars().first()
+    db_blog: Optional[Blog] = result.unique().scalars().first()
 
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")

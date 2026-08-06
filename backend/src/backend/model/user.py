@@ -111,8 +111,9 @@ class User(Base):
     blog_likes: Mapped[List["Blog"]] = relationship(
         "Blog",
         secondary="blog_likes",
-        back_populates="like",
-    )  # 多对多关系
+        viewonly=True,
+        overlaps="like",
+    )  # 多对多关系，只读
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
@@ -158,8 +159,8 @@ async def create_user(
         username=username,
         email=email,
         password=password,
-        verification_token=verification_token,
-        verification_expiry=token_expiry,
+        verify_token=verification_token,
+        verify_expiry=token_expiry,
     )
 
     try:

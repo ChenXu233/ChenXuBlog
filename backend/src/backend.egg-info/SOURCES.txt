@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 src/backend/__init__.py
 src/backend/config.py
@@ -41,3 +42,4 @@ src/backend/utils/jwt.py
 src/backend/utils/permission/__init__.py
 src/backend/utils/permission/manager.py
 src/backend/utils/permission/permission_decorator.py
+tests/test_blog.py

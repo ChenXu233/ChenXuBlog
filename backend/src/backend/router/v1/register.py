@@ -22,47 +22,48 @@ register = APIRouter(prefix="/apis/v1/auth", tags=["register"])
 async def signup_user(
     request: Request, user: UserCreate, db: AsyncSession = Depends(get_db)
 ) -> UserRegisterResponse:
-    # 确保用户名和邮箱的唯一性
-    db_user = await db.execute(select(User).where(User.username == user.username))
-    db_user = db_user.scalars().first()
-    if not db_user:
-        db_user = await db.execute(select(User).where(User.email == user.email))
-        db_user = db_user.scalars().first()
-
-    # 生成用户验证token，并在5分钟后过期
+    # 生成用户验证token，60分钟后过期
     verify_token = str(uuid.uuid4())
     token_expiry = datetime.now(UTC) + timedelta(minutes=60)
 
-    if not db_user:
-        # 创建用户
-        db_user = await create_user(
-            db,
-            user.username,
-            user.email,
-            user.password,
-            verify_token,
-            token_expiry,
-        )
-    else:
-        # 如果用户已存在，则更新验证token和过期时间
-        if db_user.is_verified:
+    # 确保用户名和邮箱的唯一性
+    existing = await db.execute(
+        select(User).where((User.username == user.username) | (User.email == user.email))
+    )
+    existing_user = existing.scalars().first()
+
+    if existing_user:
+        if existing_user.is_verified:
             raise HTTPException(
                 status_code=400, detail="User already exists and is verified"
             )
+        # 未验证用户，更新验证token
         try:
-            db_user.verify_token = verify_token
-            db_user.verify_expiry = token_expiry
+            existing_user.verify_token = verify_token
+            existing_user.verify_expiry = token_expiry
             await db.commit()
         except Exception as e:
             await db.rollback()
             raise HTTPException(
                 status_code=500, detail=f"Error updating verify token: {str(e)}"
             ) from e
+        await send_verify_email(request, user.email, verify_token)
+        return UserRegisterResponse(user_uuid=existing_user.uuid)
+
+    # 创建新用户
+    db_user = await create_user(
+        db,
+        user.username,
+        user.email,
+        user.password,
+        verify_token,
+        token_expiry,
+    )
 
     # 发送验证邮件
     await send_verify_email(request, user.email, verify_token)
 
-    return UserRegisterResponse(user_uuid=db_user.user_uuid)
+    return UserRegisterResponse(user_uuid=db_user.uuid)
 
 
 @register.get("/verify/{token}", response_class=HTMLResponse, name="verify_email")

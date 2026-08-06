@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 import jwt
 from fastapi import Depends, Header, HTTPException
@@ -79,7 +80,7 @@ def decode_access_token(token: str) -> dict:
     return info
 
 
-def decode_refresh_token(token: str = Header(..., description="Access Token")) -> dict:
+def decode_refresh_token(token: str) -> dict:
     """解码刷新令牌"""
     logger.info(f"Decoding refresh token {token}")
     try:
@@ -93,21 +94,32 @@ def decode_refresh_token(token: str = Header(..., description="Access Token")) -
     return info
 
 
+def extract_bearer_token(authorization: Optional[str] = Header(None, description="Authorization: Bearer <token>")) -> str:
+    """从 Authorization header 中提取 Bearer token"""
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing Authorization header")
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid Authorization header format")
+    return authorization[7:]
+
+
 def get_access_token_user_uuid(
-    token: str = Header(..., description="Access Token"),
+    authorization: Optional[str] = Header(None, alias="Authorization"),
 ) -> str:
-    """获取访问令牌中的用户信息"""
+    """从 Authorization: Bearer header 中获取用户 UUID"""
+    token = extract_bearer_token(authorization)
     if user_uuid := decode_access_token(token).get("sub", None):
         return user_uuid
     raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 
 async def get_access_token_user(
-    token: str = Header(..., description="Access Token"),
+    authorization: Optional[str] = Header(None, alias="Authorization"),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """获取访问令牌中的用户信息"""
+    """从 Authorization: Bearer header 中获取用户信息"""
     from sqlalchemy.orm import selectinload
+    token = extract_bearer_token(authorization)
     user_uuid = decode_access_token(token).get("sub", None)
     user = await db.execute(
         select(User)
@@ -117,7 +129,7 @@ async def get_access_token_user(
         )
         .where(User.uuid == user_uuid)
     )
-    user = user.scalars().first()
+    user = user.unique().scalars().first()
     if user is None:
         raise HTTPException(
             status_code=401, detail="Invalid authentication credentials"
@@ -126,8 +138,8 @@ async def get_access_token_user(
 
 
 async def get_refresh_token_user(
-    token,
-    db: AsyncSession = Depends(get_db),
+    token: str,
+    db: AsyncSession,
 ) -> User:
     """获取刷新令牌中的用户信息"""
     user_uuid = decode_refresh_token(token).get("sub", None)
