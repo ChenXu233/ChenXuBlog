@@ -15,11 +15,12 @@ class AppConfig(BaseSettings):
     PORT: int = 8000
     ACCESS_SECRET_KEY: str
     REFRESH_SECRET_KEY: str
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_PORT: int
-    MAIL_SERVER: str
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    MAIL_PORT: int = 465
+    MAIL_SERVER: str = ""
+    MAIL_ENABLED: bool = False  # 设为 false 则只打印邮件内容，不实际发送
     # 管理员配置
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "123456"

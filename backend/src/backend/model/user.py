@@ -111,9 +111,9 @@ class User(Base):
     blog_likes: Mapped[List["Blog"]] = relationship(
         "Blog",
         secondary="blog_likes",
-        viewonly=True,
+        back_populates="like",
         overlaps="like",
-    )  # 多对多关系，只读
+    )  # 多对多关系
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

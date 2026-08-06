@@ -53,7 +53,7 @@ class AdminCommentResponse(BaseModel):
     id: int
     blog_id: int
     blog_title: str
-    user_id: str
+    user_id: int
     username: str
     content: str
     created_at: int

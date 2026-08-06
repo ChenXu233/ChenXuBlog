@@ -46,11 +46,11 @@ def blog_to_response(blog: Blog, username: str = "") -> AdminBlogResponse:
         username=username or (blog.user.username if blog.user else ""),
         title=blog.title,
         cover_url=blog.cover_url,
-        tags_name=[t.name for t in blog.tags] if blog.tags else [],
+        tags_name=[t.name for t in (blog.tags or [])],
         created_at=int(blog.created_at.timestamp()),
         updated_at=int(blog.updated_at.timestamp()),
         view_count=blog.view_count,
-        likes_count=blog.likes_count,
+        likes_count=len(blog.like or []),
         published=blog.published,
     )
 
@@ -107,12 +107,12 @@ async def get_stats(
     # 最近5篇文章
     recent_blogs_query = (
         select(Blog)
-        .options(selectinload(Blog.tags), selectinload(Blog.user))
+        .options(selectinload(Blog.tags), selectinload(Blog.user), selectinload(Blog.like))
         .order_by(Blog.created_at.desc())
         .limit(5)
     )
     recent_blogs_result = await db.execute(recent_blogs_query)
-    recent_blogs = [blog_to_response(b) for b in recent_blogs_result.scalars().all()]
+    recent_blogs = [blog_to_response(b) for b in recent_blogs_result.unique().scalars().all()]
 
     # 最近5条评论
     recent_comments_query = (
@@ -223,7 +223,7 @@ async def get_blogs(
     _: User = admin_dependency(),
 ):
     """获取文章列表(包含未发布的)"""
-    query = select(Blog).options(selectinload(Blog.tags), selectinload(Blog.user))
+    query = select(Blog).options(selectinload(Blog.tags), selectinload(Blog.user), selectinload(Blog.like))
 
     if published is not None:
         query = query.where(Blog.published == published)
@@ -237,7 +237,7 @@ async def get_blogs(
     offset = (page - 1) * page_size
     query = query.order_by(Blog.created_at.desc()).offset(offset).limit(page_size)
     result = await db.execute(query)
-    blogs = result.scalars().all()
+    blogs = result.unique().scalars().all()
 
     return AdminBlogListResponse(
         items=[blog_to_response(b) for b in blogs],

@@ -74,7 +74,6 @@ class Blog(Base):
         return [tag.name for tag in self.tags]
 
     async def to_ResponseModel(self, db: AsyncSession) -> BlogResponse:
-        await db.refresh(self, ["tags", "like"])
         return BlogResponse(
             id=self.id,
             user_uuid=self.user_uuid,

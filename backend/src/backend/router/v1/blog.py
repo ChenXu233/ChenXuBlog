@@ -205,8 +205,8 @@ async def delete_blog(
     user: User = Depends(get_access_token_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Blog).where(Blog.id == id))
-    db_blog: Optional[Blog] = result.scalars().first()
+    result = await db.execute(select(Blog).where(Blog.id == id).options(selectinload(Blog.like)))
+    db_blog: Optional[Blog] = result.unique().scalars().first()
 
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
@@ -246,7 +246,7 @@ async def toggle_like(
         message = "Like added"
 
     await db.commit()
-
+    await db.refresh(db_blog, ["like"])
     return {"liked": not liked, "likes_count": len(db_blog.like or []), "message": message}
 
 
