@@ -1,11 +1,12 @@
-import hashlib
-import io
+"""MinIO S3 image storage router.
 
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
-from PIL import Image
+Supports both MinIO (when configured) and local filesystem fallback.
+"""
 
-from backend.config import CONFIG
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import Response
+
+from backend.service.storage import storage_service
 from backend.utils.permission import require_permissions
 
 img_bed = APIRouter(prefix="/apis/v1/img_bed", tags=["img_bed"])
@@ -16,40 +17,39 @@ img_bed = APIRouter(prefix="/apis/v1/img_bed", tags=["img_bed"])
     name="image_upload",
     dependencies=[Depends(require_permissions("img_bed:create", "Upload image"))],
 )
-async def upload_image(request: Request, image: UploadFile = File(...)):
-    image_content = await image.read()
+async def upload_image(image: UploadFile = File(...)):
+    """Upload an image file. Returns the public URL.
 
-    image_hash = hashlib.sha256(image_content).hexdigest()
+    The file is stored via StorageService (MinIO or local filesystem).
+    """
+    data = await image.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
 
-    img = Image.open(io.BytesIO(image_content))
-    if not img.format:
-        raise HTTPException(status_code=400, detail="Invalid image format")
-    image_format = img.format.lower()
-
-    image_filename = f"{image_hash}.{image_format}"
-    image_path = CONFIG.IMAGE_BED_PATH / image_filename
-
-    if image_path.exists():
-        raise HTTPException(status_code=409, detail="Image already exists")
-
-    with open(image_path, "wb") as f:
-        f.write(image_content)
-
-    image_url = request.url_for("image_get", image_hash=image_filename)
-
-    return JSONResponse(content={"url": image_url})
+    url = await storage_service.upload(data, image.content_type or "application/octet-stream")
+    return {"url": url}
 
 
 @img_bed.get(
-    "/{image_hash}",
+    "/{object_name}",
     name="image_get",
-    dependencies=[Depends(require_permissions("img_bed:read", "Read image"))],
 )
-async def get_image(image_hash: str):
-    matching_files = list(CONFIG.IMAGE_BED_PATH.glob(f"{image_hash}*"))
-    if not matching_files:
+async def get_image(object_name: str):
+    """Get an image file by its hash-based filename."""
+    data = await storage_service.get(object_name)
+    if data is None:
         raise HTTPException(status_code=404, detail="Image not found")
 
-    image_path = matching_files[0]
+    # Guess content type from extension
+    ext = object_name.rsplit(".", 1)[-1].lower() if "." in object_name else ""
+    content_type = {
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "png": "image/png",
+        "gif": "image/gif",
+        "webp": "image/webp",
+        "svg": "image/svg+xml",
+        "bmp": "image/bmp",
+    }.get(ext, "application/octet-stream")
 
-    return FileResponse(image_path)
+    return Response(content=data, media_type=content_type)

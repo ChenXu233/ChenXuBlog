@@ -21,6 +21,13 @@ class AppConfig(BaseSettings):
     MAIL_PORT: int = 465
     MAIL_SERVER: str = ""
     MAIL_ENABLED: bool = False  # 设为 false 则只打印邮件内容，不实际发送
+    # MinIO 配置
+    MINIO_ENABLED: bool = False
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "chenxu-blog-images"
+    MINIO_SECURE: bool = False
     # 管理员配置
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "123456"

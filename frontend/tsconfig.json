@@ -1,13 +1,8 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
+  "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "types": ["node", "@types/markdown-it"],
-    "isolatedModules": true
-  }
+    "types": ["@nuxt/ui"]
+  },
+  "include": [".nuxt/nuxt.d.ts", "app.vue", "app.config.ts", "nuxt.config.ts", "pages/**/*.vue", "composables/**/*.ts", "utils/**/*.ts", "middleware/**/*.ts", "components/**/*.vue", "types/**/*.ts"],
+  "exclude": ["src.old", "vite.config.ts"]
 }

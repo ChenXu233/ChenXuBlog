@@ -21,5 +21,6 @@ Requires-Dist: fastapi-mail>=1.4.2
 Requires-Dist: pillow>=11.2.1
 Requires-Dist: python-multipart>=0.0.20
 Requires-Dist: httpx>=0.28.1
+Requires-Dist: minio>=7.2.0
 
 # backend

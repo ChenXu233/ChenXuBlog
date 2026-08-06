@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  --color-rose-50: #fce4e8;
+  --color-rose-100: #f9cdd5;
+  --color-rose-200: #f4b3c2;
+  --color-rose-300: #ef99af;
+  --color-rose-400: #ea7f9c;
+  --color-rose-500: #e56589;
+  --color-rose-600: #d48a9e;
+  --color-rose-700: #c4708a;
+  --color-rose-800: #b45676;
+  --color-rose-900: #a43c62;
+}
