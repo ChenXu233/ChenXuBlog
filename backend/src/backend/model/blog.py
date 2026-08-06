@@ -56,7 +56,7 @@ class Blog(Base):
     like: Mapped[List["User"]] = relationship(
         "User",
         secondary="blog_likes",
-        back_populates="blog_likes",
+        lazy="selectin",
     )  # 多对多关系
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)

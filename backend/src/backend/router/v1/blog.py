@@ -112,7 +112,7 @@ async def update_blog(
     user: User = Depends(get_access_token_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Blog).where(Blog.id == id).options(selectinload(Blog.tags), selectinload(Blog.like)))
+    result = await db.execute(select(Blog).where(Blog.id == id).options(selectinload(Blog.tags)))
     db_blog: Optional[Blog] = result.unique().scalars().first()
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")
@@ -127,7 +127,6 @@ async def update_blog(
     db_blog.published = blog.published
     db_blog.updated_at = datetime.now(timezone.utc)
 
-    # Clear existing tags first
     db_blog.tags = []
     for tag_name in blog.tags:
         tag = await db.execute(select(Tag).where(Tag.name == tag_name))
@@ -138,7 +137,7 @@ async def update_blog(
         db_blog.tags.append(existing)
 
     await db.commit()
-    await db.refresh(db_blog, ["tags", "like"])
+    await db.refresh(db_blog, ["tags"])
     return BlogResponse(
         id=db_blog.id,
         user_uuid=db_blog.user_uuid,
@@ -149,7 +148,7 @@ async def update_blog(
         created_at=db_blog.created_at,
         updated_at=db_blog.updated_at,
         view_count=db_blog.view_count,
-        likes_count=len(db_blog.like or []),
+        likes_count=0,
         published=db_blog.published,
     )
 
@@ -205,8 +204,8 @@ async def delete_blog(
     user: User = Depends(get_access_token_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(Blog).where(Blog.id == id).options(selectinload(Blog.like)))
-    db_blog: Optional[Blog] = result.unique().scalars().first()
+    result = await db.execute(select(Blog).where(Blog.id == id))
+    db_blog: Optional[Blog] = result.scalars().first()
 
     if not db_blog:
         raise HTTPException(status_code=404, detail="Blog not found")

@@ -108,17 +108,11 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     verify_token: Mapped[Optional[str]] = mapped_column(String(255))
     verify_expiry: Mapped[Optional[datetime]] = mapped_column(DateTime)
-    blog_likes: Mapped[List["Blog"]] = relationship(
-        "Blog",
-        secondary="blog_likes",
-        back_populates="like",
-        overlaps="like",
-    )  # 多对多关系
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
     blogs: Mapped[List["Blog"]] = relationship(
-        "Blog", back_populates="user", cascade="all, delete-orphan"
+        "Blog", back_populates="user", cascade="all, delete-orphan", lazy="selectin"
     )
 
     roles: Mapped[List[Role]] = relationship(
