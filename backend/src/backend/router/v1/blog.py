@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from math import ceil
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
 from sqlalchemy import func, or_, select
@@ -178,10 +178,11 @@ async def create_blog(
 
     for tag_name in blog.tags:
         tag = await db.execute(select(Tag).where(Tag.name == tag_name))
-        if not tag.scalar():
-            tag = Tag(name=tag_name)
-            db.add(tag)
-        new_blog.tags.append(tag)
+        existing_tag = tag.scalar_one_or_none()
+        if not existing_tag:
+            existing_tag = Tag(name=tag_name)
+            db.add(existing_tag)
+        new_blog.tags.append(existing_tag)
 
     db.add(new_blog)
     await db.commit()
