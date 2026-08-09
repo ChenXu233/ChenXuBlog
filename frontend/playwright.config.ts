@@ -2,10 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 1,
   reporter: "list",
   use: {
     baseURL: "http://localhost:3000",
@@ -13,9 +13,9 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command:
-      "cd ../backend && .venv/Scripts/uvicorn backend:app --host 0.0.0.0 --port 8001",
-    port: 8001,
-    reuseExistingServer: !process.env.CI,
+    command: "npx nuxt dev --host 127.0.0.1 --port 3000",
+    port: 3000,
+    reuseExistingServer: true,
+    timeout: 120000,
   },
 });

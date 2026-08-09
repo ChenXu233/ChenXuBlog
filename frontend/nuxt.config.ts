@@ -4,6 +4,12 @@ export default defineNuxtConfig({
 
   modules: ["@nuxt/ui", "@pinia/nuxt"],
 
+  pinia: {
+    storesDirs: ["./composables/**"],
+  },
+
+  plugins: ["~/plugins/pinia-persist.client.ts"],
+
   css: ["~/assets/css/main.css"],
 
   ssr: true,

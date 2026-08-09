@@ -203,3 +203,4 @@ lerna-debug.log*
 # 前端/后端各自 .gitignore 中已有但为了完整性在此也列出
 *.pyc
 *.pyo
+frontend/e2e-screenshots/

@@ -5,15 +5,15 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <UNotifications />
+    <UToaster />
   </div>
 </template>
 
 <script setup lang="ts">
 // Initialize auth state from persisted storage on app mount
-const auth = useAuthStore()
+const auth = useAuthStore();
 if (auth.token) {
-  auth.fetchUserInfo()
-  auth.fetchPermissions()
+  auth.fetchUserInfo();
+  auth.fetchPermissions();
 }
 </script>
