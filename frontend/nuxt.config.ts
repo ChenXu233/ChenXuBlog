@@ -2,51 +2,71 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  modules: [
-    '@nuxt/ui',
-    '@nuxt/fonts',
-    '@pinia/nuxt',
-  ],
+  modules: ["@nuxt/ui", "@pinia/nuxt"],
 
-  css: ['~/assets/css/main.css'],
+  css: ["~/assets/css/main.css"],
 
   ssr: true,
 
   nitro: {
-    preset: 'node-server',
+    preset: "node-server",
+  },
+
+  vite: {
+    server: {
+      proxy: {
+        "/apis": {
+          target: "http://localhost:8001",
+          changeOrigin: true,
+        },
+      },
+    },
+  },
+
+  fonts: {
+    defaults: {
+      weights: [400, 500, 600, 700],
+    },
+    providers: {
+      google: false,
+      googleicons: false,
+    },
   },
 
   ui: {
     theme: {
       colors: {
-        primary: 'rose',
-        secondary: 'emerald',
-        neutral: 'slate',
+        primary: "rose",
+        secondary: "emerald",
+        neutral: "slate",
       },
     },
   },
 
   colorMode: {
-    preference: 'dark',
-    fallback: 'dark',
+    preference: "dark",
+    fallback: "dark",
   },
 
-  compatibilityDate: '2025-08-06',
+  compatibilityDate: "2025-08-06",
 
   app: {
     head: {
-      charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1',
-      title: 'ChenXuBlog',
+      charset: "utf-8",
+      viewport: "width=device-width, initial-scale=1",
+      title: "ChenXuBlog",
       meta: [
-        { name: 'description', content: "ChenXu's personal blog - 技术分享与生活记录" },
+        {
+          name: "description",
+          content: "ChenXu's personal blog - 技术分享与生活记录",
+        },
       ],
     },
   },
 
   runtimeConfig: {
     public: {
-      apiBase: '/apis/v1',
+      apiBase: "/apis/v1",
     },
   },
-})
+});

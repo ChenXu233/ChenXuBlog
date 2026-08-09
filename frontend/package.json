@@ -10,17 +10,17 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.16.0",
     "@nuxt/ui": "^3.0.0",
-    "@nuxt/fonts": "^0.11.0",
     "@pinia/nuxt": "^0.11.0",
-    "pinia-plugin-persistedstate": "^4.2.0",
     "markdown-it": "^14.1.1",
+    "nuxt": "^3.16.0",
+    "pinia-plugin-persistedstate": "^4.2.0",
     "v-md-editor": "^1.0.6",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/markdown-it": "^14.1.2",
     "typescript": "5.9.2",
     "vue-tsc": "^3.0.0"

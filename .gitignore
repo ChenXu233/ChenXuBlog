@@ -149,8 +149,16 @@ dist-ssr/
 .pnpm/
 
 # 自动生成的类型声明 (由 Vite 插件自动生成)
-auto-imports.d.ts
+  auto-imports.d.ts
 components.d.ts
+
+# Nuxt 构建产物
+.nuxt/
+.output/
+
+# Playwright 测试产物
+test-results/
+playwright-report/
 
 # 日志
 npm-debug.log*
