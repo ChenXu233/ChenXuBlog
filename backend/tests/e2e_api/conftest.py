@@ -1,17 +1,17 @@
 """E2E test fixtures: async test client with isolated test database."""
 import tempfile
 from pathlib import Path
-from typing import AsyncGenerator, AsyncIterator
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from backend import app
 from backend.config import CONFIG
 from backend.database import Base, get_db
-from backend.router import router_manager
+from backend.router import init_routers
 from backend.utils.first_start import check_is_first_start, first_start
 
 
@@ -42,7 +42,7 @@ async def test_session_factory(test_engine):
 @pytest_asyncio.fixture(scope="module")
 async def test_app(test_engine, test_session_factory):
     """Override get_db dependency and register routers for testing."""
-    router_manager.init_router(app)
+    init_routers(app)
 
     # Track whether first_start has been run
     _first_start_done = False

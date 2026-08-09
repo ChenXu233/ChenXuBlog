@@ -7,7 +7,8 @@ from backend.logger import logger
 
 from .config import CONFIG
 from .database import get_db, init_db
-from .router import router_manager
+from .exceptions import register_exception_handlers
+from .router import init_routers
 from .utils.first_start import check_is_first_start, first_start
 from .utils.permission import permission_manager
 
@@ -16,7 +17,7 @@ from .utils.permission import permission_manager
 async def lifespan(app: FastAPI):
     # on_startup
     logger.info("Application startup")
-    router_manager.init_router(app)
+    init_routers(app)
     await init_db()
 
     async for db in get_db():
@@ -32,10 +33,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=CONFIG.APP_NAME, debug=CONFIG.DEBUG, lifespan=lifespan)
 
+# 注册统一异常处理器
+register_exception_handlers(app)
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

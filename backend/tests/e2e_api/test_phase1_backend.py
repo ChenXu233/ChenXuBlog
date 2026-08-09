@@ -5,7 +5,6 @@ Run: cd backend && pytest tests/e2e_api/test_phase1_backend.py -v
 All tests must pass before proceeding to Phase 1B.
 """
 
-import pytest
 from httpx import AsyncClient
 
 
@@ -73,8 +72,10 @@ class TestAuth:
         )
         assert login_resp.status_code == 200
         cookies = login_resp.cookies
+        assert "refresh_token" in cookies, f"refresh_token cookie not set: {login_resp.headers}"
         response = await client.post("/apis/v1/auth/refresh", cookies=cookies)
-        assert response.status_code in (200, 404, 401), f"Unexpected: {response.text}"
+        assert response.status_code == 200, f"Unexpected: {response.text}"
+        assert "access_token" in response.json()
 
 
 class TestBlog:
