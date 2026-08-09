@@ -87,6 +87,7 @@ async def edit_user_info(
 
     return UserResponse(
         id=user.id,
+        uuid=user.uuid,
         username=user.username,
         email=user.email,
         avatar=user.user_info.avatar if user.user_info else None,

@@ -21,7 +21,6 @@ from backend.schema.admin import (
     AdminUserResponse,
     UpdateUserRoleRequest,
 )
-from backend.utils.jwt import get_access_token_user
 from backend.utils.permission import require_permissions
 
 admin = APIRouter(prefix="/apis/v1/admin", tags=["admin"])
@@ -198,12 +197,9 @@ async def update_user_roles(
 async def delete_user(
     user_id: int = Path(..., gt=0),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_access_token_user),
+    _: User = admin_dependency(),
 ):
     """删除用户"""
-    if user.id == user_id:
-        raise HTTPException(status_code=400, detail="Cannot delete yourself")
-
     result = await db.execute(select(User).where(User.id == user_id))
     target_user = result.scalars().first()
     if not target_user:

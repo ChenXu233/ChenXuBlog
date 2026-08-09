@@ -26,6 +26,7 @@ class BlogCreate(BaseModel):
     body: str = Field(..., description="Blog body")
     tags: list[str] = Field(..., description="Blog tags")
     published: bool = Field(..., description="Blog published status")
+    cover_url: Optional[str] = Field(None, description="Blog cover URL")
 
     class Config:
         from_attributes = True
@@ -36,6 +37,7 @@ class BlogUpdate(BaseModel):
     body: str = Field(..., description="Blog body")
     tags: list[str] = Field(..., description="Blog tags")
     published: bool = Field(..., description="Blog published status")
+    cover_url: Optional[str] = Field(None, description="Blog cover URL")
 
     class Config:
         from_attributes = True

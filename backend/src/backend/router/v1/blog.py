@@ -125,6 +125,7 @@ async def update_blog(
     db_blog.title = blog.title
     db_blog.body = blog.body
     db_blog.published = blog.published
+    db_blog.cover_url = blog.cover_url
     db_blog.updated_at = datetime.now(timezone.utc)
 
     db_blog.tags = []
@@ -174,6 +175,7 @@ async def create_blog(
         title=blog.title,
         body=blog.body,
         published=blog.published,
+        cover_url=blog.cover_url,
     )
 
     for tag_name in blog.tags:

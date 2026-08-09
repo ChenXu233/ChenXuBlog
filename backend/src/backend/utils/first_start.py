@@ -16,11 +16,47 @@ async def check_is_first_start(db: AsyncSession) -> bool:
     return result.scalars().first() is None
 
 
+# 基础权限定义：启动时注册，确保 default 角色可用
+BASE_PERMISSIONS = [
+    ("admin", "access", "访问管理后台"),
+    ("user", "read", "读取用户信息"),
+    ("user", "edit", "编辑用户信息"),
+    ("blog", "create", "创建文章"),
+    ("blog", "update", "更新文章"),
+    ("blog", "delete", "删除文章"),
+    ("blog", "read", "阅读文章"),
+    ("comment", "create", "创建评论"),
+    ("comment", "read", "阅读评论"),
+    ("comment", "delete", "删除评论"),
+    ("comment", "update", "更新评论"),
+    ("img_bed", "create", "上传图片"),
+    ("img_bed", "read", "读取图片"),
+]
+
+# default 角色拥有的基础权限
+DEFAULT_ROLE_PERMISSIONS = [
+    "user:read",
+    "user:edit",
+    "blog:create",
+    "blog:update",
+    "blog:delete",
+    "blog:read",
+    "comment:create",
+    "comment:read",
+    "img_bed:create",
+    "img_bed:read",
+]
+
+
 async def init_permissions(db: AsyncSession):
     """
     初始化权限。
     """
     logger.info("Initializing permissions")
+    # 注册基础权限到 permission_manager
+    for target, action, description in BASE_PERMISSIONS:
+        permission_manager.add_permission(f"{target}:{action}", description)
+
     for permission in permission_manager.get_permissions():
         _permission = Permission(
             target=permission.target,
@@ -28,14 +64,6 @@ async def init_permissions(db: AsyncSession):
             description=permission.description,
         )
         db.add(_permission)
-
-    # 确保 admin:access 权限存在
-    admin_access = Permission(
-        target="admin",
-        action="access",
-        description="访问管理后台",
-    )
-    db.add(admin_access)
 
     await db.commit()
 
@@ -58,6 +86,11 @@ async def create_default_role(db: AsyncSession):
         description="默认角色",
         is_default=True,
     )
+    # 默认角色拥有基础权限（读自己信息/写文章/评论/上传）
+    all_perms = (await db.execute(select(Permission))).scalars().all()
+    default_role.permissions = [
+        p for p in all_perms if p.code in DEFAULT_ROLE_PERMISSIONS
+    ]
     db.add(default_role)
     await db.commit()
 
