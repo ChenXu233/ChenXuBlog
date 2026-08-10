@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-frontend:
-    name: Build Nuxt in CI
+  build-and-deploy:
+    name: Build Nuxt + Deploy (password auth)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,28 +33,7 @@ jobs:
         working-directory: frontend
         run: pnpm build
 
-      - name: Upload .output artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nuxt-output
-          path: frontend/.output
-          retention-days: 1
-
-  deploy:
-    name: Deploy to 1Panel server (password auth)
-    needs: build-frontend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download .output
-        uses: actions/download-artifact@v4
-        with:
-          name: nuxt-output
-          path: frontend/.output
-
-      # 传前端构建产物（.output）—— 服务器零编译
+      # 前端产物 .output → 服务器（零编译）
       - name: Upload frontend build
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -62,11 +41,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "frontend/.output/*"
-          target: "/opt/chenxu233.cn/frontend/.output/"
+          source: "frontend/.output"
+          target: "/opt/chenxu233.cn/frontend/"
+          strip_components: 1
 
-      # 传后端源码（服务器上 build 装依赖，非编译）
-      - name: Upload backend source
+      # 后端源码 + 部署配置 → 服务器
+      - name: Upload backend + config
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -86,11 +66,9 @@ jobs:
           script: |
             set -e
             cd /opt/chenxu233.cn
-            # 前端镜像：只 COPY .output，无编译
             docker compose build frontend backend
             docker compose up -d
             docker image prune -f
-            # 更新 1Panel openresty 反代配置并 reload
             cp conf.d/chenxu233.conf /opt/1panel/www/conf.d/chenxu233.conf
             docker exec 1Panel-openresty-W7py nginx -t && docker exec 1Panel-openresty-W7py nginx -s reload
 
