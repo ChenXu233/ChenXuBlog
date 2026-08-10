@@ -1,7 +1,6 @@
-# 构建上下文过滤 —— builder 阶段需要源码，但排除无关/大文件
+# 构建上下文过滤 —— 服务器 build 时 COPY .output（CI 已编译好）
 node_modules
 .nuxt
-.output
 e2e
 e2e-screenshots
 test-results

@@ -5,72 +5,78 @@ on:
     branches: [master]
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/chenxu233
-
 jobs:
-  build-and-push:
-    name: Build images in CI
+  build-frontend:
+    name: Build Nuxt in CI
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          version: 10
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # 前端：CI 编译 Nuxt → .output 进镜像。服务器零编译。
-      - name: Build and push frontend
-        uses: docker/build-push-action@v6
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_PREFIX }}/chenxu-blog-frontend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Build and push backend
-        uses: docker/build-push-action@v6
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Nuxt
+        working-directory: frontend
+        run: pnpm build
+
+      - name: Upload .output artifact
+        uses: actions/upload-artifact@v4
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_PREFIX }}/chenxu-blog-backend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          name: nuxt-output
+          path: frontend/.output
+          retention-days: 1
 
   deploy:
     name: Deploy to 1Panel server (password auth)
-    needs: build-and-push
+    needs: build-frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 同步 compose + conf.d（用密码认证）
-      - name: Upload deploy files
+      - name: Download .output
+        uses: actions/download-artifact@v4
+        with:
+          name: nuxt-output
+          path: frontend/.output
+
+      # 传前端构建产物（.output）—— 服务器零编译
+      - name: Upload frontend build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "docker-compose.yml,conf.d/*"
+          source: "frontend/.output/*"
+          target: "/opt/chenxu233.cn/frontend/.output/"
+
+      # 传后端源码（服务器上 build 装依赖，非编译）
+      - name: Upload backend source
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "backend/Dockerfile,backend/pyproject.toml,backend/uv.lock,backend/main.py,backend/src,docker-compose.yml,conf.d/*"
           target: "/opt/chenxu233.cn/"
 
-      - name: Pull images and restart (password auth)
+      - name: Build and start containers
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -80,9 +86,8 @@ jobs:
           script: |
             set -e
             cd /opt/chenxu233.cn
-            # 登录 GHCR（私有包需要）
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker compose pull
+            # 前端镜像：只 COPY .output，无编译
+            docker compose build frontend backend
             docker compose up -d
             docker image prune -f
             # 更新 1Panel openresty 反代配置并 reload

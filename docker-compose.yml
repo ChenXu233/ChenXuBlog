@@ -3,7 +3,9 @@
 # 容器只暴露内部端口，避开服务器上其他服务
 services:
   frontend:
-    image: ghcr.io/${GITHUB_REPO_OWNER:-chenxu233}/chenxu-blog-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: blog-frontend
     ports:
       - "127.0.0.1:3100:3000"
@@ -16,7 +18,9 @@ services:
       - blog-network
 
   backend:
-    image: ghcr.io/${GITHUB_REPO_OWNER:-chenxu233}/chenxu-blog-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: blog-backend
     ports:
       - "127.0.0.1:8100:8000"
