@@ -5,6 +5,7 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <DockBar />
     <UToaster />
   </div>
 </template>
