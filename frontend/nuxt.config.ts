@@ -4,6 +4,8 @@ export default defineNuxtConfig({
 
   modules: ["@nuxt/ui", "@pinia/nuxt"],
 
+  components: [{ path: "~/components", pathPrefix: false }],
+
   pinia: {
     storesDirs: ["./composables/**"],
   },
@@ -16,6 +18,12 @@ export default defineNuxtConfig({
 
   nitro: {
     preset: "node-server",
+    devProxy: {
+      "/apis": {
+        target: "http://localhost:8001",
+        changeOrigin: true,
+      },
+    },
   },
 
   vite: {
@@ -26,6 +34,10 @@ export default defineNuxtConfig({
           changeOrigin: true,
         },
       },
+    },
+    ssr: {
+      // vue/vue-router 打进 SSR bundle，避免 Node 22 下 CJS interop 问题
+      noExternal: ["vue", "vue-router"],
     },
   },
 
@@ -73,6 +85,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: "/apis/v1",
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "http://localhost:3000",
     },
   },
 });

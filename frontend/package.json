@@ -12,9 +12,11 @@
   "dependencies": {
     "@nuxt/ui": "^3.0.0",
     "@pinia/nuxt": "^0.11.0",
+    "highlight.js": "^11.11.1",
     "markdown-it": "^14.1.1",
     "nuxt": "^3.16.0",
     "pinia-plugin-persistedstate": "^4.2.0",
+    "tailwindcss": "^4.3.3",
     "v-md-editor": "^1.0.6",
     "vue": "latest",
     "vue-router": "latest"
@@ -24,5 +26,11 @@
     "@types/markdown-it": "^14.1.2",
     "typescript": "5.9.2",
     "vue-tsc": "^3.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "vue-demi"
+    ]
   }
 }

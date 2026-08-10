@@ -35,3 +35,8 @@ class Comment(Base):
     )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     user: Mapped["User"] = relationship("User")
+
+    @property
+    def reply_to_id(self) -> Optional[int]:
+        """parent_id 的别名，供 API 响应使用。"""
+        return self.parent_id

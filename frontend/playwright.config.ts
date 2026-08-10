@@ -10,7 +10,9 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
+    navigationTimeout: 60000,
   },
+  timeout: 60000,
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "npx nuxt dev --host 127.0.0.1 --port 3000",

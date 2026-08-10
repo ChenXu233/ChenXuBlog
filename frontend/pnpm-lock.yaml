@@ -12,7 +12,10 @@ importers:
         version: 3.3.7(@babel/parser@7.29.8)(db0@0.3.4)(embla-carousel@8.6.0)(ioredis@5.11.1)(magicast@0.5.4)(oxc-parser@0.143.0)(typescript@5.9.2)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0))(vue-router@5.2.0(@vue/compiler-sfc@3.5.41)(esbuild@0.28.1)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0))(vue@3.5.41(typescript@5.9.2)))(vue@3.5.41(typescript@5.9.2))
       "@pinia/nuxt":
         specifier: ^0.11.0
-        version: 0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@3.3.0(esbuild@0.28.1)(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0)))
+        version: 0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@2.3.11)
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
       markdown-it:
         specifier: ^14.1.1
         version: 14.3.0
@@ -21,7 +24,10 @@ importers:
         version: 3.21.11(@oxc-project/types@0.143.0)(@types/node@26.1.2)(@vue/compiler-sfc@3.5.41)(cac@6.7.14)(db0@0.3.4)(esbuild@0.28.1)(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.4)(rollup-plugin-visualizer@7.0.1(rollup@4.62.4))(rollup@4.62.4)(srvx@0.11.22)(terser@5.49.2)(typescript@5.9.2)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0))(vue-tsc@3.3.9(typescript@5.9.2))(yaml@2.9.0)
       pinia-plugin-persistedstate:
         specifier: ^4.2.0
-        version: 4.7.1(@nuxt/kit@3.21.11(magicast@0.5.4))(@pinia/nuxt@0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@3.3.0(esbuild@0.28.1)(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0))))(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))
+        version: 4.7.1(@nuxt/kit@3.21.11(magicast@0.5.4))(@pinia/nuxt@0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@2.3.11))(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))
+      tailwindcss:
+        specifier: ^4.3.3
+        version: 4.3.3
       v-md-editor:
         specifier: ^1.0.6
         version: 1.0.6(@vue/compiler-sfc@3.5.41)(vue@3.5.41(typescript@5.9.2))
@@ -9652,9 +9658,9 @@ snapshots:
       is-glob: 4.0.3
       picomatch: 4.0.5
 
-  "@pinia/nuxt@0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@3.3.0(esbuild@0.28.1)(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0)))":
+  "@pinia/nuxt@0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@2.3.11)":
     dependencies:
-      "@nuxt/kit": 4.5.2(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(unplugin@3.3.0(esbuild@0.28.1)(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0)))
+      "@nuxt/kit": 4.5.2(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(unplugin@2.3.11)
       pinia: 3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2))
     transitivePeerDependencies:
       - magic-string
@@ -12640,12 +12646,12 @@ snapshots:
 
   pify@4.0.1: {}
 
-  pinia-plugin-persistedstate@4.7.1(@nuxt/kit@3.21.11(magicast@0.5.4))(@pinia/nuxt@0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@3.3.0(esbuild@0.28.1)(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0))))(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2))):
+  pinia-plugin-persistedstate@4.7.1(@nuxt/kit@3.21.11(magicast@0.5.4))(@pinia/nuxt@0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@2.3.11))(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2))):
     dependencies:
       defu: 6.1.7
     optionalDependencies:
       "@nuxt/kit": 3.21.11(magicast@0.5.4)
-      "@pinia/nuxt": 0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@3.3.0(esbuild@0.28.1)(rollup@4.62.4)(vite@7.3.6(@types/node@26.1.2)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.2)(yaml@2.9.0)))
+      "@pinia/nuxt": 0.11.3(magic-string@0.30.21)(magicast@0.5.4)(oxc-parser@0.143.0)(pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)))(unplugin@2.3.11)
       pinia: 3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2))
 
   pinia@3.0.4(typescript@5.9.2)(vue@3.5.41(typescript@5.9.2)):

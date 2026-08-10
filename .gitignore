@@ -204,3 +204,9 @@ lerna-debug.log*
 *.pyc
 *.pyo
 frontend/e2e-screenshots/
+
+# Playwright 测试产物
+test-results/
+playwright-report/
+e2e-screenshots/
+backend/data/e2e_blog.db
