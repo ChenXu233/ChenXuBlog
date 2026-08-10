@@ -1,24 +1,15 @@
-# 生产部署 —— 镜像由 CI 构建推送，服务器只 pull 运行
+# 生产部署 —— 适配 1Panel 服务器
+# 80/443 由 1Panel openresty 管理（conf.d/chenxu233.conf 反代）
+# 容器只暴露内部端口，避开服务器上其他服务
 services:
-  caddy:
-    image: caddy:alpine
-    container_name: caddy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./data/caddy_data:/data
-    depends_on:
-      - frontend
-      - backend
-    restart: unless-stopped
-    networks:
-      - blog-network
-
   frontend:
-    image: ghcr.io/${GITHUB_REPO_OWNER:-chenxu233}/chenxu-blog-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: chenxu-blog-frontend:latest
     container_name: blog-frontend
+    ports:
+      - "127.0.0.1:3100:3000"
     environment:
       - NUXT_API_INTERNAL_URL=http://backend:8000
     depends_on:
@@ -28,13 +19,18 @@ services:
       - blog-network
 
   backend:
-    image: ghcr.io/${GITHUB_REPO_OWNER:-chenxu233}/chenxu-blog-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: chenxu-blog-backend:latest
     container_name: blog-backend
+    ports:
+      - "127.0.0.1:8100:8000"
     env_file:
       - ./backend/.env
     environment:
       - MINIO_ENDPOINT=minio:9000
-      - MINIO_PUBLIC_URL=http://localhost/images
+      - MINIO_PUBLIC_URL=http://chenxu233.cn/images
     volumes:
       - ./backend/data:/app/data
       - ./backend/logs:/app/logs
@@ -48,6 +44,9 @@ services:
     image: minio/minio:latest
     container_name: blog-minio
     command: server /data --console-address ":9001"
+    ports:
+      - "127.0.0.1:9100:9000"
+      - "127.0.0.1:9101:9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
