@@ -1,3 +1,4 @@
+# 生产部署 —— 镜像由 CI 构建推送，服务器只 pull 运行
 services:
   caddy:
     image: caddy:alpine
@@ -8,7 +9,18 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./data/caddy_data:/data
-      - ./frontend/dist:/var/www/html
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - blog-network
+
+  frontend:
+    image: ghcr.io/${GITHUB_REPO_OWNER:-chenxu233}/chenxu-blog-frontend:latest
+    container_name: blog-frontend
+    environment:
+      - NUXT_API_INTERNAL_URL=http://backend:8000
     depends_on:
       - backend
     restart: unless-stopped
@@ -16,18 +28,37 @@ services:
       - blog-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPO_OWNER:-chenxu233}/chenxu-blog-backend:latest
     container_name: blog-backend
     env_file:
       - ./backend/.env
+    environment:
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_PUBLIC_URL=http://localhost/images
     volumes:
       - ./backend/data:/app/data
       - ./backend/logs:/app/logs
+    depends_on:
+      - minio
     restart: unless-stopped
     networks:
       - blog-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: blog-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+    networks:
+      - blog-network
+
+volumes:
+  minio_data:
 
 networks:
   blog-network:

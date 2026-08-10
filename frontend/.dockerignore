@@ -1,3 +1,9 @@
+# 构建上下文过滤 —— builder 阶段需要源码，但排除无关/大文件
 node_modules
-dist
-.git
+.nuxt
+.output
+e2e
+e2e-screenshots
+test-results
+.env
+*.log

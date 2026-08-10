@@ -31,6 +31,10 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "vue-demi"
-    ]
-  }
+    ],
+    "overrides": {
+      "entities": "^7.0.1"
+    }
+  },
+  "packageManager": "pnpm@10.17.0"
 }
