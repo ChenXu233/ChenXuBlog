@@ -48,30 +48,31 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: Deploy to 1Panel server
+    name: Deploy to 1Panel server (password auth)
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 同步 compose + Caddyfile（nginx 反代由部署脚本更新）
+      # 同步 compose + conf.d（用密码认证）
       - name: Upload deploy files
-        uses: easingthemes/ssh-deploy@v4
+        uses: appleboy/scp-action@v0.1.7
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-avz --delete --exclude=backend --exclude=frontend --exclude=e2e --exclude=docs --exclude=.github --exclude=.git"
-          SOURCE: "./"
-          TARGET: "/opt/chenxu233.cn/"
-          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          source: "docker-compose.yml,conf.d/*"
+          target: "/opt/chenxu233.cn/"
 
-      - name: Pull images and restart
+      - name: Pull images and restart (password auth)
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
           script: |
             set -e
             cd /opt/chenxu233.cn
@@ -80,10 +81,8 @@ jobs:
             docker compose pull
             docker compose up -d
             docker image prune -f
-            # 更新 1Panel openresty 反代配置（含反代头）
-            cp Caddyfile /dev/null 2>/dev/null || true
-            # nginx conf 由仓库 conf.d/ 提供
-            cp conf.d/chenxu233.conf /opt/1panel/www/conf.d/chenxu233.conf 2>/dev/null || true
+            # 更新 1Panel openresty 反代配置并 reload
+            cp conf.d/chenxu233.conf /opt/1panel/www/conf.d/chenxu233.conf
             docker exec 1Panel-openresty-W7py nginx -t && docker exec 1Panel-openresty-W7py nginx -s reload
 
       - name: Verify deployment
