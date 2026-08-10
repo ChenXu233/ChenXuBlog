@@ -5,11 +5,6 @@ on:
     branches: [master]
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/chenxu-blog-frontend
-  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/chenxu-blog-backend
-
 jobs:
   build-and-push:
     name: Build images in CI
@@ -24,44 +19,43 @@ jobs:
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 前端镜像：CI 编译 Nuxt → .output 进镜像。服务器零编译。
+      # 前端：CI 编译 Nuxt → .output 进镜像。服务器零编译。
       - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ env.IMAGE_FRONTEND }}:latest
+          tags: ghcr.io/${{ github.repository_owner }}/chenxu-blog-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 后端镜像：CI 安装依赖。
       - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ env.IMAGE_BACKEND }}:latest
+          tags: ghcr.io/${{ github.repository_owner }}/chenxu-blog-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy:
-    name: Pull & restart on server
+    name: Deploy to 1Panel server
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 只同步部署配置（compose + Caddyfile + .env 由服务器维护）
+      # 同步 compose + Caddyfile（nginx 反代由部署脚本更新）
       - name: Upload deploy files
         uses: easingthemes/ssh-deploy@v4
         with:
@@ -79,10 +73,18 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            set -e
             cd /opt/chenxu233.cn
+            # 登录 GHCR（私有包需要）
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull
             docker compose up -d
             docker image prune -f
+            # 更新 1Panel openresty 反代配置（含反代头）
+            cp Caddyfile /dev/null 2>/dev/null || true
+            # nginx conf 由仓库 conf.d/ 提供
+            cp conf.d/chenxu233.conf /opt/1panel/www/conf.d/chenxu233.conf 2>/dev/null || true
+            docker exec 1Panel-openresty-W7py nginx -t && docker exec 1Panel-openresty-W7py nginx -s reload
 
       - name: Verify deployment
         run: |
