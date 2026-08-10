@@ -102,7 +102,7 @@ jobs:
       - name: Verify deployment
         run: |
           for i in $(seq 1 20); do
-            if curl -sf -o /dev/null https://chenxu233.cn/ && curl -sf -o /dev/null https://chenxu233.cn/apis/v1/blog/; then
+            if curl -sf -o /dev/null https://chenxu233.cn/home && curl -sf -o /dev/null https://chenxu233.cn/apis/v1/blog/; then
               echo "Deployment verified"
               exit 0
             fi
