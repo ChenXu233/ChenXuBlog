@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
   app: {
@@ -110,7 +110,7 @@ const dragOffset = ref({ x: 0, y: 0 });
 // Resizing State
 const isResizing = ref(false);
 const resizeDirection = ref("");
-const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0, posX: 0, posY: 0 });
+const resizeStart = ref({ x: 0, y: 0, width: 0, height: 0 });
 
 const windowStyle = computed(() => {
   if (isMaximized.value) {

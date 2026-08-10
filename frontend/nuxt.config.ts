@@ -12,7 +12,7 @@ export default defineNuxtConfig({
 
   plugins: ["~/plugins/pinia-persist.client.ts"],
 
-  css: ["~/assets/css/main.css"],
+  css: ["~/assets/css/main.css", "font-awesome/css/font-awesome.min.css"],
 
   ssr: true,
 

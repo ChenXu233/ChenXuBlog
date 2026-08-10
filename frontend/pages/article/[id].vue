@@ -1,168 +1,332 @@
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900">
-    <div class="max-w-6xl mx-auto px-4 py-8">
-      <div v-if="article" class="flex gap-8">
-        <!-- Main content -->
-        <article class="flex-1 min-w-0">
-          <template v-if="article.cover_url">
-            <img
-              :src="article.cover_url"
-              :alt="article.title"
-              class="w-full h-64 object-cover rounded-xl mb-6"
-            />
-          </template>
-          <h1 class="text-4xl font-bold mb-4">{{ article.title }}</h1>
-          <div class="flex items-center gap-4 text-gray-500 text-sm mb-6">
-            <span>{{ formatDate(article.created_at) }}</span>
-            <span>{{ article.view_count }} 次阅读</span>
-            <span>{{ article.likes_count }} 赞</span>
-            <div class="flex gap-1">
-              <UBadge
-                v-for="tag in article.tags_name"
-                :key="tag"
-                variant="soft"
-                size="sm"
-                >{{ tag }}</UBadge
-              >
-            </div>
-          </div>
-          <div
-            class="prose dark:prose-invert max-w-none markdown-body"
-            v-html="rendered.html"
-          ></div>
+  <div class="article-detail">
+    <div v-if="loading" class="loading">
+      <i class="fa fa-spinner fa-spin"></i> 加载中...
+    </div>
+    <article v-else-if="article" class="article-container">
+      <header class="article-header">
+        <div class="tags" v-if="article.tags_name?.length">
+          <span v-for="tag in article.tags_name" :key="tag" class="tag">{{
+            tag
+          }}</span>
+        </div>
+        <h1 class="article-title">{{ article.title }}</h1>
+        <div class="article-meta">
+          <span class="meta-item">
+            <i class="fa fa-calendar"></i>
+            {{ formatDate(article.created_at) }}
+          </span>
+          <span class="meta-item">
+            <i class="fa fa-eye"></i>
+            {{ article.view_count }} 阅读
+          </span>
+          <span class="meta-item">
+            <i class="fa fa-heart"></i>
+            {{ article.like }} 点赞
+          </span>
+        </div>
+      </header>
 
-          <!-- Comments -->
-          <div class="mt-12">
-            <h2 class="text-2xl font-bold mb-4">
-              评论（{{ comments.length }}）
-            </h2>
-            <CommentList
-              :blog-id="article.id"
-              :comments="comments"
-              @deleted="loadComments"
-            />
-          </div>
-        </article>
+      <div class="article-cover" v-if="article.cover_url">
+        <img :src="article.cover_url" :alt="article.title" />
+      </div>
 
-        <!-- TOC sidebar -->
-        <aside v-if="rendered.toc.length" class="hidden lg:block w-56 shrink-0">
-          <div
-            class="sticky top-8 bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700"
+      <div class="article-body" v-html="renderedContent"></div>
+
+      <footer class="article-footer">
+        <div class="actions">
+          <button
+            @click="handleLike"
+            class="action-btn"
+            :class="{ active: hasLiked }"
           >
-            <div class="text-sm font-semibold mb-3 text-gray-500">目录</div>
-            <nav class="space-y-1 text-sm">
-              <a
-                v-for="item in rendered.toc"
-                :key="item.id"
-                :href="`#${item.id}`"
-                class="block hover:text-primary-500 transition-colors"
-                :style="{ paddingLeft: `${(item.level - 2) * 12}px` }"
-              >
-                {{ item.title }}
-              </a>
-            </nav>
-          </div>
-        </aside>
-      </div>
+            <i class="fa fa-thumbs-up"></i> 点赞 {{ article.like }}
+          </button>
+          <button v-if="canEdit" @click="goToEdit" class="action-btn">
+            <i class="fa fa-edit"></i> 编辑
+          </button>
+        </div>
+      </footer>
 
-      <div v-else class="text-center py-20">
-        <p class="text-gray-500 mb-4">文章不存在或已删除</p>
-        <UButton to="/article" variant="ghost">返回文章列表</UButton>
-      </div>
+      <CommentList ref="commentListRef" :blogId="article.id" />
+    </article>
+    <div v-else class="not-found">
+      <h2>文章不存在</h2>
+      <router-link to="/home">返回首页</router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Article } from "~/types/article";
-import { renderMarkdown } from "~/utils/markdown";
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import MarkdownIt from "markdown-it";
+import { blogService } from "../../service/blog";
+import { useTokenStore } from "../../stores/token";
+import { useUserStore } from "../../stores/userStore";
+import CommentList from "../../components/CommentList.vue";
+import { showErrorDialog } from "../../utils/request";
+import type { Article } from "../../types/article";
 
 const route = useRoute();
-const { data } = await useApiFetch<Article>(`/blog/${route.params.id}`);
-const article = computed(() => data.value || null);
+const router = useRouter();
+const tokenStore = useTokenStore();
+const userStore = useUserStore();
 
-useSeo({
-  title: article.value?.title,
-  description: article.value?.body?.slice(0, 150),
-  image: article.value?.cover_url,
-  type: "article",
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
 });
 
-const rendered = computed(() => {
-  const body = article.value?.body || "";
-  return renderMarkdown(body);
+const article = ref<Article | null>(null);
+const loading = ref(true);
+const hasLiked = ref(false);
+const commentListRef = ref<InstanceType<typeof CommentList> | null>(null);
+
+const renderedContent = computed(() => {
+  return article.value ? md.render(article.value.body) : "";
 });
 
-function formatDate(ts: string | number): string {
-  const d = typeof ts === "number" ? new Date(ts * 1000) : new Date(ts);
-  return d.toLocaleDateString("zh-CN", {
+const canEdit = computed(() => {
+  return (
+    tokenStore.isAuthenticated &&
+    userStore.id &&
+    article.value?.user_uuid === userStore.id
+  );
+});
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("zh-CN", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-}
+};
 
-// Comments
-interface CommentItem {
-  id: number;
-  content: string;
-  created_at: string;
-  user_id: number;
-  reply_to_id: number | null;
-}
+const fetchArticle = async () => {
+  loading.value = true;
+  const id = Number(route.params.id);
+  try {
+    article.value = await blogService.getBlog(id);
+  } catch (error) {
+    showErrorDialog("加载文章失败");
+  } finally {
+    loading.value = false;
+  }
+};
 
-const comments = ref<CommentItem[]>([]);
-async function loadComments() {
+const handleLike = async () => {
   if (!article.value) return;
-  const resp = await $fetch<{ comments: CommentItem[] }>(
-    import.meta.server
-      ? `${
-          process.env.NUXT_API_INTERNAL_URL || "http://127.0.0.1:8001"
-        }/apis/v1/comment/get/${article.value.id}`
-      : `/apis/v1/comment/get/${article.value.id}`,
-  );
-  comments.value = resp.comments || [];
-}
-// 评论在客户端加载（SSR 端 $fetch 相对路径会 404）
-if (import.meta.client) {
-  await loadComments();
-}
+  if (!tokenStore.isAuthenticated) {
+    showErrorDialog("请先登录后再点赞");
+    return;
+  }
+  hasLiked.value = !hasLiked.value;
+  article.value.like += hasLiked.value ? 1 : -1;
+  try {
+    await blogService.likeBlog(article.value.id);
+  } catch (error) {
+    // 失败回滚
+    hasLiked.value = !hasLiked.value;
+    article.value.like += hasLiked.value ? 1 : -1;
+  }
+};
+
+const goToEdit = () => {
+  router.push(`/article/edit/${article.value?.id}`);
+};
+
+onMounted(() => {
+  fetchArticle();
+});
 </script>
 
 <style scoped>
-@reference "~/assets/css/main.css";
+.article-detail {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
 
-.markdown-body :deep(pre) {
-  @apply rounded-lg p-4 overflow-x-auto bg-slate-100 dark:bg-slate-800 mb-4;
+.loading,
+.not-found {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--color-text-light, #666);
 }
-.markdown-body :deep(code) {
-  @apply font-mono text-sm;
+
+.loading i {
+  font-size: 24px;
 }
-.markdown-body :deep(code:not(pre code)) {
-  @apply bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-rose-500;
+
+.article-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
-.markdown-body :deep(h2) {
-  @apply text-2xl font-bold mt-8 mb-4;
+
+.article-header {
+  margin-bottom: 24px;
 }
-.markdown-body :deep(h3) {
-  @apply text-xl font-bold mt-6 mb-3;
+
+.tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
-.markdown-body :deep(p) {
-  @apply my-4 leading-relaxed;
+
+.tag {
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 12px;
+  border-radius: 20px;
 }
-.markdown-body :deep(ul) {
-  @apply list-disc pl-6 my-4;
+
+.article-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.3;
+  margin-bottom: 16px;
 }
-.markdown-body :deep(ol) {
-  @apply list-decimal pl-6 my-4;
+
+.article-meta {
+  display: flex;
+  gap: 24px;
+  color: #999;
+  font-size: 14px;
 }
-.markdown-body :deep(a) {
-  @apply text-primary-500 underline;
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.markdown-body :deep(blockquote) {
-  @apply border-l-4 border-slate-300 dark:border-slate-600 pl-4 my-4 text-gray-500 italic;
+
+.article-cover {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  overflow: hidden;
 }
-.markdown-body :deep(img) {
-  @apply rounded-lg my-4 max-w-full;
+
+.article-cover img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.article-body {
+  line-height: 1.8;
+  font-size: 16px;
+  color: #333;
+}
+
+.article-body :deep(h1),
+.article-body :deep(h2),
+.article-body :deep(h3) {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.article-body :deep(p) {
+  margin-bottom: 1.2em;
+}
+
+.article-body :deep(pre) {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.article-body :deep(code) {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Consolas", monospace;
+}
+
+.article-body :deep(blockquote) {
+  border-left: 4px solid #667eea;
+  padding-left: 16px;
+  margin: 16px 0;
+  color: #666;
+}
+
+.article-body :deep(img) {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.article-footer {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border, #e1e5e9);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--color-bg-secondary, #f5f5f5);
+  border: 1px solid var(--color-border, #e1e5e9);
+  border-radius: 8px;
+  color: var(--color-text, #333);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: var(--color-primary, #667eea);
+  border-color: var(--color-primary, #667eea);
+  color: white;
+}
+
+.action-btn.active {
+  background: #667eea;
+  border-color: #667eea;
+  color: white;
+}
+
+.not-found a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.not-found a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .article-detail {
+    padding: 16px;
+  }
+
+  .article-container {
+    padding: 20px;
+  }
+
+  .article-title {
+    font-size: 24px;
+  }
+
+  .article-meta {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
 </style>

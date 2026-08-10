@@ -1,11 +1,17 @@
 <template>
   <transition name="panel-fade">
-    <LiquidGlass v-show="modelValue" class="system-panel" @click.stop bg-color="rgba(255, 255, 255, 0.2)"> >
+    <LiquidGlass
+      v-show="modelValue"
+      class="system-panel"
+      @click.stop
+      bg-color="rgba(255, 255, 255, 0.2)"
+    >
+      >
       <div class="panel-header">
         <div class="panel-time">{{ currentTime }}</div>
         <div class="panel-date">{{ currentDate }}</div>
       </div>
-      
+
       <div class="panel-body">
         <!-- 系统状态模块 -->
         <div class="system-stats">
@@ -27,11 +33,17 @@
         <div class="calendar-module">
           <div class="calendar-header">{{ currentYearMonth }}</div>
           <div class="calendar-grid">
-            <div v-for="day in weekDays" :key="day" class="cal-day-header">{{ day }}</div>
-            <div v-for="blank in firstDayOfWeek" :key="'b'+blank" class="cal-cell empty"></div>
-            <div 
-              v-for="d in daysInMonth" 
-              :key="'d'+d" 
+            <div v-for="day in weekDays" :key="day" class="cal-day-header">
+              {{ day }}
+            </div>
+            <div
+              v-for="blank in firstDayOfWeek"
+              :key="'b' + blank"
+              class="cal-cell empty"
+            ></div>
+            <div
+              v-for="d in daysInMonth"
+              :key="'d' + d"
               class="cal-cell"
               :class="{ 'cal-today': d === currentDay }"
             >
@@ -45,96 +57,112 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import LiquidGlass from '../LiquidGlass.vue'
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import LiquidGlass from "../LiquidGlass.vue";
 const props = defineProps({
-  modelValue: Boolean
-})
+  modelValue: Boolean,
+});
 
 // 时间和日期
-const currentTime = ref('')
-const currentDate = ref('')
-const currentYearMonth = ref('')
-const currentDay = ref(1)
+const currentTime = ref("");
+const currentDate = ref("");
+const currentYearMonth = ref("");
+const currentDay = ref(1);
 
-const weekDays = ['日', '一', '二', '三', '四', '五', '六']
-const daysInMonth = ref(30)
-const firstDayOfWeek = ref(0) // 0是周日
+const weekDays = ["日", "一", "二", "三", "四", "五", "六"];
+const daysInMonth = ref(30);
+const firstDayOfWeek = ref(0); // 0是周日
 
 const updateDateTime = () => {
-  const now = new Date()
-  currentTime.value = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-  currentDate.value = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
-  currentYearMonth.value = now.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
-  currentDay.value = now.getDate()
-  
+  const now = new Date();
+  currentTime.value = now.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  currentDate.value = now.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  });
+  currentYearMonth.value = now.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "long",
+  });
+  currentDay.value = now.getDate();
+
   // 日历计算
-  const year = now.getFullYear()
-  const month = now.getMonth()
-  daysInMonth.value = new Date(year, month + 1, 0).getDate()
-  firstDayOfWeek.value = new Date(year, month, 1).getDay()
-}
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  daysInMonth.value = new Date(year, month + 1, 0).getDate();
+  firstDayOfWeek.value = new Date(year, month, 1).getDay();
+};
 
 // 帧率
-const fps = ref(0)
-let frameCount = 0
-let lastTime = performance.now()
-let rafId = 0
+const fps = ref(0);
+let frameCount = 0;
+let lastTime = performance.now();
+let rafId = 0;
 
 const measureFPS = () => {
-  const now = performance.now()
-  frameCount++
+  const now = performance.now();
+  frameCount++;
   if (now >= lastTime + 1000) {
-    fps.value = Math.round((frameCount * 1000) / (now - lastTime))
-    frameCount = 0
-    lastTime = now
+    fps.value = Math.round((frameCount * 1000) / (now - lastTime));
+    frameCount = 0;
+    lastTime = now;
   }
-  rafId = requestAnimationFrame(measureFPS)
-}
+  rafId = requestAnimationFrame(measureFPS);
+};
 
 const fpsColor = computed(() => {
-  if (fps.value >= 50) return 'color-good'
-  if (fps.value >= 30) return 'color-warn'
-  return 'color-bad'
-})
+  if (fps.value >= 50) return "color-good";
+  if (fps.value >= 30) return "color-warn";
+  return "color-bad";
+});
 
 // 内存与环境
-const memoryUsage = ref('0.00')
-const ua = ref(navigator.userAgent)
-let memTimer = 0
+const memoryUsage = ref("0.00");
+const ua = ref("");
+let memTimer = 0;
 
 const updateMemory = () => {
   // 必须强制转换为any因为 performance.memory 是非标准api，存在于Chrome等
-  const perf = performance as any
+  const perf = performance as any;
   if (perf && perf.memory) {
-    memoryUsage.value = (perf.memory.usedJSHeapSize / (1024 * 1024)).toFixed(2)
+    memoryUsage.value = (perf.memory.usedJSHeapSize / (1024 * 1024)).toFixed(2);
   } else {
-    memoryUsage.value = '不支持'
+    memoryUsage.value = "不支持";
   }
-}
+};
 
-watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
-    measureFPS()
-    memTimer = window.setInterval(updateMemory, 1000)
-  } else {
-    cancelAnimationFrame(rafId)
-    clearInterval(memTimer)
-  }
-})
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    if (newVal) {
+      measureFPS();
+      memTimer = window.setInterval(updateMemory, 1000);
+    } else {
+      cancelAnimationFrame(rafId);
+      clearInterval(memTimer);
+    }
+  },
+);
 
-let clockTimer = 0
+let clockTimer = 0;
 onMounted(() => {
-  updateDateTime()
-  updateMemory()
-  clockTimer = window.setInterval(updateDateTime, 1000)
-})
+  ua.value = navigator.userAgent;
+  updateDateTime();
+  updateMemory();
+  clockTimer = window.setInterval(updateDateTime, 1000);
+});
 
 onUnmounted(() => {
-  clearInterval(clockTimer)
-  clearInterval(memTimer)
-  cancelAnimationFrame(rafId)
-})
+  clearInterval(clockTimer);
+  clearInterval(memTimer);
+  cancelAnimationFrame(rafId);
+});
 </script>
 
 <style scoped>
@@ -210,17 +238,34 @@ onUnmounted(() => {
   color: #666;
 }
 @media (prefers-color-scheme: dark) {
-  .stat-label { color: #aaa; }
+  .stat-label {
+    color: #aaa;
+  }
 }
 
-.stat-value.color-good { color: #107c10; font-weight: bold; }
-.stat-value.color-warn { color: #d83b01; font-weight: bold; }
-.stat-value.color-bad { color: #a4262c; font-weight: bold; }
+.stat-value.color-good {
+  color: #107c10;
+  font-weight: bold;
+}
+.stat-value.color-warn {
+  color: #d83b01;
+  font-weight: bold;
+}
+.stat-value.color-bad {
+  color: #a4262c;
+  font-weight: bold;
+}
 
 @media (prefers-color-scheme: dark) {
-  .stat-value.color-good { color: #6ce26c; }
-  .stat-value.color-warn { color: #ff8c00; }
-  .stat-value.color-bad { color: #ff5f5f; }
+  .stat-value.color-good {
+    color: #6ce26c;
+  }
+  .stat-value.color-warn {
+    color: #ff8c00;
+  }
+  .stat-value.color-bad {
+    color: #ff5f5f;
+  }
 }
 
 /* 日历样式 */
@@ -250,7 +295,9 @@ onUnmounted(() => {
 }
 
 @media (prefers-color-scheme: dark) {
-  .cal-day-header { color: #aaa; }
+  .cal-day-header {
+    color: #aaa;
+  }
 }
 
 .cal-cell {
@@ -278,7 +325,9 @@ onUnmounted(() => {
 /* Vue transition */
 .panel-fade-enter-active,
 .panel-fade-leave-active {
-  transition: opacity 0.2s, transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+  transition:
+    opacity 0.2s,
+    transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 .panel-fade-enter-from,
 .panel-fade-leave-to {

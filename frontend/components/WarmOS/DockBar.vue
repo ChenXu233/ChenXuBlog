@@ -1,161 +1,151 @@
 <template>
   <div class="warm-os-container">
-    <!-- 全局 Tooltip -->
+    <!-- 全局独立的 Tooltip 层，防止被溢出隐藏切割 -->
     <div
       class="global-tooltip"
       :class="{ show: activeTooltip }"
-      :style="tooltipStyle"
+      :style="{ left: tooltipX + 'px', bottom: tooltipY + 'px' }"
     >
       {{ activeTooltip }}
     </div>
 
-    <!-- 系统面板（时钟/状态） -->
-    <div v-if="showPanel" class="system-panel" @click.stop>
-      <div class="panel-row">
-        <UIcon name="i-heroicons-clock" class="w-4 h-4" />
-        <span>{{ currentTime }}</span>
-      </div>
-      <div class="panel-row">
-        <UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
-        <span>{{ currentDate }}</span>
-      </div>
-      <div class="panel-row">
-        <UIcon name="i-heroicons-bolt" class="w-4 h-4" />
-        <span>FPS {{ fps }}</span>
-      </div>
-    </div>
+    <!-- 动态全局右键菜单 -->
+    <ContextMenu
+      :visible="contextMenuVisible"
+      :x="contextMenuX"
+      :y="contextMenuY"
+      :items="contextMenuItems"
+      @update:visible="(val) => (contextMenuVisible = val)"
+    />
+
+    <!-- 系统状态面板 -->
+    <SystemPanel v-model="showPanel" />
 
     <div
       class="nav-trigger-area"
-      @mouseenter="isHovered = true"
-      @mouseleave="isHovered = false"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
     >
+      <!-- 主控岛容器：管理高度、宽度过渡及溢出隐藏 -->
       <div class="island-wrapper" :class="viewState">
-        <!-- 收缩态：状态条 -->
-        <div
-          class="island-status"
-          :class="{ hide: viewState !== 'pill' }"
-          @click.stop="toggleNavPanel"
+        <LiquidGlass
+          :border-radius="viewState === 'pill' ? '24px' : '28px'"
+          bg-color="rgba(255, 255, 255, 0.2)"
+          class="island-glass"
         >
-          <div class="status-left">
-            <UIcon :name="currentIcon" class="status-icon" />
-            <span class="status-text">{{ currentMenuName }}</span>
-          </div>
-          <div class="status-right" @click.stop="toggleSystemPanel">
-            {{ timeShort }}
-          </div>
-        </div>
-
-        <!-- 展开态：Dock -->
-        <div class="island-dock" :class="{ show: viewState !== 'pill' }">
-          <div
-            class="dock-item"
-            :class="{ active: showNavPanel }"
-            @click.stop="toggleNavPanel"
-            @mouseenter="showTooltip($event, '主菜单')"
-            @mouseleave="hideTooltip"
-          >
-            <UIcon name="i-heroicons-squares-2x2" class="dock-icon" />
-          </div>
-          <div class="divider"></div>
-
-          <NuxtLink
-            v-for="item in navItems"
-            :key="item.path"
-            :to="item.path"
-            class="dock-item"
-            :class="{ active: route.path.startsWith(item.path) }"
-            @mouseenter="showTooltip($event, item.name)"
-            @mouseleave="hideTooltip"
-          >
-            <UIcon :name="item.icon" class="dock-icon" />
-          </NuxtLink>
-
-          <div class="divider"></div>
-          <div class="dock-fps-widget">
-            <span class="fps-value" :style="{ color: fpsColor }">{{
-              fps
-            }}</span>
-            <span class="fps-label">FPS</span>
-          </div>
-          <div class="divider"></div>
-          <div class="dock-time-widget" @click.stop="toggleSystemPanel">
-            <span class="time-main">{{ timeShort }}</span>
-            <span class="time-sub">{{ dateShort }}</span>
-          </div>
-        </div>
-
-        <!-- 二次展开：开始菜单 -->
-        <div class="island-menu" :class="{ show: viewState === 'menu' }">
-          <div class="menu-spacer"></div>
-          <div class="user-panel">
-            <NuxtLink
-              :to="
-                auth.isAuthenticated
-                  ? `/user/${auth.user?.uuid || ''}`
-                  : '/login?redirect=' + route.fullPath
-              "
-              class="user-card"
-              @click="closePanels"
-            >
-              <div class="user-card-avatar-shell">
-                <img
-                  :src="
-                    auth.user?.avatar ||
-                    'https://avatars.githubusercontent.com/u/91937041?v=4'
-                  "
-                  :alt="auth.user?.username || '访客'"
-                  class="user-card-avatar"
-                />
-                <span
-                  class="user-card-status"
-                  :class="{ active: auth.isAuthenticated }"
-                ></span>
+          <div class="island-content" @click.stop>
+            <!-- 1. 收缩状态：状态栏 (Pill) -->
+            <div class="island-status" :class="{ hide: viewState !== 'pill' }">
+              <div class="status-left" @click.stop="toggleNavPanel">
+                <i :class="['fa', currentIcon, 'status-icon']"></i>
+                <span class="status-text">{{ currentMenuName }}</span>
               </div>
-              <div class="user-card-copy">
-                <span class="user-card-kicker">{{
-                  auth.isAuthenticated ? "个人空间" : "欢迎回来"
-                }}</span>
-                <span class="user-card-title">{{
-                  auth.isAuthenticated ? auth.user?.username : "登录 ChenXuBlog"
-                }}</span>
-                <span class="user-card-meta">{{
-                  auth.isAuthenticated
-                    ? "进入个人主页与账户设置"
-                    : "登录后同步头像与资料"
-                }}</span>
+              <div class="status-right" @click.stop="toggleSystemPanel">
+                {{ currentTime }}
               </div>
-              <UButton
-                v-if="auth.isAuthenticated"
-                icon="i-heroicons-arrow-right-on-rectangle"
-                size="xs"
-                color="error"
-                variant="ghost"
-                @click.stop="handleLogout"
-                >退出</UButton
-              >
-            </NuxtLink>
-          </div>
+            </div>
 
-          <div class="start-content">
-            <div class="section-title">所有页面</div>
-            <div class="nav-panel-grid">
-              <NuxtLink
-                v-for="item in allNavItems"
-                :key="item.path"
-                :to="item.path"
-                class="nav-grid-item"
-                :class="{ active: route.path.startsWith(item.path) }"
-                @click="closePanels"
-              >
-                <div class="icon-wrapper">
-                  <UIcon :name="item.icon" class="w-5 h-5" />
+            <!-- 2. 二次展开：开始菜单 (Menu) -->
+            <div class="island-menu" :class="{ show: viewState === 'menu' }">
+              <!-- 预留的顶部间距 -->
+              <div class="menu-spacer"></div>
+              <!-- 全局搜索框 -->
+              <div class="search-box-wrapper">
+                <div class="search-box">
+                  <i class="fa fa-search search-icon"></i>
+                  <input
+                    type="text"
+                    placeholder="探索博客内容..."
+                    class="search-input"
+                  />
                 </div>
-                <span>{{ item.name }}</span>
-              </NuxtLink>
+              </div>
+
+              <div class="start-content">
+                <div class="section-title">所有页面</div>
+                <div class="nav-panel-grid">
+                  <router-link
+                    v-for="item in navItems"
+                    :key="item.path"
+                    :to="item.path"
+                    class="nav-grid-item"
+                    :class="{ active: route.path === item.path }"
+                    @click="showNavPanel = false"
+                  >
+                    <div class="icon-wrapper">
+                      <i :class="['fa fa-lg', item.icon]"></i>
+                    </div>
+                    <span>{{ item.name }}</span>
+                  </router-link>
+                </div>
+
+                <div class="section-title mt-4">常用应用</div>
+                <div class="nav-panel-list">
+                  <div class="app-list-item">
+                    <span>暂无</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. 展开状态：应用 Dock 栏 -->
+            <div class="island-dock" :class="{ show: viewState !== 'pill' }">
+              <!-- 主菜单徽标 -->
+              <div
+                class="dock-item"
+                :class="{ active: showNavPanel }"
+                @click.stop="toggleNavPanel"
+                @mouseenter="showTooltip($event, '主菜单')"
+                @mouseleave="hideTooltip"
+              >
+                <i class="fa fa-lg dock-icon fa-th-large"></i>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- 运行中的应用列表 -->
+              <div
+                v-for="app in openApps"
+                :key="app.id"
+                class="dock-item"
+                :class="{
+                  active: activeAppId === app.id,
+                  minimized: app.minimized,
+                }"
+                @click.stop="toggleAppVisibility(app)"
+                @contextmenu.prevent.stop="handleContextMenu($event, app)"
+                @mouseenter="showTooltip($event, app.title)"
+                @mouseleave="hideTooltip"
+              >
+                <i :class="['fa fa-lg dock-icon', app.icon]"></i>
+                <div class="dock-indicator" v-if="activeAppId === app.id"></div>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- 实时 FPS 显示 -->
+              <div class="dock-fps-widget" title="当前帧率">
+                <span
+                  class="fps-value"
+                  :style="{
+                    color:
+                      fps >= 45 ? '#10b981' : fps >= 30 ? '#f59e0b' : '#ef4444',
+                  }"
+                  >{{ fps }}</span
+                >
+                <span class="fps-label">FPS</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- 系统时间和状态入口 -->
+              <div class="dock-time-widget" @click.stop="toggleSystemPanel">
+                <span class="time-main">{{ currentTimeSplit.time }}</span>
+                <span class="time-sub">{{ currentTimeSplit.date }}</span>
+              </div>
             </div>
           </div>
-        </div>
+        </LiquidGlass>
       </div>
     </div>
   </div>
@@ -163,131 +153,188 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRoute } from "vue-router";
+import LiquidGlass from "../LiquidGlass.vue";
+import SystemPanel from "./SystemPanel.vue";
+import ContextMenu, { type MenuItem } from "./ContextMenu.vue";
+import {
+  openApps,
+  activeAppId,
+  toggleAppVisibility,
+  closeApp,
+  minimizeApp,
+  type AppConfig,
+} from "@/stores/warmos";
 
 const route = useRoute();
-const auth = useAuthStore();
 
+// UI 核心状态
 const isHovered = ref(false);
-const showNavPanel = ref(false);
-const showPanel = ref(false);
-const activeTooltip = ref("");
-const tooltipX = ref(0);
-const tooltipY = ref(0);
+const showNavPanel = ref(false); // 控制二次展开 (Start Menu)
+const showPanel = ref(false); // 控制侧边系统状态栏
 
+// 混合计算得到的视图状态：'pill' (收缩) | 'dock' (展开条) | 'menu' (二次展开面)
 const viewState = computed(() => {
   if (showNavPanel.value) return "menu";
   if (isHovered.value) return "dock";
   return "pill";
 });
 
-const tooltipStyle = computed(() => ({
-  left: tooltipX.value + "px",
-  bottom: tooltipY.value + "px",
-}));
+// 全局 Tooltip 状态控制，解决 overflow:hidden 切割问题
+const activeTooltip = ref("");
+const tooltipX = ref(0);
+const tooltipY = ref(0);
 
 const showTooltip = (e: MouseEvent, text: string) => {
   activeTooltip.value = text;
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+  const target = e.currentTarget as HTMLElement;
+  const rect = target.getBoundingClientRect();
   tooltipX.value = rect.left + rect.width / 2;
+  // 加上一些上方间距，56 = icon 高度(44) + 悬浮距离(12)
   tooltipY.value = window.innerHeight - rect.top + 8;
 };
-const hideTooltip = () => (activeTooltip.value = "");
+
+const hideTooltip = () => {
+  activeTooltip.value = "";
+};
+
+// 右键菜单状态
+const contextMenuVisible = ref(false);
+const contextMenuX = ref(0);
+const contextMenuY = ref(0);
+const contextMenuItems = ref<MenuItem[]>([]);
+
+const handleContextMenu = (e: MouseEvent, app: AppConfig) => {
+  contextMenuItems.value = [
+    {
+      label: app.minimized ? "恢复应用" : "最小化",
+      icon: "fa-window-minimize",
+      action: () => toggleAppVisibility(app),
+    },
+    { separator: true },
+    {
+      label: "退出应用",
+      icon: "fa-times",
+      color: "#ff5f56",
+      action: () => closeApp(app.id),
+    },
+  ];
+
+  contextMenuX.value = e.clientX;
+  contextMenuY.value = e.clientY - 10;
+  contextMenuVisible.value = true;
+  hideTooltip();
+};
+
+const hideContextMenu = () => {
+  contextMenuVisible.value = false;
+};
+
+// 交互操作
+const handleMouseEnter = () => {
+  isHovered.value = true;
+};
+
+const handleMouseLeave = () => {
+  // 鼠标离开触发区时，只有当**菜单未打开**时才回缩。
+  // 这防止了鼠标划入变长菜单时发生“鬼畜”回落。
+  isHovered.value = false;
+  hideTooltip();
+};
+
+const toggleSystemPanel = () => {
+  showPanel.value = !showPanel.value;
+  if (showPanel.value) showNavPanel.value = false;
+};
 
 const toggleNavPanel = () => {
   showNavPanel.value = !showNavPanel.value;
   if (showNavPanel.value) showPanel.value = false;
 };
-const toggleSystemPanel = () => {
-  showPanel.value = !showPanel.value;
-  if (showPanel.value) showNavPanel.value = false;
-};
+
 const closePanels = () => {
   showPanel.value = false;
   showNavPanel.value = false;
+  hideContextMenu();
 };
 
-const navItems = [
-  { name: "首页", path: "/home", icon: "i-heroicons-home" },
-  { name: "文章", path: "/article", icon: "i-heroicons-document-text" },
-  { name: "归档", path: "/archive", icon: "i-heroicons-archive-box" },
-  { name: "随谈", path: "/diary", icon: "i-heroicons-chat-bubble-left-right" },
-  { name: "友链", path: "/friend", icon: "i-heroicons-user-group" },
-  { name: "WarmOS", path: "/warmos", icon: "i-heroicons-computer-desktop" },
-];
+// 导航数据
+const navItems = ref([
+  { name: "首页", path: "/home", icon: "fa-home" },
+  { name: "WarmOS", path: "/warmos", icon: "fa-compass" },
+  { name: "文章", path: "/article", icon: "fa-file-text" },
+  { name: "归档", path: "/archive", icon: "fa-archive" },
+  { name: "随谈", path: "/diary", icon: "fa-comments" },
+  { name: "友链", path: "/friend", icon: "fa-users" },
+]);
 
-const allNavItems = computed(() => {
-  const items = [...navItems];
-  if (auth.isAdmin)
-    items.push({
-      name: "管理后台",
-      path: "/admin",
-      icon: "i-heroicons-cog-6-tooth",
-    });
-  return items;
+const currentMenuName = computed(() => {
+  const item =
+    navItems.value.find(
+      (i) => route.path.startsWith(i.path) && i.path !== "/",
+    ) || navItems.value[0];
+  if (route.path === "/" || route.path === "/home")
+    return navItems.value[0]?.name ?? "首页";
+  return item?.name || "应用容器";
 });
 
-const currentMenuName = computed(
-  () =>
-    allNavItems.value.find(
-      (i) => route.path.startsWith(i.path) && i.path !== "/home",
-    )?.name || "首页",
-);
-const currentIcon = computed(
-  () =>
-    allNavItems.value.find(
-      (i) => route.path.startsWith(i.path) && i.path !== "/home",
-    )?.icon || "i-heroicons-home",
-);
+const currentIcon = computed(() => {
+  const item =
+    navItems.value.find(
+      (i) => route.path.startsWith(i.path) && i.path !== "/",
+    ) || navItems.value[0];
+  if (route.path === "/" || route.path === "/home")
+    return navItems.value[0]?.icon ?? "fa-home";
+  return item?.icon || "fa-compass";
+});
 
-const now = ref(new Date());
+// 时间管理
+const currentTime = ref("");
+const currentTimeSplit = ref({ time: "", date: "" });
 let timer: ReturnType<typeof setInterval>;
-const timeShort = computed(() =>
-  now.value.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
-);
-const dateShort = computed(() =>
-  now.value.toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" }),
-);
-const currentTime = computed(() => now.value.toLocaleTimeString("zh-CN"));
-const currentDate = computed(() =>
-  now.value.toLocaleDateString("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }),
-);
 
-const fps = ref(0);
-let frameCount = 0;
-let lastFrame = performance.now();
-let fpsId: number;
-const fpsColor = computed(() =>
-  fps.value >= 45 ? "#10b981" : fps.value >= 30 ? "#f59e0b" : "#ef4444",
-);
-
-const calcFps = () => {
-  const t = performance.now();
-  frameCount++;
-  if (t - lastFrame >= 1000) {
-    fps.value = Math.round((frameCount * 1000) / (t - lastFrame));
-    frameCount = 0;
-    lastFrame = t;
-  }
-  fpsId = requestAnimationFrame(calcFps);
+const updateTime = () => {
+  const now = new Date();
+  currentTime.value = now.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  currentTimeSplit.value = {
+    time: now.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    date: now.toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" }),
+  };
 };
 
-const handleLogout = () => {
-  auth.logout();
-  closePanels();
+// ================ FPS 监测 ================
+const fps = ref(0);
+let frameCount = 0;
+let lastFrameTime = performance.now();
+let fpsAnimationId: number;
+
+const calculateFPS = () => {
+  const now = performance.now();
+  frameCount++;
+  if (now - lastFrameTime >= 1000) {
+    fps.value = Math.round((frameCount * 1000) / (now - lastFrameTime));
+    frameCount = 0;
+    lastFrameTime = now;
+  }
+  fpsAnimationId = requestAnimationFrame(calculateFPS);
 };
 
 onMounted(() => {
-  timer = setInterval(() => (now.value = new Date()), 1000);
-  fpsId = requestAnimationFrame(calcFps);
+  updateTime();
+  timer = setInterval(updateTime, 1000);
+  fpsAnimationId = requestAnimationFrame(calculateFPS);
   document.addEventListener("click", closePanels);
 });
+
 onUnmounted(() => {
   clearInterval(timer);
-  cancelAnimationFrame(fpsId);
+  cancelAnimationFrame(fpsAnimationId);
   document.removeEventListener("click", closePanels);
 });
 </script>
@@ -300,12 +347,13 @@ onUnmounted(() => {
   right: 0;
   height: 0;
   z-index: 100;
-  pointer-events: none;
+  pointer-events: none; /* 允许鼠标穿透到底层页面 */
 }
 
+/* Tooltip 不在溢出隐藏容器内，自由设定位置和淡入动画 */
 .global-tooltip {
   position: fixed;
-  background: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.7);
   color: #fff;
   font-size: 12px;
   padding: 4px 10px;
@@ -314,46 +362,24 @@ onUnmounted(() => {
   opacity: 0;
   transform: translateX(-50%) translateY(8px);
   transition:
-    opacity 0.2s,
-    transform 0.2s;
+    opacity 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 1000;
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+@media (prefers-color-scheme: dark) {
+  .global-tooltip {
+    background-color: rgba(255, 255, 255, 0.85);
+    color: #000;
+  }
 }
 .global-tooltip.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-.system-panel {
-  position: fixed;
-  right: 20px;
-  bottom: 90px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 16px;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-  pointer-events: auto;
-  color: #333;
-  font-size: 13px;
-}
-.panel-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-@media (prefers-color-scheme: dark) {
-  .system-panel {
-    background: rgba(30, 40, 55, 0.9);
-    color: #eee;
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-}
-
+/* 页面底部的事件热区 */
 .nav-trigger-area {
   position: absolute;
   bottom: 0;
@@ -365,50 +391,92 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 24px;
-  pointer-events: auto;
+  padding-bottom: 24px; /* 离底部的距离 */
+  pointer-events: auto; /* 恢复交互 */
 }
 
+/* ================= 核心结构重构 ================= */
 .island-wrapper {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 1px rgba(255, 255, 255, 0.6);
-  border-radius: 24px;
+  /* 平滑的尺寸控制，这三者是灵动岛动画顺滑的关键 */
   transition:
     max-width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
     height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
     transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 基础弹性轴 */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* 恢复 overflow: hidden！这是苹果式灵动岛裁剪内容毛边的关键。
+     由于 Tooltip 已经完全独立全局，不再被裁剪，这里可以安全使用！ */
+  overflow: hidden;
+  /* 阴影悬浮感 */
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
 }
+@media (prefers-color-scheme: dark) {
+  .island-wrapper {
+    box-shadow:
+      0 12px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 玻璃层贴合并占据所有体积 */
+.island-glass {
+  width: 100%;
+  height: 100%;
+  /* 移除 absolute 定位，让它作为常规内容存在，从而把内部尺寸透传给 wrapper */
+  border-radius: inherit;
+  transition: border-radius 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden; /* 恢复完美的背景圆角切除 */
+}
+
+/* == 状态尺码控制 == */
+/* 1. Pill 收缩态 */
 .island-wrapper.pill {
   max-width: 170px;
   height: 48px;
   transform: translateY(4px) scale(0.96);
   border-radius: 24px;
 }
+
+/* 2. Dock 展开态 */
 .island-wrapper.dock {
-  max-width: 560px;
+  max-width: 800px;
   height: 60px;
   transform: translateY(0) scale(1);
   border-radius: 28px;
 }
+
+/* 3. Menu 二次展开高态 */
 .island-wrapper.menu {
-  max-width: 480px;
-  height: 480px;
+  max-width: 800px; /* 依据内部内容(也就是底框)撑开最大边界 */
+  height: 480px; /* 二次平滑拔高！ */
   transform: translateY(0) scale(1);
-  border-radius: 34px;
+  border-radius: 32px;
 }
 
+/* 控制内部元素，使得它在横向自适应宽度，从而撑开 wrapper 到 max-width 极限 */
+.island-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: max-content; /* 最核心魔法：由内部内容驱动容器实际宽度！ */
+  height: 100%; /* 满高，供 flex 自动布局 */
+  margin: 0 auto;
+}
+
+/* ======== 第一层：状态栏 (Pill) ======== */
 .island-status {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 48px;
+  width: 100%; /* 撑满当前灵动岛宽度 */
+  height: 48px; /* 固定为短条状态的高度 */
+  box-sizing: border-box; /* 确保 padding 不会撑破容器 */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -429,23 +497,31 @@ onUnmounted(() => {
     opacity 0.15s ease,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
 .status-left {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
+  margin-left: -8px;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
   overflow: hidden;
   white-space: nowrap;
 }
 .status-left:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
+@media (prefers-color-scheme: dark) {
+  .status-left:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
 .status-icon {
-  width: 14px;
-  height: 14px;
   color: #555;
+  font-size: 14px;
 }
 .status-text {
   font-size: 13px;
@@ -460,17 +536,237 @@ onUnmounted(() => {
   font-size: 12px;
   font-weight: 600;
   color: #555;
-  padding: 4px 8px;
-  border-radius: 6px;
   cursor: pointer;
+  padding: 4px 8px;
+  margin-right: -8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.status-right:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
+@media (prefers-color-scheme: dark) {
+  .status-icon {
+    color: #ccc;
+  }
+  .status-text {
+    color: #eee;
+  }
+  .status-right {
+    color: #eee;
+  }
+  .status-right:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* ======== 第二层：主导航菜单 (Menu) ======== */
+.island-menu {
+  width: 360px;
+  margin: 0 auto;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px) scale(0.95);
+  transition:
+    opacity 0.3s ease,
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* 撑满纵向高度，压住底部的 Dock */
+  overflow: hidden; /* 防止未激活时内容干扰 */
+}
+.island-menu.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.menu-spacer {
+  height: 24px;
+}
+
+.search-box-wrapper {
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  padding: 8px 16px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.05) inset,
+    0 1px 0 rgba(255, 255, 255, 0.5);
+}
+@media (prefers-color-scheme: dark) {
+  .search-box {
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.3) inset,
+      0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+}
+.search-icon {
+  color: #666;
+  margin-right: 8px;
+}
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+}
+.search-input::placeholder {
+  color: #999;
+}
+@media (prefers-color-scheme: dark) {
+  .search-icon {
+    color: #aaa;
+  }
+  .search-input {
+    color: #eee;
+  }
+  .search-input::placeholder {
+    color: #666;
+  }
+}
+
+.start-content {
+  padding: 0 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  .section-title {
+    color: #aaa;
+  }
+}
+.mt-4 {
+  margin-top: 16px;
+}
+
+.nav-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  row-gap: 20px;
+  column-gap: 16px;
+  justify-items: center;
+}
+.nav-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  width: 100%;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.nav-grid-item:hover {
+  transform: scale(1.05);
+}
+@media (prefers-color-scheme: dark) {
+  .nav-grid-item {
+    color: #eee;
+  }
+}
+
+.nav-grid-item .icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 8px;
+  color: #555;
+  transition: background-color 0.2s;
+}
+.nav-grid-item:hover .icon-wrapper {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+.nav-grid-item.active .icon-wrapper {
+  background-color: #0078d4;
+  color: white;
+}
+@media (prefers-color-scheme: dark) {
+  .nav-grid-item .icon-wrapper {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  .nav-grid-item:hover .icon-wrapper {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  .nav-grid-item.active .icon-wrapper {
+    background-color: #005a9e;
+  }
+}
+.nav-grid-item span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.nav-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.app-list-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.app-list-item i {
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+}
+.app-list-item span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+.app-list-item:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+@media (prefers-color-scheme: dark) {
+  .app-list-item {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .app-list-item span {
+    color: #eee;
+  }
+  .app-list-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* ======== 第三层：应用底座 (Dock) ======== */
 .island-dock {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   padding: 8px 12px;
+  /* 初始不可见并略微缩小，等待 wrapper 拓宽 */
   opacity: 0;
   transform: translateY(10px) scale(0.9);
   pointer-events: none;
@@ -478,13 +774,15 @@ onUnmounted(() => {
     opacity 0.3s ease,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 10;
-  height: 44px;
+  height: 60px; /* 固定高宽，为整个组件奠定拓宽基础 */
   flex-shrink: 0;
 }
 .island-dock.show {
+  /* 当激活 dock/menu 时，内部模块迅速淡入 */
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0) scale(1);
+  /* 为了能让淡入和 wrapper 扩宽协调，加一点延迟 */
   transition:
     opacity 0.35s ease 0.15s,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
@@ -501,49 +799,47 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.3s ease;
   flex-shrink: 0;
-  text-decoration: none;
 }
 .dock-icon {
-  width: 20px;
-  height: 20px;
   color: #444;
+  transition: color 0.3s ease;
 }
+@media (prefers-color-scheme: dark) {
+  .dock-icon {
+    color: #ddd;
+  }
+}
+
 .dock-item:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.6);
   transform: translateY(-6px);
 }
 .dock-item.active {
-  background: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.8);
   transform: scale(1.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+@media (prefers-color-scheme: dark) {
+  .dock-item:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+  .dock-item.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .divider {
   width: 1px;
   height: 28px;
-  background: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.15);
   margin: 0 2px;
   border-radius: 1px;
 }
-
-.dock-fps-widget {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  height: 44px;
-  flex-shrink: 0;
-}
-.fps-value {
-  font-size: 13px;
-  font-weight: 700;
-}
-.fps-label {
-  font-size: 10px;
-  color: #666;
-  margin-top: -2px;
-  font-weight: 600;
+@media (prefers-color-scheme: dark) {
+  .divider {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
 
 .dock-time-widget {
@@ -555,10 +851,12 @@ onUnmounted(() => {
   height: 44px;
   border-radius: 12px;
   cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
   flex-shrink: 0;
 }
 .dock-time-widget:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 .time-main {
   font-size: 13px;
@@ -571,225 +869,41 @@ onUnmounted(() => {
   margin-top: -2px;
 }
 
-.island-menu {
-  width: 100%;
-  margin: 0 auto;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(20px) scale(0.95);
-  transition:
-    opacity 0.3s ease,
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ================ 实时 FPS 挂件 ================ */
+.dock-fps-widget {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-.island-menu.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-}
-
-.menu-spacer {
-  height: 20px;
-}
-.user-panel {
-  padding: 0 20px 16px;
-  position: relative;
-  z-index: 10;
-  pointer-events: auto;
-}
-.user-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 72px;
-  padding: 14px 16px;
-  border-radius: 20px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.5),
-    rgba(244, 248, 255, 0.62)
-  );
-  text-decoration: none;
-  transition:
-    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.28s ease;
-}
-.user-card:hover {
-  transform: translateY(-3px) scale(1.015);
-  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.16);
-}
-.user-card-avatar-shell {
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  padding: 2px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(170, 204, 255, 0.58)
-  );
-}
-.user-card-avatar {
-  width: 100%;
-  height: 100%;
-  border-radius: 16px;
-  object-fit: cover;
-}
-.user-card-status {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(148, 163, 184, 0.95);
-  border: 2px solid #fff;
-}
-.user-card-status.active {
-  background: #34c759;
-}
-.user-card-copy {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.user-card-kicker {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(74, 85, 104, 0.72);
-}
-.user-card-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 17px;
-  font-weight: 700;
-  color: #1f2937;
-}
-.user-card-meta {
-  font-size: 12px;
-  color: rgba(55, 65, 81, 0.72);
-}
-
-.start-content {
-  padding: 0 24px 10px;
-  flex: 1;
-  overflow-y: auto;
-}
-.section-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-  margin-bottom: 14px;
-  padding-left: 4px;
-}
-.nav-panel-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  row-gap: 20px;
-  column-gap: 14px;
-  justify-items: center;
-}
-.nav-grid-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: #333;
-  width: 100%;
-  transition: transform 0.2s;
-  position: relative;
-  z-index: 10;
-  cursor: pointer;
-}
-.nav-grid-item:hover {
-  transform: scale(1.05);
-}
-.nav-grid-item .icon-wrapper {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
-  display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 8px;
-  color: #555;
+  padding: 0 8px;
+  height: 44px;
+  flex-shrink: 0;
+  cursor: default;
+  user-select: none;
 }
-.nav-grid-item.active .icon-wrapper {
-  background: #f4b3c2;
-  color: #fff;
+.fps-value {
+  font-size: 13px;
+  font-weight: 700;
 }
-.nav-grid-item span {
-  font-size: 12px;
-  font-weight: 500;
+.fps-label {
+  font-size: 10px;
+  color: #666;
+  margin-top: -2px;
+  font-weight: 600;
 }
 
 @media (prefers-color-scheme: dark) {
-  .island-wrapper {
-    box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  .dock-time-widget:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
-  .dock-icon {
-    color: #ddd;
-  }
-  .dock-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-  .dock-item.active {
-    background: rgba(255, 255, 255, 0.25);
-  }
-  .time-main,
-  .status-text {
+  .time-main {
     color: #eee;
   }
-  .status-icon,
-  .time-sub,
-  .fps-label,
-  .status-right {
+  .time-sub {
     color: #aaa;
   }
-  .divider {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  .user-card {
-    background: linear-gradient(
-      135deg,
-      rgba(35, 43, 56, 0.94),
-      rgba(20, 27, 38, 0.82)
-    );
-  }
-  .user-card-title {
-    color: #f8fafc;
-  }
-  .user-card-kicker {
-    color: rgba(203, 213, 225, 0.62);
-  }
-  .user-card-meta {
-    color: rgba(226, 232, 240, 0.7);
-  }
-  .section-title {
+  .fps-label {
     color: #aaa;
-  }
-  .nav-grid-item {
-    color: #eee;
-  }
-  .nav-grid-item .icon-wrapper {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ddd;
-  }
-  .nav-grid-item.active .icon-wrapper {
-    background: #b0637e;
-    color: #fff;
   }
 }
 </style>

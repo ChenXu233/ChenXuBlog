@@ -1,24 +1,33 @@
 export interface User {
-  id: number
-  uuid: string
-  username: string
-  email: string
-  bio?: string
-  avatar?: string
+  uuid: string;
+  username: string;
+  email: string;
+  avatar_url: string;
 }
 
 export interface UserLogin {
-  evidence: string
-  password: string
+  evidence: string;
+  password: string;
 }
 
 export interface UserRegister {
-  username: string
-  email: string
-  password: string
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface UserRegisterResponse {
+  user: User;
+}
+
+export interface UserUpdate {
+  username: string;
+  email: string;
+  avatar_url: string;
 }
 
 export interface UserLoginResponse {
-  user_uuid: string
-  access_token: string
+  user_uuid: string;
+  access_token: string;
+  refresh_token?: string;
 }

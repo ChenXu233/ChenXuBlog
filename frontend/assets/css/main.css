@@ -2,6 +2,18 @@
 @import "@nuxt/ui";
 
 :root {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-text: #1e293b;
+  --color-text-light: #64748b;
+  --color-border: #e2e8f0;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: 0.2s ease;
+
   --color-rose-50: #fce4e8;
   --color-rose-100: #f9cdd5;
   --color-rose-200: #f4b3c2;
@@ -12,4 +24,13 @@
   --color-rose-700: #c4708a;
   --color-rose-800: #b45676;
   --color-rose-900: #a43c62;
+}
+
+html body.home-hide-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+html body.home-hide-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
