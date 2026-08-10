@@ -18,9 +18,7 @@ services:
       - blog-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/chenxu233/chenxu-blog-backend:latest
     container_name: blog-backend
     ports:
       - "127.0.0.1:8100:8000"
