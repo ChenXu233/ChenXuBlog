@@ -1,19 +1,79 @@
 <template>
   <div class="bamboo-forest" ref="forestRef">
-    <canvas ref="canvasRef"></canvas>
+    <svg
+      class="bamboo-svg"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <linearGradient id="stalkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#9db495" />
+          <stop offset="40%" stop-color="#dce5d8" />
+          <stop offset="60%" stop-color="#dce5d8" />
+          <stop offset="100%" stop-color="#8fa486" />
+        </linearGradient>
+        <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#8fa486" />
+          <stop offset="100%" stop-color="#b0c4a8" />
+        </linearGradient>
+      </defs>
+
+      <g
+        v-for="bamboo in bamboos"
+        :key="bamboo.id"
+        class="bamboo-group"
+        :style="{
+          '--parallax-dist': bamboo.speed + 'px',
+          opacity: bamboo.opacity,
+        }"
+      >
+        <!-- 主干 -->
+        <path :d="bamboo.trunkPath" fill="url(#stalkGrad)" />
+
+        <!-- 竹壳/竹节 -->
+        <rect
+          v-for="(j, idx) in bamboo.joints"
+          :key="'j' + idx"
+          :x="j.x - j.width / 2 - 2"
+          :y="j.y"
+          :width="j.width + 4"
+          height="4"
+          fill="#7a9073"
+          rx="2"
+        />
+
+        <!-- 分枝结构 -->
+        <line
+          v-for="(seg, sIdx) in bamboo.branchSegments"
+          :key="'s' + sIdx"
+          :x1="seg.x1"
+          :y1="seg.y1"
+          :x2="seg.x2"
+          :y2="seg.y2"
+          stroke="#9fc4a6"
+          :stroke-width="seg.width"
+          stroke-linecap="round"
+        />
+
+        <!-- 叶子 -->
+        <g
+          v-for="(leaf, lKey) in bamboo.leaves"
+          :key="'l' + lKey"
+          :transform="leaf.transform"
+          :opacity="leaf.opacity"
+        >
+          <path d="M 0,0 Q 20,-10 40,0 Q 20,10 0,0 Z" fill="url(#leafGrad)" />
+        </g>
+      </g>
+    </svg>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
-// ponytail: canvas 版渲染 —— 原 SVG 版每根竹子约 500+ DOM 节点（竹节/分枝/叶子），
-// 6 根就是 ~3000 节点还各自跑 scroll() 动画，低端机明显卡顿。
-// 生成算法（generateForest）完全保留，仅渲染层换成单个 canvas 每帧重绘（1-3ms）。
-
-const props = defineProps<{ progress?: number }>();
+defineProps<{ progress?: number }>();
 const forestRef = ref<HTMLElement | null>(null);
-const canvasRef = ref<HTMLCanvasElement | null>(null);
 
 function seed(s: number) {
   return function () {
@@ -37,21 +97,17 @@ interface BambooBranchSegment {
 }
 
 interface BambooLeaf {
-  x: number;
-  y: number;
-  rot: number;
-  scale: number;
+  transform: string;
   opacity: number;
 }
 
 interface Bamboo {
   id: number;
+  x: number;
   speed: number;
   opacity: number;
-  minX: number;
-  maxX: number;
-  startY: number;
-  bottomY: number;
+  zIndex: number;
+  trunkPath: string;
   joints: BambooJoint[];
   branchSegments: BambooBranchSegment[];
   leaves: BambooLeaf[];
@@ -60,7 +116,6 @@ interface Bamboo {
 const bamboos = ref<Bamboo[]>([]);
 let resizeObserver: ResizeObserver | null = null;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-let maxExtra = 0; // 竹子超出容器底部的最大高度（canvas 需要包含它）
 
 function generateForest() {
   if (!forestRef.value) return;
@@ -107,6 +162,16 @@ function generateForest() {
       currentY += spacing;
     }
 
+    const leftSide = joints
+      .map((j) => `${j.x - j.width / 2},${j.y}`)
+      .join(" L ");
+    const rightSide = joints
+      .slice()
+      .reverse()
+      .map((j) => `${j.x + j.width / 2},${j.y}`)
+      .join(" L ");
+    const trunkPath = `M ${leftSide} L ${rightSide} Z`;
+
     const branchSegments: BambooBranchSegment[] = [];
     const leaves: BambooLeaf[] = [];
 
@@ -133,10 +198,9 @@ function generateForest() {
         const leafOpacity = 0.3 + (1 - branchDepth) * 0.7 + (rnd() * 0.2 - 0.1);
 
         leaves.push({
-          x: lx + ox,
-          y: ly + oy,
-          rot: svgRot,
-          scale,
+          transform: `translate(${lx + ox}, ${
+            ly + oy
+          }) rotate(${svgRot}) scale(${scale})`,
           opacity: Math.max(1, Math.max(0.1, leafOpacity)),
         });
       }
@@ -352,200 +416,36 @@ function generateForest() {
       ); // 顶端深度强制为 0
     }
 
-    // 主干包围盒（用于 stalk 渐变，等价于 SVG objectBoundingBox）
-    let minX = Infinity;
-    let maxX = -Infinity;
-    for (const j of joints) {
-      if (j.x - j.width / 2 < minX) minX = j.x - j.width / 2;
-      if (j.x + j.width / 2 > maxX) maxX = j.x + j.width / 2;
-    }
-
     generated.push({
       id: i,
+      x,
       speed,
       opacity: 0.6 + (zIndex / 10) * 0.4,
-      minX,
-      maxX,
-      startY,
-      bottomY,
+      zIndex,
+      trunkPath,
       joints,
       branchSegments,
       leaves,
     });
   }
   bamboos.value = generated;
-  // 竹子底部最大超出容器的高度（原版 SVG overflow:visible 会显示这部分）
-  maxExtra = 0;
-  for (const b of generated) {
-    maxExtra = Math.max(maxExtra, b.bottomY - containerHeight);
-  }
 }
-
-// ---------- canvas 渲染（离屏分层） ----------
-// 竹子内容是静态的，只在生成时画一次到离屏 canvas；
-// 滚动视差每帧只做 drawImage 平移（6 次位块传送 ≈ 0.1-1ms），
-// 替代 SVG 版每根竹子 500+ DOM 节点 + scroll() 动画。
-
-let ctx: CanvasRenderingContext2D | null = null;
-let rafId = 0;
-const offscreenMap = new Map<number, HTMLCanvasElement>();
-
-let leafPath: Path2D | null = null;
-let leafGrad: CanvasGradient | null = null;
-
-function setupCanvas() {
-  const canvas = canvasRef.value;
-  const forest = forestRef.value;
-  if (!canvas || !forest) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2); // 背景层，DPR 封顶 2 即可
-  const rect = forest.getBoundingClientRect();
-  // 高度含竹子底部超出容器的部分（对齐原版 SVG overflow:visible）
-  const h = rect.height + maxExtra;
-  canvas.width = Math.max(1, Math.round(rect.width * dpr));
-  canvas.height = Math.max(1, Math.round(h * dpr));
-  canvas.style.width = rect.width + "px";
-  canvas.style.height = h + "px";
-  ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
-// 每根竹子画到自己的离屏 canvas（生成一次，滚动不再重绘）
-function buildOffscreen(b: Bamboo, dpr: number) {
-  const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round((b.maxX - b.minX + 60) * dpr));
-  c.height = Math.max(1, Math.round(b.bottomY * dpr));
-  const g = c.getContext("2d");
-  if (!g) return;
-  g.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // 主干（等价 trunkPath 多边形 + stalkGrad 渐变）
-  const grad = g.createLinearGradient(b.minX, b.startY, b.maxX, b.startY);
-  grad.addColorStop(0, "#9db495");
-  grad.addColorStop(0.4, "#dce5d8");
-  grad.addColorStop(0.6, "#dce5d8");
-  grad.addColorStop(1, "#8fa486");
-  g.fillStyle = grad;
-  g.beginPath();
-  const j = b.joints;
-  g.moveTo(j[0].x - j[0].width / 2, j[0].y);
-  for (let i = 1; i < j.length; i++) {
-    g.lineTo(j[i].x - j[i].width / 2, j[i].y);
-  }
-  for (let i = j.length - 1; i >= 0; i--) {
-    g.lineTo(j[i].x + j[i].width / 2, j[i].y);
-  }
-  g.closePath();
-  g.fill();
-
-  // 竹节（等价 rect + rx=2）
-  g.fillStyle = "#7a9073";
-  for (const jt of b.joints) {
-    g.roundRect(jt.x - jt.width / 2 - 2, jt.y, jt.width + 4, 4, 2);
-    g.fill();
-  }
-
-  // 分枝（等价 line + round cap）
-  g.strokeStyle = "#9fc4a6";
-  g.lineCap = "round";
-  for (const seg of b.branchSegments) {
-    g.lineWidth = seg.width;
-    g.beginPath();
-    g.moveTo(seg.x1, seg.y1);
-    g.lineTo(seg.x2, seg.y2);
-    g.stroke();
-  }
-
-  // 叶子（等价 translate/rotate/scale + leafGrad）
-  if (leafPath && leafGrad) {
-    g.fillStyle = leafGrad;
-    for (const leaf of b.leaves) {
-      g.save();
-      g.globalAlpha = Math.min(1, leaf.opacity);
-      g.translate(leaf.x, leaf.y);
-      g.rotate((leaf.rot * Math.PI) / 180);
-      g.scale(leaf.scale, leaf.scale);
-      g.fill(leafPath);
-      g.restore();
-    }
-  }
-
-  offscreenMap.set(b.id, c);
-}
-
-function buildAllOffscreen() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  offscreenMap.clear();
-
-  if (!leafPath || !leafGrad) {
-    leafPath = new Path2D("M 0,0 Q 20,-10 40,0 Q 20,10 0,0 Z");
-    // 所有叶子本地包围盒都是 40x20，渐变共用一份（等价 SVG leafGrad objectBoundingBox）
-    const t = document.createElement("canvas").getContext("2d");
-    if (t) {
-      leafGrad = t.createLinearGradient(0, 0, 40, 0);
-      leafGrad.addColorStop(0, "#8fa486");
-      leafGrad.addColorStop(1, "#b0c4a8");
-    }
-  }
-
-  for (const b of bamboos.value) buildOffscreen(b, dpr);
-}
-
-function draw() {
-  if (!ctx || !canvasRef.value) return;
-  const canvas = canvasRef.value;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const progress = props.progress ?? 0;
-
-  for (const b of bamboos.value) {
-    const off = offscreenMap.get(b.id);
-    if (!off) continue;
-    ctx.save();
-    ctx.globalAlpha = b.opacity;
-    // 视差：竹子随滚动进度整体上移（等价原 CSS translateY(-speed * progress)）
-    ctx.drawImage(off, 0, -b.speed * progress);
-    ctx.restore();
-  }
-}
-
-function scheduleDraw() {
-  if (rafId) return;
-  rafId = requestAnimationFrame(() => {
-    rafId = 0;
-    draw();
-  });
-}
-
-watch(
-  () => props.progress,
-  () => scheduleDraw(),
-);
 
 onMounted(() => {
   setTimeout(() => {
     generateForest();
-    buildAllOffscreen();
-    setupCanvas();
-    draw();
   }, 10);
 
   if (forestRef.value) {
     resizeObserver = new ResizeObserver(() => {
       if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        generateForest();
-        buildAllOffscreen();
-        setupCanvas();
-        draw();
-      }, 200);
+      debounceTimer = setTimeout(generateForest, 200);
     });
     resizeObserver.observe(forestRef.value);
   }
 });
 
 onBeforeUnmount(() => {
-  if (rafId) cancelAnimationFrame(rafId);
   if (resizeObserver && forestRef.value) {
     resizeObserver.unobserve(forestRef.value);
     resizeObserver.disconnect();
@@ -566,9 +466,24 @@ onBeforeUnmount(() => {
   overflow: visible;
 }
 
-.bamboo-forest canvas {
-  display: block;
+.bamboo-svg {
   width: 100%;
   height: 100%;
+  overflow: visible;
+}
+
+.bamboo-group {
+  transform-origin: center center;
+  animation: parallaxScroll linear;
+  animation-timeline: scroll();
+}
+
+@keyframes parallaxScroll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--parallax-dist) * -1));
+  }
 }
 </style>
