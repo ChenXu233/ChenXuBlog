@@ -73,6 +73,7 @@ const props = withDefaults(
     title?: string;
     userId?: string;
     tag?: string;
+    initialSearch?: string;
   }>(),
   {
     title: "文章列表",
@@ -144,12 +145,16 @@ const goToPage = (page: number) => {
 };
 
 onMounted(() => {
+  if (props.initialSearch) {
+    keyword.value = props.initialSearch;
+  }
   fetchArticles();
 });
 
 watch(
-  () => [props.userId, props.tag],
+  () => [props.userId, props.tag, props.initialSearch],
   () => {
+    if (props.initialSearch) keyword.value = props.initialSearch;
     fetchArticles(1);
   },
 );

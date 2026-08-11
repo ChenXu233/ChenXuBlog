@@ -37,16 +37,17 @@
 </template>
 <script setup lang="ts">
 import { reactive } from "vue";
-import { post } from "../utils/request";
 import { useRouter, useRoute } from "vue-router";
-import type { UserLoginResponse } from "../types/user";
 import { useTokenStore } from "../stores/token";
 import { usePermissionStore } from "../stores/permission";
 import { permissionService } from "../service/permission";
+import { authService } from "../service/auth";
+import { useAuthStore } from "../composables/useAuth";
 
 const router = useRouter();
 const route = useRoute();
 const tokenStore = useTokenStore();
+const authStore = useAuthStore();
 const permissionStore = usePermissionStore();
 
 const form = reactive({
@@ -63,20 +64,22 @@ const loadPermissions = async () => {
   }
 };
 
-const handleLogin = () => {
+const handleLogin = async () => {
   console.log("登录表单数据:", form);
-  post<UserLoginResponse>("/auth/login", form).then(async (res) => {
-    if (res.status === 200) {
-      tokenStore.setToken(res.data.access_token);
-      if (res.data.refresh_token) {
-        tokenStore.setRefreshToken(res.data.refresh_token);
-      }
-      await loadPermissions();
-      console.log("登录成功:", res);
-      const redirect = route.query.redirect as string;
-      router.push(redirect || "/home");
-    }
-  });
+  try {
+    const res = await authService.login(form.evidence, form.password);
+    tokenStore.setToken(res.access_token);
+    // 同步到 useAuth store（admin 页依赖它）
+    authStore.token = res.access_token;
+    await authStore.fetchUserInfo?.();
+    await authStore.fetchPermissions?.();
+    await loadPermissions();
+    console.log("登录成功:", res);
+    const redirect = route.query.redirect as string;
+    router.push(redirect || "/home");
+  } catch (e) {
+    console.error("登录失败:", e);
+  }
 };
 </script>
 
@@ -256,5 +259,20 @@ input:focus::placeholder {
 
 .register-link a:hover::after {
   width: 100%;
+}
+
+.sep {
+  color: #ccc;
+  margin: 0 6px;
+}
+
+.reg-tip {
+  margin-top: 14px;
+  padding: 10px;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
 }
 </style>

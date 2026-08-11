@@ -6,7 +6,26 @@
 
     <div v-else-if="user" class="profile-container">
       <div class="profile-header">
-        <el-avatar :src="user.avatar_url" :size="100" />
+        <div class="avatar-wrap">
+          <img
+            v-if="user.avatar"
+            :src="user.avatar"
+            :alt="user.username"
+            class="profile-avatar"
+          />
+          <div v-else class="profile-avatar avatar-placeholder">
+            {{ (user.username || "?")[0] }}
+          </div>
+          <label v-if="isOwnProfile" class="avatar-upload" title="上传头像">
+            <i class="fa fa-camera"></i>
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              @change="handleAvatarChange"
+            />
+          </label>
+        </div>
         <div class="user-info">
           <h1 class="username">{{ user.username }}</h1>
           <p class="email">{{ user.email }}</p>
@@ -74,7 +93,7 @@
         </div>
         <div class="form-group">
           <label>头像 URL</label>
-          <input v-model="editForm.avatar_url" type="text" />
+          <input v-model="editForm.avatar" type="text" />
         </div>
         <div class="dialog-actions">
           <button @click="showEditDialog = false" class="cancel-btn">
@@ -93,6 +112,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { userService } from "../../service/user";
+import { imgBedService } from "../../service/imgBed";
 import { useUserStore } from "../../stores/userStore";
 import { useTokenStore } from "../../stores/token";
 import { showErrorDialog } from "../../utils/request";
@@ -116,11 +136,11 @@ const saving = ref(false);
 const editForm = ref<{
   username: string;
   email: string;
-  avatar_url: string;
+  avatar: string;
 }>({
   username: "",
   email: "",
-  avatar_url: "",
+  avatar: "",
 });
 
 const isOwnProfile = computed(() => {
@@ -138,7 +158,7 @@ const fetchUserInfo = async () => {
     editForm.value = {
       username: user.value.username,
       email: user.value.email,
-      avatar_url: user.value.avatar_url || "",
+      avatar: user.value.avatar || "",
     };
   } catch (error) {
     showErrorDialog("加载用户信息失败");
@@ -166,12 +186,12 @@ const handleUpdate = async () => {
   if (!user.value) return;
   saving.value = true;
   try {
-    const data: UserUpdate = {
+    const data = {
       username: editForm.value.username,
       email: editForm.value.email,
-      avatar_url: editForm.value.avatar_url,
+      avatar: editForm.value.avatar || null,
     };
-    const updated = await userService.updateUserInfo(user.value.uuid, data);
+    const updated = await userService.updateUserInfo(data);
     user.value = updated;
     userStore.setUserInfo({
       id: updated.uuid,
@@ -183,6 +203,24 @@ const handleUpdate = async () => {
     showErrorDialog("保存失败");
   } finally {
     saving.value = false;
+  }
+};
+
+// 头像上传：先传图床拿 URL，再更新用户资料
+const handleAvatarChange = async (e: Event) => {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const { url } = await imgBedService.uploadImg(file);
+    editForm.value.avatar = url;
+    const updated = await userService.updateUserInfo({ avatar: url });
+    user.value = updated;
+    showErrorDialog("头像已更新", "提示", "success");
+  } catch {
+    showErrorDialog("头像上传失败");
+  } finally {
+    input.value = "";
   }
 };
 
@@ -222,6 +260,52 @@ onMounted(() => {
   align-items: center;
   gap: 24px;
   margin-bottom: 32px;
+}
+
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.avatar-upload {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary, #667eea);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: transform 0.2s;
+}
+
+.avatar-upload:hover {
+  transform: scale(1.1);
 }
 
 .user-info {

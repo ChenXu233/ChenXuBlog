@@ -1,10 +1,23 @@
-import { get, post, del, put } from "../utils/request";
-import type { Article, ArticleCreate, Articles } from "../types/article";
+// 由 backend/openapi.json 自动生成 SDK 封装（不要手改端点路径）
+import {
+  getBlogsApisV1BlogGet,
+  getBlogApisV1BlogIdGet,
+  createBlogApisV1BlogPost,
+  updateBlogApisV1BlogIdPut,
+  deleteBlogApisV1BlogIdDelete,
+  toggleLikeApisV1BlogIdLikePost,
+  getLikeStatusApisV1BlogIdLikeGet,
+} from "../src/client/sdk.gen";
+import { apiCall } from "../utils/apiClient";
+import type {
+  BlogResponse,
+  BlogListResponse,
+  BlogCreate,
+} from "../src/client/types.gen";
 
 export const blogService = {
-  async getBlog(id: number): Promise<Article> {
-    const res = await get<Article>(`/blog/${id}`);
-    return res.data;
+  async getBlog(id: number): Promise<BlogResponse> {
+    return apiCall(() => getBlogApisV1BlogIdGet({ path: { id } }));
   },
 
   async getBlogList(params?: {
@@ -12,27 +25,40 @@ export const blogService = {
     page_size?: number;
     tag?: string;
     keyword?: string;
-  }): Promise<Articles> {
-    const res = await get<Articles>("/blog/", params);
-    return res.data;
+    search?: string;
+    user_id?: string;
+  }): Promise<BlogListResponse> {
+    const query: any = {
+      page: params?.page,
+      page_size: params?.page_size,
+      tag: params?.tag,
+      user_id: params?.user_id,
+    };
+    // 兼容新旧参数名
+    if (params?.keyword) query.search = params.keyword;
+    if (params?.search) query.search = params.search;
+    return apiCall(() => getBlogsApisV1BlogGet({ query }));
   },
 
-  async likeBlog(id: number): Promise<{ likes_count: number }> {
-    const res = await post<{ likes_count: number }>(`/blog/${id}/like`);
-    return res.data;
+  async likeBlog(id: number): Promise<{ liked: boolean; likes_count: number }> {
+    return apiCall(() => toggleLikeApisV1BlogIdLikePost({ path: { id } }));
+  },
+
+  async getLikeStatus(id: number): Promise<{ likes_count: number }> {
+    return apiCall(() => getLikeStatusApisV1BlogIdLikeGet({ path: { id } }));
   },
 
   async deleteBlog(id: number): Promise<void> {
-    await del<void>(`/blog/${id}`);
+    await apiCall(() => deleteBlogApisV1BlogIdDelete({ path: { id } }));
   },
 
-  async createBlog(data: ArticleCreate): Promise<Article> {
-    const res = await post<Article>("/blog/", data);
-    return res.data;
+  async createBlog(data: BlogCreate): Promise<BlogResponse> {
+    return apiCall(() => createBlogApisV1BlogPost({ body: data }));
   },
 
-  async updateBlog(id: number, data: ArticleCreate): Promise<Article> {
-    const res = await put<Article>(`/blog/${id}`, data);
-    return res.data;
+  async updateBlog(id: number, data: BlogCreate): Promise<BlogResponse> {
+    return apiCall(() =>
+      updateBlogApisV1BlogIdPut({ path: { id }, body: data }),
+    );
   },
 };

@@ -73,7 +73,7 @@ const articleId = computed(() =>
 const form = ref<ArticleCreate>({
   title: "",
   body: "",
-  tags_name: [],
+  tags: [],
   cover_url: "",
   published: false,
 });
@@ -97,7 +97,7 @@ const saveDraft = async () => {
   try {
     const data: ArticleCreate = {
       ...form.value,
-      tags_name: parseTags(tagsInput.value),
+      tags: parseTags(tagsInput.value),
       published: false,
     };
 
@@ -130,7 +130,7 @@ const publish = async () => {
   try {
     const data: ArticleCreate = {
       ...form.value,
-      tags_name: parseTags(tagsInput.value),
+      tags: parseTags(tagsInput.value),
       published: true,
     };
 

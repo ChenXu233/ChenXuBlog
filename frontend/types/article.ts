@@ -1,3 +1,4 @@
+// 与后端 openapi.json 生成的类型保持一致（BlogResponse / BlogCreate）
 export interface Article {
   id: number;
   user_uuid: string;
@@ -8,7 +9,6 @@ export interface Article {
   view_count: number;
   likes_count: number;
   published: boolean;
-  like: number;
   tags_name: string[];
   cover_url?: string;
 }
@@ -21,17 +21,11 @@ export interface Articles {
   total_pages: number;
 }
 
-export interface ArticleUpdate {
-  title: string;
-  body: string;
-  tags_name: string[];
-  cover_url?: string;
-}
-
+// 与后端 BlogCreate 对齐（tags 而非 tags_name）
 export interface ArticleCreate {
   title: string;
   body: string;
-  tags_name: string[];
+  tags: string[];
   cover_url?: string;
   published: boolean;
 }

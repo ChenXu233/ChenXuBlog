@@ -22,7 +22,7 @@
         </span>
         <span class="meta-item">
           <i class="fa fa-heart"></i>
-          {{ article.like }}
+          {{ article.likes_count }}
         </span>
       </div>
     </div>

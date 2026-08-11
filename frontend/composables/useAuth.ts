@@ -1,6 +1,9 @@
 // Unified auth store — merges old authStore + tokenStore + permissionStore
 import { defineStore } from "pinia";
-import type { User, UserLoginResponse } from "~/types/user";
+import type { User } from "~/types/user";
+import { authService } from "~/service/auth";
+import { userService } from "~/service/user";
+import { permissionService } from "~/service/permission";
 
 interface AuthState {
   token: string | null;
@@ -26,19 +29,11 @@ export const useAuthStore = defineStore("auth", {
 
   actions: {
     async login(evidence: string, password: string) {
-      const data = await $fetch<UserLoginResponse>("/apis/v1/auth/login", {
-        method: "POST",
-        body: { evidence, password },
-      });
+      const data = await authService.login(evidence, password);
       this.token = data.access_token;
       try {
-        const refresh = await $fetch<{ access_token: string }>(
-          "/apis/v1/auth/refresh",
-          {
-            method: "POST",
-          },
-        );
-        this.token = refresh.access_token;
+        const refreshed = await authService.refreshToken();
+        if (refreshed) this.token = refreshed;
       } catch {
         // refresh via cookie failed, that's okay
       }
@@ -47,19 +42,13 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async register(username: string, email: string, password: string) {
-      await $fetch("/apis/v1/auth/register", {
-        method: "POST",
-        body: { username, email, password },
-      });
+      await authService.register({ username, email, password });
     },
 
     async fetchUserInfo() {
       if (!this.token) return;
       try {
-        const data = await $fetch<User>("/apis/v1/user/info", {
-          headers: { Authorization: `Bearer ${this.token}` },
-        });
-        this.user = data;
+        this.user = (await userService.getOwnInfo()) as unknown as User;
       } catch {
         // token might be expired
       }
@@ -68,12 +57,7 @@ export const useAuthStore = defineStore("auth", {
     async fetchPermissions() {
       if (!this.token) return;
       try {
-        const data = await $fetch<{ permissions: string[] }>(
-          "/apis/v1/permission/",
-          {
-            headers: { Authorization: `Bearer ${this.token}` },
-          },
-        );
+        const data = await permissionService.getPermissions();
         this.permissions = data.permissions;
       } catch {
         this.permissions = [];

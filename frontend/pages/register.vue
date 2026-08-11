@@ -59,8 +59,7 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { post } from "../utils/request";
-import type { UserRegisterResponse } from "../types/user";
+import { authService } from "../service/auth";
 
 const router = useRouter();
 const form = reactive({
@@ -115,15 +114,21 @@ const validateForm = () => {
   return isValid;
 };
 
-const handleRegister = () => {
+const handleRegister = async () => {
   if (!validateForm()) {
     return;
   }
-  post<UserRegisterResponse>("/register", form).then((res) => {
-    if (res.status === 200) {
-      router.push("/login");
-    }
-  });
+  try {
+    await authService.register({
+      username: form.username,
+      email: form.email,
+      password: form.password,
+    });
+    // 注册成功：提示邮箱验证，跳转登录
+    router.push("/login?registered=1");
+  } catch (e: any) {
+    errors.password = e?.message || "注册失败，请稍后重试";
+  }
 };
 </script>
 

@@ -22,7 +22,7 @@
           </span>
           <span class="meta-item">
             <i class="fa fa-heart"></i>
-            {{ article.like }} 点赞
+            {{ article.likes_count }} 点赞
           </span>
         </div>
       </header>
@@ -40,7 +40,7 @@
             class="action-btn"
             :class="{ active: hasLiked }"
           >
-            <i class="fa fa-thumbs-up"></i> 点赞 {{ article.like }}
+            <i class="fa fa-thumbs-up"></i> 点赞 {{ article.likes_count }}
           </button>
           <button v-if="canEdit" @click="goToEdit" class="action-btn">
             <i class="fa fa-edit"></i> 编辑

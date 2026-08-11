@@ -4,15 +4,21 @@
 
     <section class="articles-section">
       <div class="articles-container">
-        <BlogList title="最新文章" />
+        <BlogList
+          title="最新文章"
+          :initial-search="route.query.search as string"
+        />
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRoute } from "vue-router";
 import BlossomCanvas from "../components/effects/BlossomCanvas.vue";
 import BlogList from "../components/BlogList.vue";
+
+const route = useRoute();
 </script>
 
 <style scoped>

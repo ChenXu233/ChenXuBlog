@@ -55,8 +55,10 @@
                   <i class="fa fa-search search-icon"></i>
                   <input
                     type="text"
+                    v-model="searchKeyword"
                     placeholder="探索博客内容..."
                     class="search-input"
+                    @keyup.enter="handleSearch"
                   />
                 </div>
               </div>
@@ -153,7 +155,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import LiquidGlass from "../LiquidGlass.vue";
 import SystemPanel from "./SystemPanel.vue";
 import ContextMenu, { type MenuItem } from "./ContextMenu.vue";
@@ -167,6 +169,17 @@ import {
 } from "@/stores/warmos";
 
 const route = useRoute();
+const router = useRouter();
+
+// 全局搜索
+const searchKeyword = ref("");
+const handleSearch = () => {
+  const kw = searchKeyword.value.trim();
+  if (!kw) return;
+  showNavPanel.value = false;
+  isHovered.value = false;
+  router.push({ path: "/article", query: { search: kw } });
+};
 
 // UI 核心状态
 const isHovered = ref(false);

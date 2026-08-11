@@ -1,30 +1,45 @@
-import { get, post, del, put } from "../utils/request";
+// 由 backend/openapi.json 自动生成 SDK 封装（不要手改端点路径）
+import {
+  getCommentsApisV1CommentGetBlogIdGet,
+  createCommentApisV1CommentCreatePost,
+  deleteCommentApisV1CommentDeleteCommentIdDelete,
+  updateCommentApisV1CommentUpdateCommentIdPut,
+} from "../src/client/sdk.gen";
+import { apiCall } from "../utils/apiClient";
 import type {
   Comment,
   CommentCreate,
   CommentsResponse,
-} from "../types/comment";
+} from "../src/client/types.gen";
 
 export const commentService = {
   async getComments(blogId: number): Promise<CommentsResponse> {
-    const res = await get<CommentsResponse>(`/comment/get/${blogId}`);
-    return res.data;
+    return apiCall(() =>
+      getCommentsApisV1CommentGetBlogIdGet({ path: { blog_id: blogId } }),
+    );
   },
 
   async createComment(data: CommentCreate): Promise<Comment> {
-    const res = await post<Comment>("/comment/create", data);
-    return res.data;
+    return apiCall(() => createCommentApisV1CommentCreatePost({ body: data }));
   },
 
   async deleteComment(commentId: number): Promise<void> {
-    await del(`/comment/delete/${commentId}`, {});
+    await apiCall(() =>
+      deleteCommentApisV1CommentDeleteCommentIdDelete({
+        path: { comment_id: commentId },
+      }),
+    );
   },
 
   async updateComment(
     commentId: number,
     data: CommentCreate,
   ): Promise<Comment> {
-    const res = await put<Comment>(`/comment/update/${commentId}`, data);
-    return res.data;
+    return apiCall(() =>
+      updateCommentApisV1CommentUpdateCommentIdPut({
+        path: { comment_id: commentId },
+        body: data,
+      }),
+    );
   },
 };

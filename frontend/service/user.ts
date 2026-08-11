@@ -1,27 +1,48 @@
-import { get, post } from "../utils/request";
-import type { User, UserUpdate } from "../types/user";
+// 由 backend/openapi.json 自动生成 SDK 封装（不要手改端点路径）
+import {
+  getUserInfoApisV1UserInfoGet,
+  getUserInfoByIdApisV1UserInfoUserUuidGet,
+  editUserInfoApisV1UserEditPost,
+} from "../src/client/sdk.gen";
+import { apiCall } from "../utils/apiClient";
+import { getBlogsApisV1BlogGet } from "../src/client/sdk.gen";
+import type {
+  UserResponse,
+  UserEdit,
+  BlogListResponse,
+} from "../src/client/types.gen";
 
 export const userService = {
-  async getUserInfo(id: string): Promise<User> {
-    const res = await get<User>(`/user/${id}`);
-    return res.data;
+  // 获取自己的信息（需要登录）
+  async getOwnInfo(): Promise<UserResponse> {
+    return apiCall(() => getUserInfoApisV1UserInfoGet({}));
   },
 
-  async updateUserInfo(id: string, data: UserUpdate): Promise<User> {
-    const res = await post<User>(`/user/${id}`, data);
-    return res.data;
+  // 获取指定用户信息（公开接口）
+  async getUserInfo(uuid: string): Promise<UserResponse> {
+    return apiCall(() =>
+      getUserInfoByIdApisV1UserInfoUserUuidGet({ path: { user_uuid: uuid } }),
+    );
+  },
+
+  // 编辑资料（后端用当前登录用户，无需传 id）
+  async updateUserInfo(data: UserEdit): Promise<UserResponse> {
+    return apiCall(() => editUserInfoApisV1UserEditPost({ body: data }));
   },
 
   async getUserBlogs(params: {
     user_id: string;
     page?: number;
     page_size?: number;
-  }): Promise<{ articles: any[]; total: number }> {
-    const res = await get<{ articles: any[]; total: number }>("/blog/", {
-      user_id: params.user_id,
-      page: params.page,
-      page_size: params.page_size,
-    });
-    return res.data;
+  }): Promise<BlogListResponse> {
+    return apiCall(() =>
+      getBlogsApisV1BlogGet({
+        query: {
+          user_id: params.user_id,
+          page: params.page,
+          page_size: params.page_size,
+        },
+      }),
+    );
   },
 };
