@@ -7,9 +7,7 @@
       </div>
       <div class="footer-links">
         <router-link to="/" class="footer-link">首页</router-link>
-        <router-link to="/about" class="footer-link">关于我</router-link>
         <router-link to="/archive" class="footer-link">文章归档</router-link>
-        <router-link to="/contact" class="footer-link">联系我</router-link>
       </div>
     </div>
     <div class="footer-copyright">
