@@ -60,5 +60,8 @@ jobs:
         run: uv sync --frozen
 
       - name: Run backend E2E tests
+        env:
+          ACCESS_SECRET_KEY: "ci-access-secret"
+          REFRESH_SECRET_KEY: "ci-refresh-secret"
         run: |
           uv run pytest tests/e2e_api -x -q
