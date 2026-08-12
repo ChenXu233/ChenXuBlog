@@ -20,7 +20,8 @@ export default defineNuxtConfig({
     preset: "node-server",
     devProxy: {
       "/apis": {
-        target: "http://localhost:8001",
+        // 本地默认 8001；docker dev 容器内指向 backend 服务
+        target: process.env.NUXT_API_PROXY_TARGET || "http://localhost:8001",
         changeOrigin: true,
       },
     },
@@ -30,7 +31,7 @@ export default defineNuxtConfig({
     server: {
       proxy: {
         "/apis": {
-          target: "http://localhost:8001",
+          target: process.env.NUXT_API_PROXY_TARGET || "http://localhost:8001",
           changeOrigin: true,
         },
       },

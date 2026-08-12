@@ -1,72 +1,54 @@
+# 本地开发环境 —— 全栈 docker（backend + frontend 热重载）
+# 用法: docker compose -f docker-compose.dev.yml up -d --build
+# 前端: http://localhost:3000（Vite HMR；/apis 代理到 backend 容器）
+# 后端: http://127.0.0.1:8001（uvicorn --reload）
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: python:3.13-slim
     container_name: blog-backend-dev
+    working_dir: /app
     command: >
-      sh -c "
-        pip install pdm -q &&
-        pdm install --dev -q &&
-        pdm run uvicorn backend:app --reload --host 0.0.0.0 --port 8000
-      "
+      sh -c "pip install -q uv &&
+      uv sync --frozen &&
+      uv run uvicorn main:APP --host 0.0.0.0 --port 8000 --reload"
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     env_file:
       - ./backend/.env
-    environment:
-      - DEBUG=true
-      - PYTHONUNBUFFERED=1
     volumes:
-      # 挂载源码和配置实现热重载
-      - ./backend/src:/app/src
-      - ./backend/pyproject.toml:/app/pyproject.toml
-      - ./backend/data:/app/data
-      - ./backend/logs:/app/logs
-    networks:
-      - blog-dev-network
+      - ./backend:/app
+      # Windows 本地 .venv 是 Windows 二进制，用命名卷隔离容器内 .venv
+      - backend_venv:/app/.venv
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
 
   frontend:
-    image: node:22-alpine
+    image: node:22
     container_name: blog-frontend-dev
     working_dir: /app
     command: >
-      sh -c "
-        npm install --no-audit --no-fund -q &&
-        npx vite --host
-      "
+      sh -c "corepack enable &&
+      pnpm install --frozen-lockfile &&
+      pnpm dev --host 0.0.0.0 --port 3000"
     ports:
-      - "5174:5173"
-    environment:
-      - VITE_API_PROXY=http://backend:8000
-      # Windows Docker 文件系统事件传递有问题，用轮询保证 HMR 生效
-      - CHOKIDAR_USEPOLLING=true
+      - "127.0.0.1:3000:3000"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      # node_modules/.nuxt/.output 用命名卷隔离（Windows 与 Linux 二进制不互通）
+      - frontend_node_modules:/app/node_modules
+      - frontend_nuxt:/app/.nuxt
+      - frontend_output:/app/.output
+      - pnpm_store:/root/.local/share/pnpm/store
+    environment:
+      - NUXT_API_PROXY_TARGET=http://backend:8000
     depends_on:
       - backend
-    networks:
-      - blog-dev-network
-
-  minio:
-    image: minio/minio:latest
-    container_name: blog-minio-dev
-    command: server /data --console-address ":9001"
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
-    volumes:
-      - minio_data:/data
-    networks:
-      - blog-dev-network
+    restart: unless-stopped
 
 volumes:
-  minio_data:
-
-networks:
-  blog-dev-network:
-    driver: bridge
+  backend_venv:
+  frontend_node_modules:
+  frontend_nuxt:
+  frontend_output:
+  pnpm_store:
