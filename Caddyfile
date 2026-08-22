@@ -1,18 +1,20 @@
-chenxu233.cn {
-    encode gzip
+# 内部网关 —— 宿主机 openresty 终结 TLS 后转发到本服务（见 conf.d/chenxu233.conf）
+# 监听 :80 纯 HTTP；上游为 docker 网络内容器名
+:80 {
+	encode gzip
 
-    # API → FastAPI
-    @api {
-        path /apis/*
-    }
-    reverse_proxy @api backend:8000
+	# API → FastAPI
+	@api {
+		path /apis/*
+	}
+	reverse_proxy @api backend:8000
 
-    # 图片 → MinIO
-    @images {
-        path /images/*
-    }
-    reverse_proxy @images minio:9000/chenxu-blog-images
+	# 图片 → MinIO（/images/ 前缀替换为 bucket 名）
+	@images {
+		path /images/*
+	}
+	reverse_proxy @images minio:9000/chenxu-blog-images
 
-    # 其余 → Nuxt SSR
-    reverse_proxy frontend:3000
+	# 其余 → Nuxt SSR
+	reverse_proxy frontend:3000
 }

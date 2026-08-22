@@ -17,6 +17,22 @@ services:
     networks:
       - blog-network
 
+  # 网关：宿主机 openresty(80/443+TLS) → 这里(:80) → 各容器
+  # 仅绑定 127.0.0.1，外部流量一律经 openresty 进来
+  caddy:
+    image: caddy:2-alpine
+    container_name: blog-caddy
+    ports:
+      - "127.0.0.1:3200:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - blog-network
+
   backend:
     image: ghcr.io/chenxu233/chenxu-blog-backend:latest
     container_name: blog-backend
