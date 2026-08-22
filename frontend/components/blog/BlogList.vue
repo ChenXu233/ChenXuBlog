@@ -64,9 +64,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { blogService } from "../service/blog";
+import { blogService } from "../../service/blog";
 import BlogCard from "./BlogCard.vue";
-import type { BlogResponse } from "../src/client/types.gen";
+import type { BlogResponse } from "../../shared/api-client/types.gen";
 
 const props = withDefaults(
   defineProps<{

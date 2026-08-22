@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import MarkdownIt from "markdown-it";
-import { imgBedService } from "../service/imgBed";
+import { imgBedService } from "../../service/imgBed";
 
 const props = defineProps<{
   modelValue: string;

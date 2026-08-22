@@ -47,7 +47,7 @@
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
 import { adminService } from "~/service/admin";
-import type { AdminUserResponse } from "~/src/client/types.gen";
+import type { AdminUserResponse } from "~/shared/api-client/types.gen";
 
 const currentUserId = useAuthStore().user?.id;
 const page = ref(1);

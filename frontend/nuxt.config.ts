@@ -54,11 +54,15 @@ export default defineNuxtConfig({
 
   ui: {
     theme: {
-      colors: {
-        primary: "rose",
-        secondary: "emerald",
-        neutral: "slate",
-      },
+      colors: [
+        "primary",
+        "secondary",
+        "neutral",
+        "success",
+        "info",
+        "warning",
+        "error",
+      ],
     },
   },
 

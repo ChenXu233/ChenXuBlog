@@ -2,7 +2,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: "../backend/openapi.json",
-  output: "src/client",
+  output: "shared/api-client",
   plugins: [
     "@hey-api/client-fetch",
     "@hey-api/typescript",

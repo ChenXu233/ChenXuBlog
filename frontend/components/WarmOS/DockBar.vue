@@ -156,7 +156,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import LiquidGlass from "../LiquidGlass.vue";
+import LiquidGlass from "../common/LiquidGlass.vue";
 import SystemPanel from "./SystemPanel.vue";
 import ContextMenu, { type MenuItem } from "./ContextMenu.vue";
 import {

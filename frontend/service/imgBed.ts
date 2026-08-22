@@ -2,7 +2,7 @@
 import {
   imageUploadApisV1ImgBedPost,
   imageGetApisV1ImgBedObjectNameGet,
-} from "../src/client/sdk.gen";
+} from "../shared/api-client/sdk.gen";
 import { apiCall } from "../utils/apiClient";
 
 export const imgBedService = {

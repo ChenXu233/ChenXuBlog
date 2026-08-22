@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { blogService } from "../service/blog";
-import type { BlogResponse } from "../src/client/types.gen";
+import type { BlogResponse } from "../shared/api-client/types.gen";
 
 const blogs = ref<BlogResponse[]>([]);
 const loading = ref(true);

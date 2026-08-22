@@ -113,9 +113,12 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { userService } from "../../service/user";
 import { imgBedService } from "../../service/imgBed";
-import { showErrorDialog } from "../../utils/request";
-import BlogCard from "../../components/BlogCard.vue";
-import type { UserResponse, BlogResponse } from "../../src/client/types.gen";
+import { showErrorDialog } from "../../utils/errorDialog";
+import BlogCard from "../../components/blog/BlogCard.vue";
+import type {
+  UserResponse,
+  BlogResponse,
+} from "../../shared/api-client/types.gen";
 
 const route = useRoute();
 const auth = useAuthStore();

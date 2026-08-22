@@ -31,61 +31,61 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import LiquidGlass from '@/components/LiquidGlass.vue'
+import { onMounted, onUnmounted } from "vue";
+import LiquidGlass from "@/components/common/LiquidGlass.vue";
 
 export interface MenuItem {
-  label?: string
-  icon?: string
-  action?: () => void
-  class?: string | string[] | Record<string, boolean>
-  color?: string
-  separator?: boolean
+  label?: string;
+  icon?: string;
+  action?: () => void;
+  class?: string | string[] | Record<string, boolean>;
+  color?: string;
+  separator?: boolean;
 }
 
 const props = defineProps({
   visible: {
     type: Boolean,
-    default: false
+    default: false,
   },
   x: {
     type: Number,
-    default: 0
+    default: 0,
   },
   y: {
     type: Number,
-    default: 0
+    default: 0,
   },
   items: {
     type: Array as () => MenuItem[],
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['update:visible'])
+const emit = defineEmits(["update:visible"]);
 
 const handleAction = (item: MenuItem) => {
   if (item.action) {
-    item.action()
+    item.action();
   }
-  emit('update:visible', false)
-}
+  emit("update:visible", false);
+};
 
 const handleClickOutside = () => {
   if (props.visible) {
-    emit('update:visible', false)
+    emit("update:visible", false);
   }
-}
+};
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-  document.addEventListener('contextmenu', handleClickOutside)
-})
+  document.addEventListener("click", handleClickOutside);
+  document.addEventListener("contextmenu", handleClickOutside);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  document.removeEventListener('contextmenu', handleClickOutside)
-})
+  document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("contextmenu", handleClickOutside);
+});
 </script>
 
 <style scoped>
@@ -132,7 +132,9 @@ onUnmounted(() => {
 /* 动画 */
 .fade-scale-enter-active,
 .fade-scale-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .fade-scale-enter-from,
 .fade-scale-leave-to {

@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import type { BlogResponse } from "../src/client/types.gen";
+import type { BlogResponse } from "../../shared/api-client/types.gen";
 
 const props = defineProps<{
   article: BlogResponse;

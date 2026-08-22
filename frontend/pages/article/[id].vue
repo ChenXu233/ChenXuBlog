@@ -62,9 +62,9 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MarkdownIt from "markdown-it";
 import { blogService } from "../../service/blog";
-import CommentList from "../../components/CommentList.vue";
-import { showErrorDialog } from "../../utils/request";
-import type { BlogResponse } from "../../src/client/types.gen";
+import CommentList from "../../components/blog/CommentList.vue";
+import { showErrorDialog } from "../../utils/errorDialog";
+import type { BlogResponse } from "../../shared/api-client/types.gen";
 
 const route = useRoute();
 const router = useRouter();

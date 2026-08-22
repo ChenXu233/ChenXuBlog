@@ -1,6 +1,6 @@
-// 错误提示弹窗（原 request.ts 中独立于 axios 的部分）
+// 错误提示弹窗
 import { createApp, h } from "vue";
-import Error from "../components/Error.vue";
+import Error from "../components/common/Error.vue";
 
 export const showErrorDialog = (
   message: string,

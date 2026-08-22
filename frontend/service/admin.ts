@@ -9,14 +9,14 @@ import {
   getCommentsApisV1AdminCommentsGet,
   deleteCommentApisV1AdminCommentsCommentIdDelete,
   getRolesApisV1AdminRolesGet,
-} from "../src/client/sdk.gen";
+} from "../shared/api-client/sdk.gen";
 import { apiCall } from "../utils/apiClient";
 import type {
   AdminRoleResponse,
   AdminUserListResponse,
   AdminBlogListResponse,
   AdminCommentListResponse,
-} from "../src/client/types.gen";
+} from "../shared/api-client/types.gen";
 
 export const adminService = {
   async getStats() {

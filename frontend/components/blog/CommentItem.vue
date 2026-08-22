@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Comment } from "~/src/client/types.gen";
+import type { Comment } from "~/shared/api-client/types.gen";
 
 defineProps<{
   comment: Comment;

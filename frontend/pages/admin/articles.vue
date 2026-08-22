@@ -79,7 +79,7 @@
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
 import { adminService } from "~/service/admin";
-import type { AdminBlogResponse } from "~/src/client/types.gen";
+import type { AdminBlogResponse } from "~/shared/api-client/types.gen";
 
 const page = ref(1);
 const pageSize = 10;

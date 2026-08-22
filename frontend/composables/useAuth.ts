@@ -1,6 +1,6 @@
 // Unified auth store — merges old authStore + tokenStore + permissionStore
 import { defineStore } from "#imports";
-import type { UserResponse } from "~/src/client/types.gen";
+import type { UserResponse } from "~/shared/api-client/types.gen";
 import { authService } from "~/service/auth";
 import { userService } from "~/service/user";
 import { permissionService } from "~/service/permission";

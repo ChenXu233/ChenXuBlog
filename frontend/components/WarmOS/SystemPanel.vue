@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import LiquidGlass from "../LiquidGlass.vue";
+import LiquidGlass from "../common/LiquidGlass.vue";
 const props = defineProps({
   modelValue: Boolean,
 });

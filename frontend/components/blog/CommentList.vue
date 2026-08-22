@@ -82,8 +82,8 @@
 </template>
 
 <script setup lang="ts">
-import { commentService } from "../service/comment";
-import type { Comment } from "../src/client/types.gen";
+import { commentService } from "../../service/comment";
+import type { Comment } from "../../shared/api-client/types.gen";
 
 const props = defineProps<{
   blogId: number;

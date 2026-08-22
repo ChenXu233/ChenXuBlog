@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="article-editor">
     <div class="editor-header">
       <h2>{{ isEdit ? "编辑文章" : "创建文章" }}</h2>
@@ -55,10 +55,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import MarkdownEditor from "../../components/MarkdownEditor.vue";
+import MarkdownEditor from "../../components/common/MarkdownEditor.vue";
 import { blogService } from "../../service/blog";
-import { showErrorDialog } from "../../utils/request";
-import type { BlogCreate } from "../../src/client/types.gen";
+import { showErrorDialog } from "../../utils/errorDialog";
+import type { BlogCreate } from "../../shared/api-client/types.gen";
 
 const route = useRoute();
 const router = useRouter();

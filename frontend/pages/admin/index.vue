@@ -77,7 +77,7 @@
 definePageMeta({ layout: "admin", middleware: "auth" });
 
 import { adminService } from "~/service/admin";
-import type { AdminStatsResponse } from "~/src/client/types.gen";
+import type { AdminStatsResponse } from "~/shared/api-client/types.gen";
 
 const stats = ref<AdminStatsResponse | null>(null);
 const loadError = ref("");

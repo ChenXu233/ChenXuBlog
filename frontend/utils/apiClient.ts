@@ -1,5 +1,5 @@
-// 统一 API client：baseUrl + Bearer 注入 + 401 自动刷新重试
-import { client } from "../src/client/client.gen";
+﻿// 统一 API client：baseUrl + Bearer 注入 + 401 自动刷新重试
+import { client } from "../shared/api-client/client.gen";
 
 // SDK 生成的 url 已含 /apis/v1 前缀，baseUrl 留空避免重复
 client.setConfig({ baseUrl: "" });

@@ -6,13 +6,13 @@ import {
   forgotPasswordApisV1AuthForgotPasswordPost,
   resetPasswordApisV1AuthResetPasswordPost,
   refreshTokenApisV1AuthRefreshPost,
-} from "../src/client/sdk.gen";
+} from "../shared/api-client/sdk.gen";
 import { apiCall, setAccessToken } from "../utils/apiClient";
 import type {
   LoginResponse,
   UserRegisterResponse,
   MessageResponse,
-} from "../src/client/types.gen";
+} from "../shared/api-client/types.gen";
 
 export const authService = {
   async login(evidence: string, password: string): Promise<LoginResponse> {
