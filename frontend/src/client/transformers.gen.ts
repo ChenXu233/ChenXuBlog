@@ -8,6 +8,7 @@ import type {
   GetCommentApisV1CommentGetCommentIdGetResponse,
   GetCommentsApisV1CommentGetBlogIdGetResponse,
   UpdateBlogApisV1BlogIdPutResponse,
+  UpdateCommentApisV1CommentUpdateCommentIdPutResponse,
 } from "./types.gen";
 
 const blogResponseSchemaResponseTransformer = (data: any) => {
@@ -86,3 +87,11 @@ export const getCommentApisV1CommentGetCommentIdGetResponseTransformer = async (
   data = commentSchemaResponseTransformer(data);
   return data;
 };
+
+export const updateCommentApisV1CommentUpdateCommentIdPutResponseTransformer =
+  async (
+    data: any,
+  ): Promise<UpdateCommentApisV1CommentUpdateCommentIdPutResponse> => {
+    data = commentSchemaResponseTransformer(data);
+    return data;
+  };

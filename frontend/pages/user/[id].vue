@@ -113,19 +113,15 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { userService } from "../../service/user";
 import { imgBedService } from "../../service/imgBed";
-import { useUserStore } from "../../stores/userStore";
-import { useTokenStore } from "../../stores/token";
 import { showErrorDialog } from "../../utils/request";
 import BlogCard from "../../components/BlogCard.vue";
-import type { User, UserUpdate } from "../../types/user";
-import type { Article } from "../../types/article";
+import type { UserResponse, BlogResponse } from "../../src/client/types.gen";
 
 const route = useRoute();
-const userStore = useUserStore();
-const tokenStore = useTokenStore();
+const auth = useAuthStore();
 
-const user = ref<User | null>(null);
-const articles = ref<Article[]>([]);
+const user = ref<UserResponse | null>(null);
+const articles = ref<BlogResponse[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -144,7 +140,7 @@ const editForm = ref<{
 });
 
 const isOwnProfile = computed(() => {
-  return tokenStore.isAuthenticated && userStore.id === route.params.id;
+  return auth.isAuthenticated && auth.user?.uuid === route.params.id;
 });
 
 const totalPages = computed(() => {
@@ -175,7 +171,7 @@ const fetchUserArticles = async (page = 1) => {
       page,
       page_size: pageSize.value,
     });
-    articles.value = data.articles;
+    articles.value = data.items;
     total.value = data.total;
   } catch (error) {
     showErrorDialog("加载文章列表失败");
@@ -193,10 +189,6 @@ const handleUpdate = async () => {
     };
     const updated = await userService.updateUserInfo(data);
     user.value = updated;
-    userStore.setUserInfo({
-      id: updated.uuid,
-      name: updated.username,
-    });
     showEditDialog.value = false;
     showErrorDialog("保存成功", "提示", "success");
   } catch (error) {

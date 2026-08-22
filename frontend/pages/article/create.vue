@@ -57,20 +57,18 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MarkdownEditor from "../../components/MarkdownEditor.vue";
 import { blogService } from "../../service/blog";
-import { useTokenStore } from "../../stores/token";
 import { showErrorDialog } from "../../utils/request";
-import type { ArticleCreate } from "../../types/article";
+import type { BlogCreate } from "../../src/client/types.gen";
 
 const route = useRoute();
 const router = useRouter();
-const tokenStore = useTokenStore();
 
 const isEdit = computed(() => !!route.params.id);
 const articleId = computed(() =>
   isEdit.value ? Number(route.params.id) : null,
 );
 
-const form = ref<ArticleCreate>({
+const form = ref<BlogCreate>({
   title: "",
   body: "",
   tags: [],
@@ -95,7 +93,7 @@ const goBack = () => {
 const saveDraft = async () => {
   saving.value = true;
   try {
-    const data: ArticleCreate = {
+    const data: BlogCreate = {
       ...form.value,
       tags: parseTags(tagsInput.value),
       published: false,
@@ -128,7 +126,7 @@ const publish = async () => {
 
   saving.value = true;
   try {
-    const data: ArticleCreate = {
+    const data: BlogCreate = {
       ...form.value,
       tags: parseTags(tagsInput.value),
       published: true,
@@ -155,7 +153,7 @@ const fetchArticle = async () => {
     form.value = {
       title: article.title,
       body: article.body,
-      tags_name: article.tags_name,
+      tags: article.tags_name || [],
       cover_url: article.cover_url || "",
       published: article.published,
     };
@@ -166,7 +164,7 @@ const fetchArticle = async () => {
 };
 
 onMounted(() => {
-  if (!tokenStore.isAuthenticated) {
+  if (!useAuthStore().isAuthenticated) {
     showErrorDialog("请先登录");
     router.push("/login");
     return;

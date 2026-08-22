@@ -89,6 +89,24 @@
               "title": "Search"
             },
             "description": "Search in title and body"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by user UUID",
+              "title": "User Id"
+            },
+            "description": "Filter by user UUID"
           }
         ],
         "responses": {
@@ -383,7 +401,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LikeToggleResponse"
+                }
               }
             }
           },
@@ -420,7 +440,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LikeStatusResponse"
+                }
               }
             }
           },
@@ -695,7 +717,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ImageUploadResponse"
+                }
               }
             }
           },
@@ -1190,7 +1214,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
               }
             }
           },
@@ -1224,40 +1250,6 @@
             }
           },
           {
-            "name": "blog_id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "Blog Id"
-            }
-          },
-          {
-            "name": "content",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Content"
-            }
-          },
-          {
-            "name": "reply_to_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Reply To Id"
-            }
-          },
-          {
             "name": "Authorization",
             "in": "header",
             "required": false,
@@ -1274,12 +1266,24 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
               }
             }
           },
@@ -2559,6 +2563,47 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ImageUploadResponse": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Public URL of the uploaded image"
+          }
+        },
+        "type": "object",
+        "required": ["url"],
+        "title": "ImageUploadResponse"
+      },
+      "LikeStatusResponse": {
+        "properties": {
+          "likes_count": {
+            "type": "integer",
+            "title": "Likes Count",
+            "description": "Total like count"
+          }
+        },
+        "type": "object",
+        "required": ["likes_count"],
+        "title": "LikeStatusResponse"
+      },
+      "LikeToggleResponse": {
+        "properties": {
+          "liked": {
+            "type": "boolean",
+            "title": "Liked",
+            "description": "Whether the blog is liked after toggling"
+          },
+          "likes_count": {
+            "type": "integer",
+            "title": "Likes Count",
+            "description": "Total like count"
+          }
+        },
+        "type": "object",
+        "required": ["liked", "likes_count"],
+        "title": "LikeToggleResponse"
       },
       "LoginResponse": {
         "properties": {

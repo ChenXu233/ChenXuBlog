@@ -38,7 +38,8 @@ export const authService = {
     return apiCall(() => registerUserApisV1AuthRegisterPost({ body: data }));
   },
 
-  async verifyEmail(token: string): Promise<MessageResponse> {
+  async verifyEmail(token: string): Promise<string> {
+    // ponytail: 后端该端点直接返回字符串而非 MessageResponse，按生成的类型声明
     return apiCall(() =>
       verifyEmailApisV1AuthVerifyTokenGet({ path: { token } }),
     );

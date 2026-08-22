@@ -507,6 +507,48 @@ export type HttpValidationError = {
 };
 
 /**
+ * ImageUploadResponse
+ */
+export type ImageUploadResponse = {
+  /**
+   * Url
+   *
+   * Public URL of the uploaded image
+   */
+  url: string;
+};
+
+/**
+ * LikeStatusResponse
+ */
+export type LikeStatusResponse = {
+  /**
+   * Likes Count
+   *
+   * Total like count
+   */
+  likes_count: number;
+};
+
+/**
+ * LikeToggleResponse
+ */
+export type LikeToggleResponse = {
+  /**
+   * Liked
+   *
+   * Whether the blog is liked after toggling
+   */
+  liked: boolean;
+  /**
+   * Likes Count
+   *
+   * Total like count
+   */
+  likes_count: number;
+};
+
+/**
  * LoginResponse
  */
 export type LoginResponse = {
@@ -788,6 +830,12 @@ export type GetBlogsApisV1BlogGetData = {
      * Search in title and body
      */
     search?: string | null;
+    /**
+     * User Id
+     *
+     * Filter by user UUID
+     */
+    user_id?: string | null;
   };
   url: "/apis/v1/blog/";
 };
@@ -982,8 +1030,11 @@ export type GetLikeStatusApisV1BlogIdLikeGetResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: LikeStatusResponse;
 };
+
+export type GetLikeStatusApisV1BlogIdLikeGetResponse =
+  GetLikeStatusApisV1BlogIdLikeGetResponses[keyof GetLikeStatusApisV1BlogIdLikeGetResponses];
 
 export type ToggleLikeApisV1BlogIdLikePostData = {
   body?: never;
@@ -1017,8 +1068,11 @@ export type ToggleLikeApisV1BlogIdLikePostResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: LikeToggleResponse;
 };
+
+export type ToggleLikeApisV1BlogIdLikePostResponse =
+  ToggleLikeApisV1BlogIdLikePostResponses[keyof ToggleLikeApisV1BlogIdLikePostResponses];
 
 export type RegisterUserApisV1AuthRegisterPostData = {
   body: UserCreate;
@@ -1204,8 +1258,11 @@ export type ImageUploadApisV1ImgBedPostResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: ImageUploadResponse;
 };
+
+export type ImageUploadApisV1ImgBedPostResponse =
+  ImageUploadApisV1ImgBedPostResponses[keyof ImageUploadApisV1ImgBedPostResponses];
 
 export type ImageGetApisV1ImgBedObjectNameGetData = {
   body?: never;
@@ -1542,11 +1599,14 @@ export type DeleteCommentApisV1CommentDeleteCommentIdDeleteResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: MessageResponse;
 };
 
+export type DeleteCommentApisV1CommentDeleteCommentIdDeleteResponse =
+  DeleteCommentApisV1CommentDeleteCommentIdDeleteResponses[keyof DeleteCommentApisV1CommentDeleteCommentIdDeleteResponses];
+
 export type UpdateCommentApisV1CommentUpdateCommentIdPutData = {
-  body?: never;
+  body: CommentCreate;
   headers?: {
     /**
      * Authorization
@@ -1559,20 +1619,7 @@ export type UpdateCommentApisV1CommentUpdateCommentIdPutData = {
      */
     comment_id: number;
   };
-  query: {
-    /**
-     * Blog Id
-     */
-    blog_id: number;
-    /**
-     * Content
-     */
-    content: string;
-    /**
-     * Reply To Id
-     */
-    reply_to_id?: number | null;
-  };
+  query?: never;
   url: "/apis/v1/comment/update/{comment_id}";
 };
 
@@ -1590,8 +1637,11 @@ export type UpdateCommentApisV1CommentUpdateCommentIdPutResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  200: Comment;
 };
+
+export type UpdateCommentApisV1CommentUpdateCommentIdPutResponse =
+  UpdateCommentApisV1CommentUpdateCommentIdPutResponses[keyof UpdateCommentApisV1CommentUpdateCommentIdPutResponses];
 
 export type GetStatsApisV1AdminStatsGetData = {
   body?: never;

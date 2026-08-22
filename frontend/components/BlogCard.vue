@@ -32,10 +32,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import type { Article } from "../types/article";
+import type { BlogResponse } from "../src/client/types.gen";
 
 const props = defineProps<{
-  article: Article;
+  article: BlogResponse;
 }>();
 
 const router = useRouter();
@@ -45,9 +45,9 @@ const excerpt = computed(() => {
   return text.length > 120 ? text.substring(0, 120) + "..." : text;
 });
 
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("zh-CN", {
+const formatDate = (date: string | number | Date) => {
+  const d = new Date(date);
+  return d.toLocaleDateString("zh-CN", {
     year: "numeric",
     month: "short",
     day: "numeric",

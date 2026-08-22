@@ -58,7 +58,14 @@
           class="mb-2"
         />
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" size="sm" @click="replyModalOpen = false"
+          <UButton
+            variant="ghost"
+            size="sm"
+            @click="
+              () => {
+                replyModalOpen = false;
+              }
+            "
             >取消</UButton
           >
           <UButton
@@ -75,33 +82,34 @@
 </template>
 
 <script setup lang="ts">
-export interface CommentItem {
-  id: number;
-  content: string;
-  created_at: string;
-  user_id: number;
-  reply_to_id: number | null;
-}
+import { commentService } from "../service/comment";
+import type { Comment } from "../src/client/types.gen";
 
 const props = defineProps<{
   blogId: number;
-  comments: CommentItem[];
 }>();
 
-const emit = defineEmits<{ deleted: [] }>();
-
 const auth = useAuthStore();
+const comments = ref<Comment[]>([]);
+
+async function load() {
+  const res = await commentService.getComments(props.blogId);
+  comments.value = res.comments || [];
+}
+
+watch(() => props.blogId, load, { immediate: true });
+
 const newComment = ref("");
 const replyContent = ref("");
 const replyModalOpen = ref(false);
-const replyTarget = ref<CommentItem | null>(null);
+const replyTarget = ref<Comment | null>(null);
 const submitting = ref(false);
 
 const topLevelComments = computed(() =>
-  props.comments.filter((c) => !c.reply_to_id),
+  comments.value.filter((c) => !c.reply_to_id),
 );
-function repliesOf(id: number): CommentItem[] {
-  return props.comments.filter((c) => c.reply_to_id === id);
+function repliesOf(id: number): Comment[] {
+  return comments.value.filter((c) => c.reply_to_id === id);
 }
 
 async function submitComment(replyToId: number | null) {
@@ -109,27 +117,23 @@ async function submitComment(replyToId: number | null) {
   if (!content.trim()) return;
   submitting.value = true;
   try {
-    await $fetch("/apis/v1/comment/create", {
-      method: "POST",
-      body: {
-        blog_id: props.blogId,
-        content: content.trim(),
-        ...(replyToId ? { reply_to_id: replyToId } : {}),
-      },
-      headers: { Authorization: `Bearer ${auth.token}` },
+    await commentService.createComment({
+      blog_id: props.blogId,
+      content: content.trim(),
+      ...(replyToId ? { reply_to_id: replyToId } : {}),
     });
     newComment.value = "";
     replyModalOpen.value = false;
     useToast().add({ title: "评论成功", color: "success" });
-    emit("deleted");
+    await load();
   } catch (e: any) {
-    useToast().add({ title: e?.data?.detail || "评论失败", color: "error" });
+    useToast().add({ title: e?.message || "评论失败", color: "error" });
   } finally {
     submitting.value = false;
   }
 }
 
-function startReply(comment: CommentItem) {
+function startReply(comment: Comment) {
   replyTarget.value = comment;
   replyContent.value = "";
   replyModalOpen.value = true;
@@ -143,14 +147,11 @@ async function submitReply() {
 async function deleteComment(id: number) {
   if (!confirm("确定删除该评论？")) return;
   try {
-    await $fetch(`/apis/v1/comment/delete/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await commentService.deleteComment(id);
     useToast().add({ title: "评论已删除", color: "success" });
-    emit("deleted");
+    await load();
   } catch (e: any) {
-    useToast().add({ title: e?.data?.detail || "删除失败", color: "error" });
+    useToast().add({ title: e?.message || "删除失败", color: "error" });
   }
 }
 </script>

@@ -52,3 +52,12 @@ class BlogListResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LikeToggleResponse(BaseModel):
+    liked: bool = Field(..., description="Whether the blog is liked after toggling")
+    likes_count: int = Field(..., description="Total like count")
+
+
+class LikeStatusResponse(BaseModel):
+    likes_count: int = Field(..., description="Total like count")

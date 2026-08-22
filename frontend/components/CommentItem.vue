@@ -64,19 +64,19 @@
 </template>
 
 <script setup lang="ts">
-import type { CommentItem } from "~/components/CommentList.vue";
+import type { Comment } from "~/src/client/types.gen";
 
 defineProps<{
-  comment: CommentItem;
-  replies: CommentItem[];
+  comment: Comment;
+  replies: Comment[];
   authUserId?: number;
 }>();
 
-defineEmits<{ reply: [CommentItem]; delete: [number] }>();
+defineEmits<{ reply: [Comment]; delete: [number] }>();
 
 const auth = useAuthStore();
 
-function formatTime(ts: string): string {
+function formatTime(ts: string | number | Date): string {
   const d = new Date(ts);
   return d.toLocaleString("zh-CN", {
     month: "short",

@@ -10,7 +10,13 @@ from sqlalchemy.orm import selectinload
 from backend.database import get_db
 from backend.model.blog import Blog, Tag
 from backend.model.user import User
-from backend.schema.blog import BlogCreate, BlogListResponse, BlogResponse
+from backend.schema.blog import (
+    BlogCreate,
+    BlogListResponse,
+    BlogResponse,
+    LikeStatusResponse,
+    LikeToggleResponse,
+)
 from backend.utils.jwt import get_access_token_user, get_access_token_user_uuid
 from backend.utils.permission import require_permissions
 
@@ -23,6 +29,7 @@ async def get_blogs(
     page_size: int = Query(10, ge=1, le=100, description="Page size"),
     tag: Optional[str] = Query(None, description="Filter by tag"),
     search: Optional[str] = Query(None, description="Search in title and body"),
+    user_id: Optional[str] = Query(None, description="Filter by user UUID"),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Blog).where(Blog.published == True)
@@ -35,6 +42,9 @@ async def get_blogs(
         query = query.where(
             or_(Blog.title.like(search_pattern), Blog.body.like(search_pattern))
         )
+
+    if user_id:
+        query = query.where(Blog.user_uuid == user_id)
 
     count_query = select(func.count()).select_from(query.subquery())
     total_result = await db.execute(count_query)
@@ -224,7 +234,7 @@ async def delete_blog(
     return {"message": "Blog deleted successfully"}
 
 
-@blog.post("/{id}/like", name="toggle_like")
+@blog.post("/{id}/like", name="toggle_like", response_model=LikeToggleResponse)
 async def toggle_like(
     id: int = Path(..., gt=0),
     user: User = Depends(get_access_token_user),
@@ -252,7 +262,7 @@ async def toggle_like(
     return {"liked": not liked, "likes_count": len(db_blog.like or []), "message": message}
 
 
-@blog.get("/{id}/like", name="get_like_status")
+@blog.get("/{id}/like", name="get_like_status", response_model=LikeStatusResponse)
 async def get_like_status(
     id: int = Path(..., gt=0),
     db: AsyncSession = Depends(get_db),

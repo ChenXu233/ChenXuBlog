@@ -13,7 +13,9 @@ export const permissionService = {
 
   async havePermission(permission: string): Promise<boolean> {
     return apiCall(() =>
-      havePermissionApisV1PermissionPost({ query: { permission } }),
+      havePermissionApisV1PermissionPost({
+        query: { permission_code: permission },
+      }),
     );
   },
 };

@@ -29,35 +29,40 @@
       </div>
 
       <UTable :data="articles" :columns="columns" :loading="pending">
-        <template #published-data="{ row }">
-          <UBadge :color="row.published ? 'success' : 'warning'" variant="soft">
-            {{ row.published ? "已发布" : "草稿" }}
+        <template #published-cell="{ row }">
+          <UBadge
+            :color="row.original.published ? 'success' : 'warning'"
+            variant="soft"
+          >
+            {{ row.original.published ? "已发布" : "草稿" }}
           </UBadge>
         </template>
-        <template #view_count-data="{ row }">
-          <span class="text-sm text-gray-500">{{ row.view_count }}</span>
+        <template #view_count-cell="{ row }">
+          <span class="text-sm text-gray-500">{{
+            row.original.view_count
+          }}</span>
         </template>
-        <template #actions-data="{ row }">
+        <template #actions-cell="{ row }">
           <div class="flex gap-1">
             <UButton
               icon="i-heroicons-eye"
               size="xs"
               variant="ghost"
-              :to="`/article/${row.id}`"
+              :to="`/article/${row.original.id}`"
             />
             <UButton
               icon="i-heroicons-paper-airplane"
               size="xs"
               variant="ghost"
-              :color="row.published ? 'warning' : 'success'"
-              @click="togglePublish(row)"
+              :color="row.original.published ? 'warning' : 'success'"
+              @click="togglePublish(row.original)"
             />
             <UButton
               icon="i-heroicons-trash"
               size="xs"
               variant="ghost"
               color="error"
-              @click="deleteArticle(row)"
+              @click="deleteArticle(row.original)"
             />
           </div>
         </template>
@@ -73,15 +78,9 @@
 <script setup lang="ts">
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
-interface AdminBlog {
-  id: number;
-  title: string;
-  username: string;
-  published: boolean;
-  view_count: number;
-}
+import { adminService } from "~/service/admin";
+import type { AdminBlogResponse } from "~/src/client/types.gen";
 
-const auth = useAuthStore();
 const page = ref(1);
 const pageSize = 10;
 const publishedFilter = ref<boolean | null>(null);
@@ -95,19 +94,25 @@ const columns = [
   { accessorKey: "actions", header: "操作" },
 ];
 
-const { data, pending, refresh } = useAuthFetch<{
-  items: AdminBlog[];
-  total: number;
-}>(
-  () => {
-    const pub =
-      publishedFilter.value === null
-        ? ""
-        : `&published=${publishedFilter.value}`;
-    return `/apis/v1/admin/blogs?page=${page.value}&page_size=${pageSize}${pub}`;
-  },
-  { watch: [page, publishedFilter] },
+const data = ref<Awaited<ReturnType<typeof adminService.getBlogs>> | null>(
+  null,
 );
+const pending = ref(false);
+
+async function load() {
+  pending.value = true;
+  try {
+    data.value = await adminService.getBlogs(
+      page.value,
+      pageSize,
+      publishedFilter.value,
+    );
+  } finally {
+    pending.value = false;
+  }
+}
+
+watch([page, publishedFilter], load, { immediate: true });
 
 const articles = computed(() => data.value?.items || []);
 const total = computed(() => data.value?.total || 0);
@@ -117,33 +122,27 @@ function setFilter(f: boolean | null) {
   page.value = 1;
 }
 
-async function togglePublish(article: AdminBlog) {
+async function togglePublish(article: AdminBlogResponse) {
   try {
-    await $fetch(`/apis/v1/admin/blogs/${article.id}/publish`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await adminService.toggleBlogPublish(article.id);
     useToast().add({
       title: article.published ? "已下架" : "已发布",
       color: "success",
     });
-    refresh();
+    await load();
   } catch (e: any) {
-    useToast().add({ title: e?.data?.detail || "操作失败", color: "error" });
+    useToast().add({ title: e?.message || "操作失败", color: "error" });
   }
 }
 
-async function deleteArticle(article: AdminBlog) {
+async function deleteArticle(article: AdminBlogResponse) {
   if (!confirm(`确定删除文章「${article.title}」？`)) return;
   try {
-    await $fetch(`/apis/v1/admin/blogs/${article.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await adminService.deleteBlog(article.id);
     useToast().add({ title: "文章已删除", color: "success" });
-    refresh();
+    await load();
   } catch (e: any) {
-    useToast().add({ title: e?.data?.detail || "删除失败", color: "error" });
+    useToast().add({ title: e?.message || "删除失败", color: "error" });
   }
 }
 </script>

@@ -76,37 +76,27 @@
 <script setup lang="ts">
 definePageMeta({ layout: "admin", middleware: "auth" });
 
-interface AdminStats {
-  total_users: number;
-  total_blogs: number;
-  total_comments: number;
-  total_blogs_today: number;
-  total_comments_today: number;
-  recent_blogs: { id: number; title: string; published: boolean }[];
-  recent_comments: { id: number; username: string; content: string }[];
-}
+import { adminService } from "~/service/admin";
+import type { AdminStatsResponse } from "~/src/client/types.gen";
 
-const auth = useAuthStore();
-const stats = ref<AdminStats | null>(null);
+const stats = ref<AdminStatsResponse | null>(null);
 const loadError = ref("");
 
 // 客户端加载（token 由 pinia persist 恢复后才可用）
 async function loadStats() {
-  if (!auth.token) return;
+  if (!useAuthStore().token) return;
   try {
-    stats.value = await $fetch<AdminStats>("/apis/v1/admin/stats", {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    stats.value = await adminService.getStats();
   } catch (e: any) {
-    loadError.value = e?.data?.detail || "加载失败";
+    loadError.value = e?.message || "加载失败";
     if (e?.status === 401) {
-      auth.logout();
+      useAuthStore().logout();
     }
   }
 }
 
 onMounted(loadStats);
-if (import.meta.client && auth.token) {
+if (import.meta.client && useAuthStore().token) {
   // 客户端直接导航时立即加载
   await loadStats();
 }

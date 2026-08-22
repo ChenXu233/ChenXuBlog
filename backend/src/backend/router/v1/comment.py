@@ -8,6 +8,7 @@ from sqlalchemy.orm import selectinload
 from backend.database import get_db
 from backend.model.comment import Comment as CommentDB
 from backend.model.user import User
+from backend.schema.auth import MessageResponse
 from backend.schema.comment import Comment, CommentCreate, CommentsResponse
 from backend.utils.jwt import get_access_token_user
 from backend.utils.permission import require_permissions
@@ -92,7 +93,11 @@ async def get_comment(
     return db_comment
 
 
-@comment.delete("/delete/{comment_id}")
+@comment.delete(
+    "/delete/{comment_id}",
+    name="delete_comment",
+    response_model=MessageResponse,
+)
 async def delete_comment(
     comment_id: int = Path(..., ge=1),
     db: AsyncSession = Depends(get_db),
@@ -116,10 +121,14 @@ async def delete_comment(
     return {"message": "Comment deleted successfully"}
 
 
-@comment.put("/update/{comment_id}")
+@comment.put(
+    "/update/{comment_id}",
+    name="update_comment",
+    response_model=Comment,
+)
 async def update_comment(
+    comment_data: CommentCreate,
     comment_id: int = Path(..., ge=1),
-    comment_data: CommentCreate = Depends(),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_access_token_user),
 ):

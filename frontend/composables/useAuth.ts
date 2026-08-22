@@ -1,6 +1,6 @@
 // Unified auth store — merges old authStore + tokenStore + permissionStore
-import { defineStore } from "pinia";
-import type { User } from "~/types/user";
+import { defineStore } from "#imports";
+import type { UserResponse } from "~/src/client/types.gen";
 import { authService } from "~/service/auth";
 import { userService } from "~/service/user";
 import { permissionService } from "~/service/permission";
@@ -8,7 +8,7 @@ import { permissionService } from "~/service/permission";
 interface AuthState {
   token: string | null;
   refreshToken: string | null;
-  user: User | null;
+  user: UserResponse | null;
   permissions: string[];
 }
 
@@ -48,7 +48,7 @@ export const useAuthStore = defineStore("auth", {
     async fetchUserInfo() {
       if (!this.token) return;
       try {
-        this.user = (await userService.getOwnInfo()) as unknown as User;
+        this.user = await userService.getOwnInfo();
       } catch {
         // token might be expired
       }

@@ -4,34 +4,34 @@
 
     <UCard>
       <UTable :data="users" :columns="columns" :loading="pending">
-        <template #roles-data="{ row }">
+        <template #roles-cell="{ row }">
           <div class="flex gap-1 flex-wrap">
             <UBadge
-              v-for="role in row.roles"
+              v-for="role in row.original.roles"
               :key="role"
               variant="soft"
-              :color="role === 'superuser' ? 'rose' : 'emerald'"
+              :color="role === 'superuser' ? 'error' : 'success'"
             >
               {{ role }}
             </UBadge>
           </div>
         </template>
-        <template #is_verified-data="{ row }">
+        <template #is_verified-cell="{ row }">
           <UBadge
-            :color="row.is_verified ? 'success' : 'warning'"
+            :color="row.original.is_verified ? 'success' : 'warning'"
             variant="soft"
           >
-            {{ row.is_verified ? "已验证" : "未验证" }}
+            {{ row.original.is_verified ? "已验证" : "未验证" }}
           </UBadge>
         </template>
-        <template #actions-data="{ row }">
+        <template #actions-cell="{ row }">
           <UButton
             icon="i-heroicons-trash"
             size="xs"
             color="error"
             variant="ghost"
-            :disabled="row.id === currentUserId"
-            @click="deleteUser(row)"
+            :disabled="row.original.id === currentUserId"
+            @click="deleteUser(row.original)"
           />
         </template>
       </UTable>
@@ -46,17 +46,10 @@
 <script setup lang="ts">
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
-interface AdminUser {
-  id: number;
-  uuid: string;
-  username: string;
-  email: string;
-  is_verified: boolean;
-  roles: string[];
-}
+import { adminService } from "~/service/admin";
+import type { AdminUserResponse } from "~/src/client/types.gen";
 
-const auth = useAuthStore();
-const currentUserId = auth.user?.id;
+const currentUserId = useAuthStore().user?.id;
 const page = ref(1);
 const pageSize = 10;
 
@@ -69,27 +62,33 @@ const columns = [
   { accessorKey: "actions", header: "操作" },
 ];
 
-const { data, pending, refresh } = useAuthFetch<{
-  items: AdminUser[];
-  total: number;
-}>(() => `/apis/v1/admin/users?page=${page.value}&page_size=${pageSize}`, {
-  watch: [page],
-});
+const data = ref<Awaited<ReturnType<typeof adminService.getUsers>> | null>(
+  null,
+);
+const pending = ref(false);
+
+async function load() {
+  pending.value = true;
+  try {
+    data.value = await adminService.getUsers(page.value, pageSize);
+  } finally {
+    pending.value = false;
+  }
+}
+
+watch([page], load, { immediate: true });
 
 const users = computed(() => data.value?.items || []);
 const total = computed(() => data.value?.total || 0);
 
-async function deleteUser(user: AdminUser) {
+async function deleteUser(user: AdminUserResponse) {
   if (!confirm(`确定删除用户 ${user.username}？`)) return;
   try {
-    await $fetch(`/apis/v1/admin/users/${user.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await adminService.deleteUser(user.id);
     useToast().add({ title: "用户已删除", color: "success" });
-    refresh();
+    await load();
   } catch (e: any) {
-    useToast().add({ title: e?.data?.detail || "删除失败", color: "error" });
+    useToast().add({ title: e?.message || "删除失败", color: "error" });
   }
 }
 </script>

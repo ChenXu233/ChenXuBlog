@@ -4,16 +4,16 @@
 
     <UCard>
       <UTable :data="comments" :columns="columns" :loading="pending">
-        <template #content-data="{ row }">
-          <span class="line-clamp-1 text-sm">{{ row.content }}</span>
+        <template #content-cell="{ row }">
+          <span class="line-clamp-1 text-sm">{{ row.original.content }}</span>
         </template>
-        <template #actions-data="{ row }">
+        <template #actions-cell="{ row }">
           <UButton
             icon="i-heroicons-trash"
             size="xs"
             variant="ghost"
             color="error"
-            @click="deleteComment(row)"
+            @click="deleteComment(row.original)"
           />
         </template>
       </UTable>
@@ -28,15 +28,9 @@
 <script setup lang="ts">
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
-interface AdminComment {
-  id: number;
-  blog_id: number;
-  blog_title: string;
-  username: string;
-  content: string;
-}
+import { adminService } from "~/service/admin";
+import type { AdminCommentResponse } from "~/src/client/types.gen";
 
-const auth = useAuthStore();
 const page = ref(1);
 const pageSize = 10;
 
@@ -48,27 +42,33 @@ const columns = [
   { accessorKey: "actions", header: "操作" },
 ];
 
-const { data, pending, refresh } = useAuthFetch<{
-  items: AdminComment[];
-  total: number;
-}>(() => `/apis/v1/admin/comments?page=${page.value}&page_size=${pageSize}`, {
-  watch: [page],
-});
+const data = ref<Awaited<ReturnType<typeof adminService.getComments>> | null>(
+  null,
+);
+const pending = ref(false);
+
+async function load() {
+  pending.value = true;
+  try {
+    data.value = await adminService.getComments(page.value, pageSize);
+  } finally {
+    pending.value = false;
+  }
+}
+
+watch([page], load, { immediate: true });
 
 const comments = computed(() => data.value?.items || []);
 const total = computed(() => data.value?.total || 0);
 
-async function deleteComment(comment: AdminComment) {
+async function deleteComment(comment: AdminCommentResponse) {
   if (!confirm("确定删除该评论？")) return;
   try {
-    await $fetch(`/apis/v1/admin/comments/${comment.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await adminService.deleteComment(comment.id);
     useToast().add({ title: "评论已删除", color: "success" });
-    refresh();
+    await load();
   } catch (e: any) {
-    useToast().add({ title: e?.data?.detail || "删除失败", color: "error" });
+    useToast().add({ title: e?.message || "删除失败", color: "error" });
   }
 }
 </script>

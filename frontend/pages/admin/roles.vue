@@ -23,7 +23,7 @@
           >
             {{ perm }}
           </UBadge>
-          <span v-if="!role.permissions.length" class="text-sm text-gray-400"
+          <span v-if="!role.permissions?.length" class="text-sm text-gray-400"
             >无权限</span
           >
         </div>
@@ -35,14 +35,17 @@
 <script setup lang="ts">
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
-interface AdminRole {
-  id: number;
-  name: string;
-  description: string | null;
-  is_default: boolean;
-  permissions: string[];
+import { adminService } from "~/service/admin";
+
+const data = ref<Awaited<ReturnType<typeof adminService.getRoles>> | null>(
+  null,
+);
+const roles = computed(() => data.value || []);
+
+async function load() {
+  if (!useAuthStore().token) return;
+  data.value = await adminService.getRoles();
 }
 
-const { data } = useAuthFetch<AdminRole[]>("/apis/v1/admin/roles");
-const roles = computed(() => data.value || []);
+watch(() => useAuthStore().token, load, { immediate: true });
 </script>

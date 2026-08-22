@@ -672,7 +672,14 @@ export const updateCommentApisV1CommentUpdateCommentIdPut = <
     UpdateCommentApisV1CommentUpdateCommentIdPutResponses,
     UpdateCommentApisV1CommentUpdateCommentIdPutErrors,
     ThrowOnError
-  >({ url: "/apis/v1/comment/update/{comment_id}", ...options });
+  >({
+    url: "/apis/v1/comment/update/{comment_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 /**
  * Get Stats

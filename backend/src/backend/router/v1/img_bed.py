@@ -6,6 +6,7 @@ Supports both MinIO (when configured) and local filesystem fallback.
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import Response
 
+from backend.schema.img_bed import ImageUploadResponse
 from backend.service.storage import storage_service
 from backend.utils.permission import require_permissions
 
@@ -15,6 +16,7 @@ img_bed = APIRouter(prefix="/apis/v1/img_bed", tags=["img_bed"])
 @img_bed.post(
     "/",
     name="image_upload",
+    response_model=ImageUploadResponse,
     dependencies=[Depends(require_permissions("img_bed:create", "Upload image"))],
 )
 async def upload_image(image: UploadFile = File(...)):

@@ -66,7 +66,7 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { blogService } from "../service/blog";
 import BlogCard from "./BlogCard.vue";
-import type { Article } from "../types/article";
+import type { BlogResponse } from "../src/client/types.gen";
 
 const props = withDefaults(
   defineProps<{
@@ -80,7 +80,7 @@ const props = withDefaults(
   },
 );
 
-const articles = ref<Article[]>([]);
+const articles = ref<BlogResponse[]>([]);
 const loading = ref(false);
 const currentPage = ref(1);
 const pageSize = ref(12);

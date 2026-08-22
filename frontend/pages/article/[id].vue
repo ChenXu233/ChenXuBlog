@@ -62,16 +62,12 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MarkdownIt from "markdown-it";
 import { blogService } from "../../service/blog";
-import { useTokenStore } from "../../stores/token";
-import { useUserStore } from "../../stores/userStore";
 import CommentList from "../../components/CommentList.vue";
 import { showErrorDialog } from "../../utils/request";
-import type { Article } from "../../types/article";
+import type { BlogResponse } from "../../src/client/types.gen";
 
 const route = useRoute();
 const router = useRouter();
-const tokenStore = useTokenStore();
-const userStore = useUserStore();
 
 const md = new MarkdownIt({
   html: true,
@@ -79,7 +75,7 @@ const md = new MarkdownIt({
   typographer: true,
 });
 
-const article = ref<Article | null>(null);
+const article = ref<BlogResponse | null>(null);
 const loading = ref(true);
 const hasLiked = ref(false);
 const commentListRef = ref<InstanceType<typeof CommentList> | null>(null);
@@ -89,16 +85,17 @@ const renderedContent = computed(() => {
 });
 
 const canEdit = computed(() => {
+  const auth = useAuthStore();
   return (
-    tokenStore.isAuthenticated &&
-    userStore.id &&
-    article.value?.user_uuid === userStore.id
+    auth.isAuthenticated &&
+    !!article.value &&
+    article.value.user_uuid === auth.user?.uuid
   );
 });
 
-const formatDate = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("zh-CN", {
+const formatDate = (date: string | number | Date) => {
+  const d = new Date(date);
+  return d.toLocaleDateString("zh-CN", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -119,18 +116,18 @@ const fetchArticle = async () => {
 
 const handleLike = async () => {
   if (!article.value) return;
-  if (!tokenStore.isAuthenticated) {
+  if (!useAuthStore().isAuthenticated) {
     showErrorDialog("请先登录后再点赞");
     return;
   }
   hasLiked.value = !hasLiked.value;
-  article.value.like += hasLiked.value ? 1 : -1;
+  article.value.likes_count += hasLiked.value ? 1 : -1;
   try {
     await blogService.likeBlog(article.value.id);
   } catch (error) {
     // 失败回滚
     hasLiked.value = !hasLiked.value;
-    article.value.like += hasLiked.value ? 1 : -1;
+    article.value.likes_count += hasLiked.value ? 1 : -1;
   }
 };
 
