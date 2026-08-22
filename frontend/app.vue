@@ -19,6 +19,18 @@ import { ref, watch } from "vue";
 const route = useRoute();
 const loading = ref(false);
 
+// RSS 自动发现
+useHead({
+  link: [
+    {
+      rel: "alternate",
+      type: "application/rss+xml",
+      title: "ChenXu's Blog RSS",
+      href: "/rss.xml",
+    },
+  ],
+});
+
 // 原版: Footer 通过 route.meta.showFooter 控制；Nuxt 里按路径判断
 const hideFooter = computed(() => {
   const p = route.path;

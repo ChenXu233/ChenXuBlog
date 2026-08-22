@@ -46,3 +46,35 @@ async def send_verify_email(request: Request, email: str, verify_token: str):
     logger.info(f"Verify email sent to {email}.")
 
     return verify_url
+
+async def send_comment_notify_email(
+    email: str,
+    blog_title: str,
+    blog_id: int,
+    commenter: str,
+    content: str,
+):
+    """评论/回复通知。邮件未配置时只打日志。"""
+    url = f"{CONFIG.SITE_URL.rstrip('/')}/article/{blog_id}"
+    subject = "ChenXuBlog: 新的评论通知"
+    body = (
+        f"<p>{commenter} 评论了你的文章《{blog_title}》：</p>"
+        f"<blockquote>{content}</blockquote>"
+        f'<p><a href="{url}">查看评论</a></p>'
+    )
+
+    if not mail_config:
+        logger.info(f"[Mail disabled] Comment notify to {email}: {commenter}: {content}")
+        return
+
+    message = MessageSchema(
+        subject=subject,
+        recipients=[email],
+        body=body,
+        subtype=MessageType.html,
+    )
+    try:
+        await FastMail(mail_config).send_message(message)
+        logger.info(f"Comment notify email sent to {email}.")
+    except Exception as e:
+        logger.warning(f"Failed to send comment notify email to {email}: {e}")

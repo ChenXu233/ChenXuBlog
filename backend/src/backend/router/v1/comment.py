@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Path
@@ -10,6 +11,7 @@ from backend.model.comment import Comment as CommentDB
 from backend.model.user import User
 from backend.schema.auth import MessageResponse
 from backend.schema.comment import Comment, CommentCreate, CommentsResponse
+from backend.service.email import send_comment_notify_email
 from backend.utils.jwt import get_access_token_user
 from backend.utils.permission import require_permissions
 
@@ -47,7 +49,48 @@ async def create_comment(
     db.add(db_comment)
     await db.commit()
     await db.refresh(db_comment)
+
+    await _notify(db, db_comment, user, parent_comment)
     return db_comment
+
+
+async def _notify(
+    db: AsyncSession,
+    db_comment: CommentDB,
+    user: User,
+    parent_comment: CommentDB | None,
+):
+    """通知文章作者和被回复人（各自不重复、不通知自己）。"""
+    from backend.model.blog import Blog
+
+    blog = (
+        await db.scalar(select(Blog).where(Blog.id == db_comment.blog_id))
+    )
+    if not blog:
+        return
+    recipients: dict[int, tuple[str, str]] = {}
+    if blog.user_uuid != user.uuid:
+        author = await db.scalar(select(User).where(User.uuid == blog.user_uuid))
+        if author:
+            recipients[author.id] = (author.email, "文章")
+    if parent_comment and parent_comment.user_id != user.id:
+        if parent_comment.user_id not in recipients:
+            replier = await db.scalar(
+                select(User).where(User.id == parent_comment.user_id)
+            )
+            if replier:
+                recipients[replier.id] = (replier.email, "评论")
+
+    for email, kind in recipients.values():
+        asyncio.create_task(
+            send_comment_notify_email(
+                email=email,
+                blog_title=blog.title,
+                blog_id=blog.id,
+                commenter=user.username,
+                content=f"[{kind}] {db_comment.content}",
+            )
+        )
 
 
 @comment.get(

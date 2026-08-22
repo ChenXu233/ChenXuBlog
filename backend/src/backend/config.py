@@ -21,6 +21,8 @@ class AppConfig(BaseSettings):
     MAIL_PORT: int = 465
     MAIL_SERVER: str = ""
     MAIL_ENABLED: bool = False  # 设为 false 则只打印邮件内容，不实际发送
+    # 前端站点地址，用于邮件/通知里的链接
+    SITE_URL: str = "http://localhost:3000"
     # MinIO 配置
     MINIO_ENABLED: bool = False
     MINIO_ENDPOINT: str = "localhost:9000"
