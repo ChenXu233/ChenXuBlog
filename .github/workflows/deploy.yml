@@ -71,6 +71,7 @@ jobs:
           strip_components: 1
 
       # 后端源码（服务器不再 build，但保留 Dockerfile 备用）
+      # Caddyfile：caddy 容器挂载的路由配置，必须同步到服务器
       - name: Upload config files
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -78,7 +79,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "frontend/Dockerfile,frontend/.dockerignore,docker-compose.yml,conf.d/*"
+          source: "frontend/Dockerfile,frontend/.dockerignore,docker-compose.yml,Caddyfile"
           target: "/opt/chenxu233.cn/"
 
       - name: Pull backend + build frontend + start
@@ -97,8 +98,8 @@ jobs:
             docker compose pull backend
             docker compose up -d
             docker image prune -f
-            cp conf.d/chenxu233.conf /opt/1panel/www/conf.d/chenxu233.conf
-            docker exec 1Panel-openresty-W7py nginx -t && docker exec 1Panel-openresty-W7py nginx -s reload
+            # 注：openresty 站点配置由服务器上的 1Panel 面板管理，
+            # 只需保证反代目标为 http://127.0.0.1:3200（Caddy 网关）
 
       - name: Verify deployment
         run: |
