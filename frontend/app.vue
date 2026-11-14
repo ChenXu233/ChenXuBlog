@@ -1,56 +1,20 @@
 <template>
   <div id="app">
-    <LoadingOverlay :show="loading" />
-    <MouseTrail />
     <NuxtRouteAnnouncer />
-    <NuxtLoadingIndicator />
+    <NuxtLoadingIndicator color="var(--cx-accent)" :height="2" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <MouseTrail />
     <DockBar />
-    <Footer v-if="!hideFooter" />
     <UToaster />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-
-const route = useRoute();
-const loading = ref(false);
-
-// RSS 自动发现
-useHead({
-  link: [
-    {
-      rel: "alternate",
-      type: "application/rss+xml",
-      title: "ChenXu's Blog RSS",
-      href: "/rss.xml",
-    },
-  ],
-});
-
-// 原版: Footer 通过 route.meta.showFooter 控制；Nuxt 里按路径判断
-const hideFooter = computed(() => {
-  const p = route.path;
-  return p === "/home" || p === "/login" || p === "/register";
-});
-
-watch(
-  () => route.path,
-  async () => {
-    loading.value = true;
-    await nextTick();
-    setTimeout(() => {
-      loading.value = false;
-    }, 300);
-  },
-);
-
-// Initialize auth state from persisted storage on app mount
+// 恢复登录态（仅浏览器；服务端没有 localStorage）
 const auth = useAuthStore();
-if (auth.token) {
+if (import.meta.client && auth.token) {
   auth.fetchUserInfo();
   auth.fetchPermissions();
 }

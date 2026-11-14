@@ -16,10 +16,22 @@
     <!-- Section 2: Progressive Introduction with Rain & Thunder -->
     <HomeZen />
 
-    <!-- Footer -->
-    <section class="footer-section">
-      <div class="footer-note reveal-up v-observe">
-        © 2026 ChenXuBlog. A blend of technology and blooming spring.
+    <!-- Bottom banner -->
+    <section class="home-banner reveal-up v-observe">
+      <div class="banner-inner">
+        <div class="banner-bottom">
+          <div class="banner-meta">
+            <span>© 2026 ChenXuBlog. A blend of technology and blooming spring.</span>
+            <a
+              class="banner-icp"
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              rel="noopener"
+              >浙ICP备2026024319号-1</a
+            >
+          </div>
+          <span class="banner-mark">CHENXU / 2026</span>
+        </div>
       </div>
     </section>
   </div>
@@ -29,6 +41,9 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import BlossomCanvas from "../components/effects/BlossomCanvas.vue";
 import RainCanvas from "../components/effects/RainCanvas.vue";
+
+// home 不套用 useSeo 的品牌后缀，标题保持独立；也避免从其它页面切换回来时残留旧标题
+useHead({ title: "chenxu's homepage" });
 
 const scrollProgress = ref(0);
 
@@ -98,8 +113,8 @@ onBeforeUnmount(() => {
 .elegant-home {
   color: #fff;
   font-family: "JetBrains Mono", monospace;
-  /* overflow-x: hidden causes position:sticky to break in scroll listeners, use clip */
-  overflow-x: clip;
+  /* clip both axes: the bamboo SVG draws past the page bottom and would create scroll space */
+  overflow: clip;
   cursor: none; /* Hide default cursor */
   background: linear-gradient(to top, #fff9f0, #fff5e6);
   position: relative;
@@ -136,22 +151,64 @@ onBeforeUnmount(() => {
   filter: blur(0) !important;
 }
 
-/* Footer */
-.footer-section {
-  padding: 1vh 5vw 5vh 10vw;
-  background: #a8b7cb;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* Bottom banner */
+.home-banner {
   position: relative;
   z-index: 1;
+  padding: 26px 0 24px;
+  border-top: 3px solid #c07a6b;
+  border-radius: 24px 24px 0 0;
+  background: linear-gradient(180deg, #f7f3ea 0%, #f1ecdf 100%);
+  color: #364036;
 }
 
-.footer-note {
-  margin-top: 15vh;
-  color: #444;
-  font-size: 0.8rem;
-  text-align: center;
-  letter-spacing: 1px;
+.banner-inner {
+  width: min(1180px, calc(100% - 56px));
+  margin: 0 auto;
 }
+
+.banner-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  color: #6d7569;
+}
+
+.banner-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.banner-icp {
+  color: #8b9286;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.banner-icp:hover {
+  color: #c07a6b;
+}
+
+.banner-mark {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+@media (max-width: 640px) {
+  .home-banner {
+    border-radius: 20px 20px 0 0;
+    padding-bottom: 96px;
+  }
+
+  .banner-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
 </style>

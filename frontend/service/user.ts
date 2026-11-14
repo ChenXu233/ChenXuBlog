@@ -3,14 +3,14 @@ import {
   getUserInfoApisV1UserInfoGet,
   getUserInfoByIdApisV1UserInfoUserUuidGet,
   editUserInfoApisV1UserEditPost,
-} from "../shared/api-client/sdk.gen";
+} from "../api-client/sdk.gen";
 import { apiCall } from "../utils/apiClient";
-import { getBlogsApisV1BlogGet } from "../shared/api-client/sdk.gen";
+import { getBlogsApisV1BlogGet } from "../api-client/sdk.gen";
 import type {
   UserResponse,
   UserEdit,
   BlogListResponse,
-} from "../shared/api-client/types.gen";
+} from "../api-client/types.gen";
 
 export const userService = {
   // 获取自己的信息（需要登录）

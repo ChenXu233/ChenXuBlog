@@ -1,38 +1,28 @@
 <template>
-  <article class="blog-card" @click="goToDetail">
-    <div class="card-cover" v-if="article.cover_url">
-      <img :src="article.cover_url" :alt="article.title" />
+  <article class="blog-card cx-glass" @click="goToDetail">
+    <div v-if="article.cover_url" class="card-cover">
+      <img :src="article.cover_url" :alt="article.title" loading="lazy" decoding="async" />
     </div>
-    <div class="card-content">
-      <div class="card-tags" v-if="article.tags_name?.length">
-        <span v-for="tag in article.tags_name" :key="tag" class="tag">{{
-          tag
-        }}</span>
+    <div class="card-body">
+      <div class="card-top">
+        <time class="card-date cx-mono" :datetime="isoDate(article.created_at)">
+          {{ formatDate(article.created_at) }}
+        </time>
+        <span class="card-views cx-mono">{{ article.view_count }} views</span>
       </div>
       <h3 class="card-title">{{ article.title }}</h3>
       <p class="card-excerpt">{{ excerpt }}</p>
-      <div class="card-meta">
-        <span class="meta-item">
-          <i class="fa fa-calendar"></i>
-          {{ formatDate(article.created_at) }}
-        </span>
-        <span class="meta-item">
-          <i class="fa fa-eye"></i>
-          {{ article.view_count }}
-        </span>
-        <span class="meta-item">
-          <i class="fa fa-heart"></i>
-          {{ article.likes_count }}
-        </span>
-      </div>
+      <ul v-if="article.tags_name?.length" class="card-tags">
+        <li v-for="tag in article.tags_name" :key="tag" class="card-tag">
+          {{ tag }}
+        </li>
+      </ul>
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRouter } from "vue-router";
-import type { BlogResponse } from "../../shared/api-client/types.gen";
+import type { BlogResponse } from "~/api-client/types.gen";
 
 const props = defineProps<{
   article: BlogResponse;
@@ -41,80 +31,90 @@ const props = defineProps<{
 const router = useRouter();
 
 const excerpt = computed(() => {
-  const text = props.article.body.replace(/[#*`\[\]]/g, "").trim();
-  return text.length > 120 ? text.substring(0, 120) + "..." : text;
+  const text = props.article.body
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[#>*_`~-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length > 110 ? text.slice(0, 110) + "…" : text;
 });
 
-const formatDate = (date: string | number | Date) => {
-  const d = new Date(date);
-  return d.toLocaleDateString("zh-CN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
+function isoDate(value: Date | string) {
+  return new Date(value).toISOString();
+}
 
-const goToDetail = () => {
+function formatDate(value: Date | string) {
+  const date = new Date(value);
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function goToDetail() {
   router.push(`/article/${props.article.id}`);
-};
+}
 </script>
 
 <style scoped>
 .blog-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  border-radius: var(--cx-radius);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s ease;
 }
 
 .blog-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  border-color: var(--cx-accent);
 }
 
 .card-cover {
-  height: 160px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
+  border-bottom: 1px solid var(--cx-line);
 }
 
 .card-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.5s ease;
 }
 
 .blog-card:hover .card-cover img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-.card-content {
-  padding: 16px;
-}
-
-.card-tags {
+.card-body {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
 }
 
-.tag {
-  padding: 4px 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-size: 12px;
-  border-radius: 20px;
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--cx-ink-mute);
 }
 
 .card-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
-  line-height: 1.4;
+  margin: 0;
+  font-family: var(--cx-font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--cx-ink);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -122,26 +122,35 @@ const goToDetail = () => {
 }
 
 .card-excerpt {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 12px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--cx-ink-soft);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.card-meta {
+.card-tags {
   display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #999;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
 }
 
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.card-tag {
+  font-family: var(--cx-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--cx-green);
+}
+
+.card-tag::before {
+  content: "#";
+  margin-right: 2px;
+  opacity: 0.6;
 }
 </style>

@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   modules: ["@nuxt/ui", "@pinia/nuxt"],
 
@@ -12,7 +12,11 @@ export default defineNuxtConfig({
 
   plugins: ["~/plugins/pinia-persist.client.ts"],
 
-  css: ["~/assets/css/main.css", "font-awesome/css/font-awesome.min.css"],
+  css: [
+    "~/assets/css/main.css",
+    "~/assets/css/pages/auth.css",
+    "font-awesome/css/font-awesome.min.css",
+  ],
 
   ssr: true,
 
@@ -42,16 +46,6 @@ export default defineNuxtConfig({
     },
   },
 
-  fonts: {
-    defaults: {
-      weights: [400, 500, 600, 700],
-    },
-    providers: {
-      google: false,
-      googleicons: false,
-    },
-  },
-
   ui: {
     theme: {
       colors: [
@@ -66,9 +60,11 @@ export default defineNuxtConfig({
     },
   },
 
+  // 原生暗色：默认跟随系统，用户可手动切换（右上角）
   colorMode: {
-    preference: "dark",
-    fallback: "dark",
+    preference: "system",
+    fallback: "light",
+    storageKey: "chenxu-theme",
   },
 
   compatibilityDate: "2025-08-06",
@@ -77,20 +73,40 @@ export default defineNuxtConfig({
     head: {
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1",
-      title: "ChenXuBlog",
+      htmlAttrs: { lang: "zh-CN" },
+      title: "chenxu's homepage",
       meta: [
         {
           name: "description",
-          content: "ChenXu's personal blog - 技术分享与生活记录",
+          content:
+            "晨煦的个人博客：代码、物理、哲学与生活。烟花三月，雾与花之间。",
         },
+        { property: "og:site_name", content: "晨煦 CHENXU" },
+        { name: "theme-color", content: "#f3f0e8", media: "(prefers-color-scheme: light)" },
+        { name: "theme-color", content: "#0b0c0e", media: "(prefers-color-scheme: dark)" },
+      ],
+      link: [
+        {
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: "晨煦 CHENXU RSS",
+          href: "/rss.xml",
+        },
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       ],
     },
   },
 
   runtimeConfig: {
+    // 仅服务端使用：SSR 时直连后端（不经过外部网关）
+    apiInternal:
+      process.env.NUXT_API_INTERNAL_URL ||
+      process.env.NUXT_API_PROXY_TARGET ||
+      "http://127.0.0.1:8001",
     public: {
       apiBase: "/apis/v1",
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "http://localhost:3000",
+      githubUrl: "https://github.com/ChenXu233",
     },
   },
 });

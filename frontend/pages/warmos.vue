@@ -29,6 +29,8 @@
         <span class="icon-label">{{ app.title }}</span>
       </div>
     </div>
+
+    <DockBar />
   </div>
 </template>
 

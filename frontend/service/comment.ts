@@ -4,13 +4,13 @@ import {
   createCommentApisV1CommentCreatePost,
   deleteCommentApisV1CommentDeleteCommentIdDelete,
   updateCommentApisV1CommentUpdateCommentIdPut,
-} from "../shared/api-client/sdk.gen";
+} from "../api-client/sdk.gen";
 import { apiCall } from "../utils/apiClient";
 import type {
   Comment,
   CommentCreate,
   CommentsResponse,
-} from "../shared/api-client/types.gen";
+} from "../api-client/types.gen";
 
 export const commentService = {
   async getComments(blogId: number): Promise<CommentsResponse> {

@@ -125,7 +125,7 @@ function generateForest() {
 
   const generated: Bamboo[] = [];
 
-  const bambooCount = Math.max(5, Math.floor(vw / 300));
+  const bambooCount = Math.max(3, Math.floor(vw / 340));
 
   for (let i = 0; i < bambooCount; i++) {
     const rnd = seed(191981 + i);
@@ -133,7 +133,8 @@ function generateForest() {
     const zIndex = Math.floor(rnd() * 10);
     const baseWidth = 15 + zIndex * 2.5 + rnd() * 20;
 
-    const speed = 200 + zIndex * 400;
+    // 第一屏只露一点竹梢，滚到底时整片竹子要顶出屏幕顶部
+  const speed = 270 + zIndex * 26;
 
     const startY = 0.8 * vh;
     const bottomY = containerHeight + speed + 200 + rnd() * vh * 1.5;
@@ -457,10 +458,12 @@ onBeforeUnmount(() => {
 <style scoped>
 .bamboo-forest {
   position: absolute;
-  top: -55vh;
+  /* keep the trunk tops a fixed distance below the section, so only the branch
+     tips peek above the fold no matter how tall the viewport is */
+  top: calc(330px - 80vh);
   left: 0;
   width: 100vw;
-  height: calc(100% + 55vh);
+  height: calc(100% + 80vh - 330px);
   pointer-events: none;
   z-index: 0;
   overflow: visible;
@@ -476,6 +479,14 @@ onBeforeUnmount(() => {
   transform-origin: center center;
   animation: parallaxScroll linear;
   animation-timeline: scroll();
+}
+
+@media (max-width: 760px) {
+  /* mobile: smaller leaves, keep the peek even shorter */
+  .bamboo-forest {
+    top: calc(370px - 80vh);
+    height: calc(100% + 80vh - 370px);
+  }
 }
 
 @keyframes parallaxScroll {

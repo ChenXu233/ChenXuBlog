@@ -20,7 +20,7 @@
 
 <script setup>
 import { computed } from "vue";
-import BlossomCanvas from "./effects/BlossomCanvas.vue";
+import BlossomCanvas from "../effects/BlossomCanvas.vue";
 
 defineProps({
   show: {

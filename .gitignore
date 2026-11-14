@@ -205,6 +205,9 @@ lerna-debug.log*
 *.pyo
 frontend/e2e-screenshots/
 
+# 本地视觉审查截图（Playwright 临时产物）
+.audit/
+
 # Playwright 测试产物
 test-results/
 playwright-report/

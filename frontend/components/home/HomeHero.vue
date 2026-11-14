@@ -12,7 +12,12 @@
       <p class="hero-subtitle">
         晨煦的博客 · <span class="highlight-gold">诗与暖阳</span>
       </p>
+    </div>
 
+    <div
+      class="scroll-hint"
+      :style="{ opacity: Math.max(0, 1 - scrollProgress * 9) }"
+    >
       <div class="scroll-indicator">
         <div class="line-indicator"></div>
         <div class="line-indicator"></div>
@@ -108,11 +113,19 @@ defineProps<{ scrollProgress: number }>();
   color: #c9a87c;
 }
 
-.scroll-indicator {
+.scroll-hint {
   position: absolute;
-  bottom: -40vh;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 13vh;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 0.25s linear;
+}
+
+.scroll-indicator {
   display: flex;
   flex-direction: column;
   align-items: center;

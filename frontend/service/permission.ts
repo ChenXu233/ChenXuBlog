@@ -2,9 +2,9 @@
 import {
   getPermissionApisV1PermissionGet,
   havePermissionApisV1PermissionPost,
-} from "../shared/api-client/sdk.gen";
+} from "../api-client/sdk.gen";
 import { apiCall } from "../utils/apiClient";
-import type { PermissionsResponse } from "../shared/api-client/types.gen";
+import type { PermissionsResponse } from "../api-client/types.gen";
 
 export const permissionService = {
   async getPermissions(): Promise<PermissionsResponse> {

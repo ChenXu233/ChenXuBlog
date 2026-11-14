@@ -1,33 +1,17 @@
 <template>
-  <div class="friend-page">
-    <section class="friend-section">
-      <h1>友链</h1>
-      <p>数字航海家的中转站与星图网路。</p>
-    </section>
-  </div>
+  <QuietPage
+    eyebrow="LINKS / 友链"
+    title="友链"
+    subtitle="数字航海家的中转站与星图网路。"
+    index="04"
+    label="LINKS"
+    accent="blue"
+  />
 </template>
 
-<style scoped>
-.friend-page {
-  color: #fff;
-  font-family: "JetBrains Mono", monospace;
-  overflow-x: clip;
-  cursor: none;
-  min-height: 100vh;
-}
-
-.friend-section {
-  padding: 8rem 10vw;
-  text-align: center;
-}
-
-.friend-section h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.friend-section p {
-  color: #aaa;
-  font-size: 1.2rem;
-}
-</style>
+<script setup lang="ts">
+useSeo({
+  title: "友链",
+  description: "数字航海家的中转站与星图网路。",
+});
+</script>

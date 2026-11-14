@@ -31,6 +31,9 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: false });
+useSeo({ title: "找回密码", noindex: true });
+
 import { ref } from "vue";
 import { authService } from "../service/auth";
 
@@ -54,108 +57,3 @@ const handleSubmit = async () => {
   }
 };
 </script>
-
-<style scoped>
-.forgot-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-}
-.forgot-form {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 2.5rem 3rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 420px;
-}
-.forgot-form h2 {
-  margin-bottom: 8px;
-  color: #333;
-  text-align: center;
-}
-.forgot-desc {
-  color: #777;
-  font-size: 14px;
-  text-align: center;
-  margin-bottom: 24px;
-}
-.nav-brand {
-  display: block;
-  text-align: center;
-  color: #764ba2;
-  text-decoration: none;
-  font-size: 14px;
-  margin-bottom: 16px;
-}
-.form-group {
-  margin-bottom: 20px;
-}
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: #555;
-}
-.form-group input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-.form-group input:focus {
-  border-color: #764ba2;
-}
-.forgot-btn {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.forgot-btn:hover {
-  opacity: 0.9;
-}
-.forgot-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.success-message {
-  margin-top: 14px;
-  padding: 10px;
-  background: #d4edda;
-  color: #155724;
-  border-radius: 8px;
-  font-size: 13px;
-  text-align: center;
-}
-.error-message {
-  margin-top: 14px;
-  padding: 10px;
-  background: #f8d7da;
-  color: #721c24;
-  border-radius: 8px;
-  font-size: 13px;
-  text-align: center;
-}
-.back-link {
-  margin-top: 16px;
-  text-align: center;
-  font-size: 14px;
-  color: #764ba2;
-  text-decoration: none;
-  display: block;
-}
-</style>

@@ -125,17 +125,19 @@
 
               <div class="divider"></div>
 
-              <!-- 实时 FPS 显示 -->
-              <div class="dock-fps-widget" title="当前帧率">
-                <span
-                  class="fps-value"
-                  :style="{
-                    color:
-                      fps >= 45 ? '#10b981' : fps >= 30 ? '#f59e0b' : '#ef4444',
-                  }"
-                  >{{ fps }}</span
-                >
-                <span class="fps-label">FPS</span>
+              <!-- 主题切换 -->
+              <div
+                class="dock-item dock-theme"
+                role="button"
+                tabindex="0"
+                title="切换主题"
+                @click.stop="toggleTheme"
+                @keydown.enter.prevent="toggleTheme"
+                @mouseenter="showTooltip($event, '切换主题')"
+                @mouseleave="hideTooltip"
+              >
+                <i class="fa fa-lg dock-icon dock-theme-icon dock-theme-moon"></i>
+                <i class="fa fa-lg dock-icon dock-theme-icon dock-theme-sun"></i>
               </div>
 
               <div class="divider"></div>
@@ -321,33 +323,23 @@ const updateTime = () => {
   };
 };
 
-// ================ FPS 监测 ================
-const fps = ref(0);
-let frameCount = 0;
-let lastFrameTime = performance.now();
-let fpsAnimationId: number;
+// ================ 原生暗色切换 ================
+const colorMode = useColorMode();
+const isDark = computed(() => colorMode.value === "dark");
 
-const calculateFPS = () => {
-  const now = performance.now();
-  frameCount++;
-  if (now - lastFrameTime >= 1000) {
-    fps.value = Math.round((frameCount * 1000) / (now - lastFrameTime));
-    frameCount = 0;
-    lastFrameTime = now;
-  }
-  fpsAnimationId = requestAnimationFrame(calculateFPS);
+const toggleTheme = () => {
+  colorMode.preference = isDark.value ? "light" : "dark";
+  hideTooltip();
 };
 
 onMounted(() => {
   updateTime();
   timer = setInterval(updateTime, 1000);
-  fpsAnimationId = requestAnimationFrame(calculateFPS);
   document.addEventListener("click", closePanels);
 });
 
 onUnmounted(() => {
   clearInterval(timer);
-  cancelAnimationFrame(fpsAnimationId);
   document.removeEventListener("click", closePanels);
 });
 </script>
@@ -855,6 +847,18 @@ onUnmounted(() => {
   }
 }
 
+.dock-theme-icon {
+  position: absolute;
+}
+
+.dock-theme-moon {
+  display: inline-block;
+}
+
+.dock-theme-sun {
+  display: none;
+}
+
 .dock-time-widget {
   display: flex;
   flex-direction: column;
@@ -920,3 +924,14 @@ onUnmounted(() => {
   }
 }
 </style>
+
+<style>
+html.dark .dock-theme-moon {
+  display: none;
+}
+
+html.dark .dock-theme-sun {
+  display: inline-block;
+}
+</style>
+

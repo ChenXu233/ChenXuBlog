@@ -118,7 +118,7 @@ import BlogCard from "../../components/blog/BlogCard.vue";
 import type {
   UserResponse,
   BlogResponse,
-} from "../../shared/api-client/types.gen";
+} from "../../api-client/types.gen";
 
 const route = useRoute();
 const auth = useAuthStore();
@@ -276,7 +276,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--cx-accent);
   color: #fff;
   font-size: 40px;
   font-weight: 700;

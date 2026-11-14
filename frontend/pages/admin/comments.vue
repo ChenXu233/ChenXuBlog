@@ -29,7 +29,7 @@
 definePageMeta({ layout: "admin", middleware: "auth", ssr: false });
 
 import { adminService } from "~/service/admin";
-import type { AdminCommentResponse } from "~/shared/api-client/types.gen";
+import type { AdminCommentResponse } from "~/api-client/types.gen";
 
 const page = ref(1);
 const pageSize = 10;

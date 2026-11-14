@@ -51,7 +51,6 @@ class AppConfig(BaseSettings):
 
 
 CONFIG = AppConfig()  # type: ignore
-print(CONFIG.model_dump())  # 打印配置项
 
 # 示例：打印配置
 if __name__ == "__main__":

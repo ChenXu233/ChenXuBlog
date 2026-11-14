@@ -7,13 +7,13 @@ import {
   deleteBlogApisV1BlogIdDelete,
   toggleLikeApisV1BlogIdLikePost,
   getLikeStatusApisV1BlogIdLikeGet,
-} from "../shared/api-client/sdk.gen";
+} from "../api-client/sdk.gen";
 import { apiCall } from "../utils/apiClient";
 import type {
   BlogResponse,
   BlogListResponse,
   BlogCreate,
-} from "../shared/api-client/types.gen";
+} from "../api-client/types.gen";
 
 export const blogService = {
   async getBlog(id: number): Promise<BlogResponse> {
