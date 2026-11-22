@@ -1,7 +1,12 @@
 <template>
   <article class="blog-card cx-glass" @click="goToDetail">
     <div v-if="article.cover_url" class="card-cover">
-      <img :src="article.cover_url" :alt="article.title" loading="lazy" decoding="async" />
+      <img
+        :src="article.cover_url"
+        :alt="article.title"
+        loading="lazy"
+        decoding="async"
+      />
     </div>
     <div class="card-body">
       <div class="card-top">
@@ -11,7 +16,7 @@
         <span class="card-views cx-mono">{{ article.view_count }} views</span>
       </div>
       <h3 class="card-title">{{ article.title }}</h3>
-      <p class="card-excerpt">{{ excerpt }}</p>
+      <p class="card-excerpt">{{ article.excerpt }}</p>
       <ul v-if="article.tags_name?.length" class="card-tags">
         <li v-for="tag in article.tags_name" :key="tag" class="card-tag">
           {{ tag }}
@@ -22,25 +27,13 @@
 </template>
 
 <script setup lang="ts">
-import type { BlogResponse } from "~/api-client/types.gen";
+import type { BlogSummaryResponse } from "~/api-client/types.gen";
 
 const props = defineProps<{
-  article: BlogResponse;
+  article: BlogSummaryResponse;
 }>();
 
 const router = useRouter();
-
-const excerpt = computed(() => {
-  const text = props.article.body
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/[#>*_`~-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return text.length > 110 ? text.slice(0, 110) + "…" : text;
-});
 
 function isoDate(value: Date | string) {
   return new Date(value).toISOString();
@@ -48,7 +41,10 @@ function isoDate(value: Date | string) {
 
 function formatDate(value: Date | string) {
   const date = new Date(value);
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(
+    2,
+    "0",
+  )}.${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function goToDetail() {

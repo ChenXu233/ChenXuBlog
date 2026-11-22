@@ -41,6 +41,8 @@ services:
     env_file:
       - ./backend/.env
     environment:
+      - ENVIRONMENT=production
+      - MINIO_ENABLED=true
       - MINIO_ENDPOINT=minio:9000
       - MINIO_PUBLIC_URL=http://chenxu233.cn/images
     volumes:
@@ -55,13 +57,20 @@ services:
   minio:
     image: minio/minio:latest
     container_name: blog-minio
-    command: server /data --console-address ":9001"
     ports:
       - "127.0.0.1:9200:9000"
       - "127.0.0.1:9201:9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    env_file:
+      - ./backend/.env
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        : "$${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY must be set in backend/.env}"
+        : "$${MINIO_SECRET_KEY:?MINIO_SECRET_KEY must be set in backend/.env}"
+        export MINIO_ROOT_USER="$$MINIO_ACCESS_KEY"
+        export MINIO_ROOT_PASSWORD="$$MINIO_SECRET_KEY"
+        exec minio server /data --console-address ":9001"
     volumes:
       - minio_data:/data
     restart: unless-stopped

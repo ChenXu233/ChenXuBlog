@@ -5,10 +5,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import noload, selectinload
 
 from backend.database import get_db
-from backend.model.blog import Blog, Tag
+from backend.model.blog import Blog, Tag, blog_likes
 from backend.model.user import User
 from backend.schema.blog import (
     BlogCreate,
@@ -53,15 +53,26 @@ async def get_blogs(
     total_pages = ceil(total / page_size) if total > 0 else 1
     offset = (page - 1) * page_size
 
-    query = query.options(selectinload(Blog.tags), selectinload(Blog.like))
+    # Tags are needed in summaries; liked users are not. Count likes separately.
+    query = query.options(selectinload(Blog.tags), noload(Blog.like))
     query = query.order_by(Blog.created_at.desc()).offset(offset).limit(page_size)
 
     result = await db.execute(query)
-    blogs = result.unique().scalars().all()
+    blogs = list(result.unique().scalars().all())
 
-    items = []
-    for b in blogs:
-        items.append(await b.to_ResponseModel(db))
+    like_counts: dict[int, int] = {}
+    if blogs:
+        like_result = await db.execute(
+            select(blog_likes.c.blog_id, func.count(blog_likes.c.user_uuid))
+            .where(blog_likes.c.blog_id.in_([b.id for b in blogs]))
+            .group_by(blog_likes.c.blog_id)
+        )
+        like_counts = dict(like_result.all())
+
+    items = [
+        b.to_summary_response(like_counts.get(b.id, 0))
+        for b in blogs
+    ]
 
     return BlogListResponse(
         items=items,

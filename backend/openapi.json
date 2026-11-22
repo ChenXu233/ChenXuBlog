@@ -682,7 +682,7 @@
       "post": {
         "tags": ["img_bed"],
         "summary": "Image Upload",
-        "description": "Upload an image file. Returns the public URL.\n\nThe file is stored via StorageService (MinIO or local filesystem).",
+        "description": "Upload a verified image file and return its public URL.",
         "operationId": "image_upload_apis_v1_img_bed__post",
         "parameters": [
           {
@@ -2314,11 +2314,11 @@
         "properties": {
           "items": {
             "items": {
-              "$ref": "#/components/schemas/BlogResponse"
+              "$ref": "#/components/schemas/BlogSummaryResponse"
             },
             "type": "array",
             "title": "Items",
-            "description": "Blog list"
+            "description": "Blog summaries"
           },
           "total": {
             "type": "integer",
@@ -2430,6 +2430,92 @@
           "published"
         ],
         "title": "BlogResponse"
+      },
+      "BlogSummaryResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Blog id"
+          },
+          "user_uuid": {
+            "type": "string",
+            "title": "User Uuid",
+            "description": "User UUID"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Blog title"
+          },
+          "cover_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cover Url",
+            "description": "Blog cover URL"
+          },
+          "excerpt": {
+            "type": "string",
+            "title": "Excerpt",
+            "description": "Plain-text blog excerpt"
+          },
+          "tags_name": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags Name",
+            "description": "Blog tags"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Blog creation time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At",
+            "description": "Blog update time"
+          },
+          "view_count": {
+            "type": "integer",
+            "title": "View Count",
+            "description": "Blog view count"
+          },
+          "likes_count": {
+            "type": "integer",
+            "title": "Likes Count",
+            "description": "Blog like count"
+          },
+          "published": {
+            "type": "boolean",
+            "title": "Published",
+            "description": "Blog published status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_uuid",
+          "title",
+          "cover_url",
+          "excerpt",
+          "tags_name",
+          "created_at",
+          "updated_at",
+          "view_count",
+          "likes_count",
+          "published"
+        ],
+        "title": "BlogSummaryResponse"
       },
       "Body_image_upload_apis_v1_img_bed__post": {
         "properties": {

@@ -6,7 +6,16 @@ Covers: email verification, password reset, admin APIs, avatar upload,
 article cover, site search.
 """
 
+import io
+
 from httpx import AsyncClient
+from PIL import Image
+
+
+def valid_png_bytes() -> bytes:
+    output = io.BytesIO()
+    Image.new("RGB", (2, 2), color="white").save(output, format="PNG")
+    return output.getvalue()
 
 
 class TestEmailVerification:
@@ -146,7 +155,7 @@ class TestAvatarUpload:
         """上传图片返回 URL。"""
         resp = await client.post(
             "/apis/v1/img_bed/",
-            files={"image": ("avatar.png", b"\x89PNG\r\n\x1a\nfakedata", "image/png")},
+            files={"image": ("avatar.png", valid_png_bytes(), "image/png")},
             headers=admin_auth_headers,
         )
         assert resp.status_code == 200, f"Upload failed: {resp.text}"

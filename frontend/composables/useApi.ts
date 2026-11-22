@@ -16,5 +16,5 @@ export function useApiFetch<T>(
   options: Record<string, unknown> = {},
 ): Promise<T> {
   const base = useApiBase();
-  return $fetch<T>(`${base}${path}`, options as any);
+  return $fetch<T>(`${base}${path}`, options as any) as Promise<T>;
 }

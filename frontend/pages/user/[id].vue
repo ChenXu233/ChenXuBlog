@@ -117,14 +117,14 @@ import { showErrorDialog } from "../../utils/errorDialog";
 import BlogCard from "../../components/blog/BlogCard.vue";
 import type {
   UserResponse,
-  BlogResponse,
+  BlogSummaryResponse,
 } from "../../api-client/types.gen";
 
 const route = useRoute();
 const auth = useAuthStore();
 
 const user = ref<UserResponse | null>(null);
-const articles = ref<BlogResponse[]>([]);
+const articles = ref<BlogSummaryResponse[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
 const pageSize = ref(10);

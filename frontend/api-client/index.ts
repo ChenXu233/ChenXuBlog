@@ -51,6 +51,7 @@ export type {
   BlogCreate,
   BlogListResponse,
   BlogResponse,
+  BlogSummaryResponse,
   BodyImageUploadApisV1ImgBedPost,
   ClientOptions,
   Comment,

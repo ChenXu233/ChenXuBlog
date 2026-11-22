@@ -1,4 +1,10 @@
-// Sitemap.xml generated from published blogs
+// Sitemap.xml generated from every published blog page.
+import { fetchAllPages, type PaginatedResult } from "../../utils/pagination";
+
+interface SitemapBlog {
+  id: number;
+  updated_at: string;
+}
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const siteUrl = (
@@ -12,10 +18,12 @@ export default defineEventHandler(async (event) => {
 
   let urls: string[] = [];
   try {
-    const blogs = await $fetch<{ items: { id: number; updated_at: string }[] }>(
-      `${backendUrl}${apiBase}/blog/?page_size=100`,
+    const blogs = await fetchAllPages<SitemapBlog>((page, pageSize) =>
+      $fetch<PaginatedResult<SitemapBlog>>(`${backendUrl}${apiBase}/blog/`, {
+        query: { page, page_size: pageSize },
+      }),
     );
-    urls = (blogs.items || []).map(
+    urls = blogs.items.map(
       (b) =>
         `  <url>\n    <loc>${siteUrl}/article/${b.id}</loc>\n    <lastmod>${b.updated_at}</lastmod>\n  </url>`,
     );

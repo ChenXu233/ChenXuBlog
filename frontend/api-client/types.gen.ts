@@ -309,7 +309,7 @@ export type BlogListResponse = {
    *
    * Blog list
    */
-  items: Array<BlogResponse>;
+  items: Array<BlogSummaryResponse>;
   /**
    * Total
    *
@@ -405,6 +405,34 @@ export type BlogResponse = {
    *
    * Blog published status
    */
+  published: boolean;
+};
+
+/**
+ * BlogSummaryResponse
+ */
+export type BlogSummaryResponse = {
+  /** Blog id */
+  id: number;
+  /** User UUID */
+  user_uuid: string;
+  /** Blog title */
+  title: string;
+  /** Blog cover URL */
+  cover_url: string | null;
+  /** Plain-text blog excerpt */
+  excerpt: string;
+  /** Blog tags */
+  tags_name: Array<string>;
+  /** Blog creation time */
+  created_at: Date;
+  /** Blog update time */
+  updated_at: Date;
+  /** Blog view count */
+  view_count: number;
+  /** Blog like count */
+  likes_count: number;
+  /** Blog published status */
   published: boolean;
 };
 

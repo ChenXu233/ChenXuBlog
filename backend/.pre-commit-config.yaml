@@ -20,4 +20,4 @@ repos:
       - id: prettier
         args: ["--config-precedence", "prefer-file"]
         files: "\\.(vue|js|jsx|ts|tsx|css|scss|html|json|yaml|yml|md)$"
-        language_version: default # 使用默认的 Node.js 环境
+        language_version: 24.22.2 # 固定稳定 Node.js，避免 nodeenv 误选 alpha 版本

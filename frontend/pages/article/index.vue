@@ -100,19 +100,25 @@
 
               <div class="row-main">
                 <div v-if="post.tags_name?.length" class="row-tags">
-                  <span v-for="name in post.tags_name" :key="name" class="row-tag">
+                  <span
+                    v-for="name in post.tags_name"
+                    :key="name"
+                    class="row-tag"
+                  >
                     {{ name }}
                   </span>
                 </div>
                 <h2 class="row-title">{{ post.title }}</h2>
-                <p class="row-excerpt">{{ excerpt(post.body) }}</p>
+                <p class="row-excerpt">{{ post.excerpt }}</p>
               </div>
 
               <div class="row-meta">
                 <time :datetime="isoDate(post.created_at)">
                   {{ formatDate(post.created_at) }}
                 </time>
-                <span class="row-views cx-mono">{{ post.view_count }} views</span>
+                <span class="row-views cx-mono"
+                  >{{ post.view_count }} views</span
+                >
               </div>
             </NuxtLink>
           </div>
@@ -139,7 +145,8 @@
               ←
             </button>
             <span class="pager-status cx-mono">
-              {{ String(page).padStart(2, "0") }} / {{ String(totalPages).padStart(2, "0") }}
+              {{ String(page).padStart(2, "0") }} /
+              {{ String(totalPages).padStart(2, "0") }}
             </span>
             <button
               type="button"
@@ -157,7 +164,10 @@
 </template>
 
 <script setup lang="ts">
-import type { BlogListResponse, BlogResponse } from "~/api-client/types.gen";
+import type {
+  BlogListResponse,
+  BlogSummaryResponse,
+} from "~/api-client/types.gen";
 
 const route = useRoute();
 const router = useRouter();
@@ -182,7 +192,7 @@ const { data, pending } = await useAsyncData<BlogListResponse>(
   { watch: [page, search, tag] },
 );
 
-const items = computed<BlogResponse[]>(() => data.value?.items ?? []);
+const items = computed<BlogSummaryResponse[]>(() => data.value?.items ?? []);
 const total = computed(() => data.value?.total ?? 0);
 const totalPages = computed(() => data.value?.total_pages ?? 1);
 
@@ -204,19 +214,10 @@ function isoDate(value: Date | string) {
 
 function formatDate(value: Date | string) {
   const date = new Date(value);
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
-}
-
-function excerpt(body: string) {
-  const text = body
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/[#>*_`~-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  return text.length > 96 ? text.slice(0, 96) + "…" : text;
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(
+    2,
+    "0",
+  )}.${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function syncQuery() {

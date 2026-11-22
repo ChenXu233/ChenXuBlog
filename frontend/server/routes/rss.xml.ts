@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       items: {
         id: number;
         title: string;
-        body: string;
+        excerpt: string;
         created_at: string;
       }[];
     }>(`${backendUrl}${apiBase}/blog/?page_size=50`);
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
           }</guid>\n      <pubDate>${new Date(
             b.created_at,
           ).toUTCString()}</pubDate>\n      <description>${escapeXml(
-            b.body.slice(0, 500),
+            b.excerpt,
           )}</description>\n    </item>`,
       )
       .join("\n");

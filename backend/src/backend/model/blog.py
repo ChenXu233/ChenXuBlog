@@ -15,7 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.schema.blog import BlogResponse, BlogListResponse
+from backend.schema.blog import BlogResponse, BlogSummaryResponse
+from backend.utils.excerpt import make_excerpt
 
 from ..database import Base
 
@@ -72,6 +73,21 @@ class Blog(Base):
     @hybrid_property
     def tags_name(self) -> List[str]:
         return [tag.name for tag in self.tags]
+
+    def to_summary_response(self, likes_count: int = 0) -> BlogSummaryResponse:
+        return BlogSummaryResponse(
+            id=self.id,
+            user_uuid=self.user_uuid,
+            title=self.title,
+            cover_url=self.cover_url,
+            excerpt=make_excerpt(self.body),
+            tags_name=[t.name for t in (self.tags or [])],
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+            view_count=self.view_count,
+            likes_count=likes_count,
+            published=self.published,
+        )
 
     async def to_ResponseModel(self, db: AsyncSession) -> BlogResponse:
         return BlogResponse(

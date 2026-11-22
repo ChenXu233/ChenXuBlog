@@ -4,6 +4,23 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class BlogSummaryResponse(BaseModel):
+    id: int = Field(..., description="Blog id")
+    user_uuid: str = Field(..., description="User UUID")
+    title: str = Field(..., description="Blog title")
+    cover_url: Optional[str] = Field(..., description="Blog cover URL")
+    excerpt: str = Field(..., description="Plain-text blog excerpt")
+    tags_name: List[str] = Field(..., description="Blog tags")
+    created_at: datetime = Field(..., description="Blog creation time")
+    updated_at: datetime = Field(..., description="Blog update time")
+    view_count: int = Field(..., description="Blog view count")
+    likes_count: int = Field(..., description="Blog like count")
+    published: bool = Field(..., description="Blog published status")
+
+    class Config:
+        from_attributes = True
+
+
 class BlogResponse(BaseModel):
     id: int = Field(..., description="Blog id")
     user_uuid: str = Field(..., description="User UUID")
@@ -44,7 +61,7 @@ class BlogUpdate(BaseModel):
 
 
 class BlogListResponse(BaseModel):
-    items: List[BlogResponse] = Field(..., description="Blog list")
+    items: List[BlogSummaryResponse] = Field(..., description="Blog summaries")
     total: int = Field(..., description="Total count")
     page: int = Field(..., description="Current page")
     page_size: int = Field(..., description="Page size")

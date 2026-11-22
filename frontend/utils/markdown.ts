@@ -29,7 +29,8 @@ export function renderMarkdown(body: string): { html: string; toc: TocItem[] } {
   const slugCount = new Map<string, number>();
 
   const md = markdownit({
-    html: true,
+    // Articles are rendered with v-html, so raw HTML must stay escaped.
+    html: false,
     linkify: true,
     typographer: true,
     highlight(code: string, lang: string): string {
@@ -42,7 +43,9 @@ export function renderMarkdown(body: string): { html: string; toc: TocItem[] } {
           /* fall through */
         }
       }
-      return `<pre class="hljs"><code>${md.utils.escapeHtml(code)}</code></pre>`;
+      return `<pre class="hljs"><code>${md.utils.escapeHtml(
+        code,
+      )}</code></pre>`;
     },
   });
 

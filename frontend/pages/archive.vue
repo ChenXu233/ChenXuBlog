@@ -8,7 +8,10 @@
         <div class="archive-meta cx-mono">
           <span>{{ total }} POSTS</span>
           <span class="sep">/</span>
-          <span>{{ groups.length }} {{ groups.length === 1 ? "YEAR" : "YEARS" }}</span>
+          <span
+            >{{ groups.length }}
+            {{ groups.length === 1 ? "YEAR" : "YEARS" }}</span
+          >
         </div>
       </header>
 
@@ -21,7 +24,9 @@
             class="year-link"
           >
             <span>{{ group.year }}</span>
-            <em class="cx-mono">{{ String(group.items.length).padStart(2, "0") }}</em>
+            <em class="cx-mono">{{
+              String(group.items.length).padStart(2, "0")
+            }}</em>
           </a>
         </aside>
 
@@ -34,13 +39,18 @@
           >
             <header class="year-head">
               <h2 class="year-number">{{ group.year }}</h2>
-              <span class="year-count cx-mono">{{ group.items.length }} 篇</span>
+              <span class="year-count cx-mono"
+                >{{ group.items.length }} 篇</span
+              >
             </header>
 
             <ol class="year-list">
               <li v-for="post in group.items" :key="post.id">
                 <NuxtLink :to="`/article/${post.id}`" class="archive-row">
-                  <time class="row-date cx-mono" :datetime="isoDate(post.created_at)">
+                  <time
+                    class="row-date cx-mono"
+                    :datetime="isoDate(post.created_at)"
+                  >
                     {{ shortDate(post.created_at) }}
                   </time>
                   <span class="row-title">{{ post.title }}</span>
@@ -53,7 +63,9 @@
             </ol>
           </div>
 
-          <p v-if="!groups.length && !pending" class="archive-empty">暂无文章</p>
+          <p v-if="!groups.length && !pending" class="archive-empty">
+            暂无文章
+          </p>
         </section>
       </div>
     </div>
@@ -61,21 +73,27 @@
 </template>
 
 <script setup lang="ts">
-import type { BlogListResponse, BlogResponse } from "~/api-client/types.gen";
+import type {
+  BlogListResponse,
+  BlogSummaryResponse,
+} from "~/api-client/types.gen";
+import { fetchAllPages } from "~/utils/pagination";
 
 const { data, pending } = await useAsyncData<BlogListResponse>(
   "archive-list",
   () =>
-    useApiFetch<BlogListResponse>("/apis/v1/blog/", {
-      query: { page: 1, page_size: 100 },
-    }),
+    fetchAllPages<BlogSummaryResponse>((page, pageSize) =>
+      useApiFetch<BlogListResponse>("/apis/v1/blog/", {
+        query: { page, page_size: pageSize },
+      }),
+    ),
 );
 
-const blogs = computed<BlogResponse[]>(() => data.value?.items ?? []);
+const blogs = computed<BlogSummaryResponse[]>(() => data.value?.items ?? []);
 const total = computed(() => data.value?.total ?? 0);
 
 const groups = computed(() => {
-  const map = new Map<number, BlogResponse[]>();
+  const map = new Map<number, BlogSummaryResponse[]>();
   for (const post of blogs.value) {
     const year = new Date(post.created_at).getFullYear();
     if (!map.has(year)) map.set(year, []);
@@ -92,7 +110,9 @@ function isoDate(value: Date | string) {
 
 function shortDate(value: Date | string) {
   const date = new Date(value);
-  return `${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+  return `${String(date.getMonth() + 1).padStart(2, "0")}.${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
 }
 
 useSeo({
