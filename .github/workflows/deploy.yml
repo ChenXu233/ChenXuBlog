@@ -80,7 +80,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          source: "frontend/Dockerfile,frontend/.dockerignore,docker-compose.yml,Caddyfile"
+          source: "frontend/Dockerfile,frontend/.dockerignore,docker-compose.yml,Caddyfile,backend/scripts/ensure_production_secrets.py"
           target: "/opt/chenxu233.cn/"
 
       - name: Build frontend + validate production + start
@@ -107,6 +107,8 @@ jobs:
               docker pull "$source_image"
               docker tag "$source_image" "$release_image"
             fi
+            # 只在服务器内轮换弱值，不打印任何密钥；已有强配置保持不变。
+            docker run --rm -i --entrypoint python -v "$PWD/backend:/work" "$release_image" /work/scripts/ensure_production_secrets.py
             docker compose config --quiet
             # 先在不依赖其他服务的一次性容器中校验生产配置；失败则不替换线上容器。
             docker compose run --no-deps --rm backend python -c "from backend.config import CONFIG; print('Backend production config: OK')"
