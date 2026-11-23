@@ -49,6 +49,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push backend image
+        id: backend_image
         uses: docker/build-push-action@v6
         with:
           context: ./backend
@@ -89,13 +90,23 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22
-          command_timeout: 30m
+          command_timeout: 60m
           script: |
             set -e
             cd /opt/chenxu233.cn
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose build frontend
-            docker compose pull backend
+            # 按本次构建 digest 拉取，镜像站仅作传输加速，内容与原镜像完全一致。
+            release_image="ghcr.io/chenxu233/chenxu-blog-backend:latest"
+            source_image="ghcr.io/chenxu233/chenxu-blog-backend@${{ steps.backend_image.outputs.digest }}"
+            mirror_image="ghcr.nju.edu.cn/chenxu233/chenxu-blog-backend@${{ steps.backend_image.outputs.digest }}"
+            if docker pull "$mirror_image"; then
+              docker tag "$mirror_image" "$release_image"
+            else
+              echo "Mirror pull failed; falling back to GHCR"
+              docker pull "$source_image"
+              docker tag "$source_image" "$release_image"
+            fi
             docker compose config --quiet
             # 先在不依赖其他服务的一次性容器中校验生产配置；失败则不替换线上容器。
             docker compose run --no-deps --rm backend python -c "from backend.config import CONFIG; print('Backend production config: OK')"
