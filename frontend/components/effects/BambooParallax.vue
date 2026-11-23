@@ -1,79 +1,106 @@
 <template>
-  <div class="bamboo-forest" ref="forestRef">
-    <svg
-      class="bamboo-svg"
-      preserveAspectRatio="none"
-      xmlns="http://www.w3.org/2000/svg"
+  <div class="bamboo-forest" ref="forestRef" aria-hidden="true">
+    <div
+      v-for="layer in forestLayers"
+      :key="layer.id"
+      class="bamboo-layer"
+      :style="layerStyle(layer)"
     >
-      <defs>
-        <linearGradient id="stalkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#9db495" />
-          <stop offset="40%" stop-color="#dce5d8" />
-          <stop offset="60%" stop-color="#dce5d8" />
-          <stop offset="100%" stop-color="#8fa486" />
-        </linearGradient>
-        <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#8fa486" />
-          <stop offset="100%" stop-color="#b0c4a8" />
-        </linearGradient>
-      </defs>
-
-      <g
-        v-for="bamboo in bamboos"
-        :key="bamboo.id"
-        class="bamboo-group"
-        :style="{
-          '--parallax-dist': bamboo.speed + 'px',
-          opacity: bamboo.opacity,
-        }"
+      <svg
+        class="bamboo-svg"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
       >
-        <!-- 主干 -->
-        <path :d="bamboo.trunkPath" fill="url(#stalkGrad)" />
+        <defs>
+          <linearGradient
+            :id="`stalkGrad-${layer.id}`"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stop-color="#9db495" />
+            <stop offset="40%" stop-color="#dce5d8" />
+            <stop offset="60%" stop-color="#dce5d8" />
+            <stop offset="100%" stop-color="#8fa486" />
+          </linearGradient>
+          <linearGradient
+            :id="`leafGrad-${layer.id}`"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stop-color="#8fa486" />
+            <stop offset="100%" stop-color="#b0c4a8" />
+          </linearGradient>
+        </defs>
 
-        <!-- 竹壳/竹节 -->
-        <rect
-          v-for="(j, idx) in bamboo.joints"
-          :key="'j' + idx"
-          :x="j.x - j.width / 2 - 2"
-          :y="j.y"
-          :width="j.width + 4"
-          height="4"
-          fill="#7a9073"
-          rx="2"
-        />
-
-        <!-- 分枝结构 -->
-        <line
-          v-for="(seg, sIdx) in bamboo.branchSegments"
-          :key="'s' + sIdx"
-          :x1="seg.x1"
-          :y1="seg.y1"
-          :x2="seg.x2"
-          :y2="seg.y2"
-          stroke="#9fc4a6"
-          :stroke-width="seg.width"
-          stroke-linecap="round"
-        />
-
-        <!-- 叶子 -->
         <g
-          v-for="(leaf, lKey) in bamboo.leaves"
-          :key="'l' + lKey"
-          :transform="leaf.transform"
-          :opacity="leaf.opacity"
+          v-for="bamboo in layer.bamboos"
+          :key="bamboo.id"
+          class="bamboo-group"
+          :style="{ opacity: bamboo.opacity }"
         >
-          <path d="M 0,0 Q 20,-10 40,0 Q 20,10 0,0 Z" fill="url(#leafGrad)" />
+          <path :d="bamboo.trunkPath" :fill="`url(#stalkGrad-${layer.id})`" />
+
+          <rect
+            v-for="(j, idx) in bamboo.joints"
+            :key="'j' + idx"
+            :x="j.x - j.width / 2 - 2"
+            :y="j.y"
+            :width="j.width + 4"
+            height="4"
+            fill="#7a9073"
+            rx="2"
+          />
+
+          <line
+            v-for="(seg, sIdx) in bamboo.branchSegments"
+            :key="'s' + sIdx"
+            :x1="seg.x1"
+            :y1="seg.y1"
+            :x2="seg.x2"
+            :y2="seg.y2"
+            stroke="#9fc4a6"
+            :stroke-width="seg.width"
+            stroke-linecap="round"
+          />
+
+          <g
+            v-for="(leaf, lKey) in bamboo.leaves"
+            :key="'l' + lKey"
+            :transform="leaf.transform"
+            :opacity="leaf.opacity"
+          >
+            <path
+              d="M 0,0 Q 20,-10 40,0 Q 20,10 0,0 Z"
+              :fill="`url(#leafGrad-${layer.id})`"
+            />
+          </g>
         </g>
-      </g>
-    </svg>
+      </svg>
+      <div
+        class="bamboo-ground"
+        :class="`bamboo-ground--${layer.id}`"
+        :style="{ top: `${layer.groundY}px` }"
+      />
+    </div>
+    <div class="bamboo-ground-veil" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
 
-defineProps<{ progress?: number }>();
+const props = defineProps<{ progress?: number }>();
 const forestRef = ref<HTMLElement | null>(null);
+
+const LAYER_CONFIGS = [
+  { id: "far", distance: 12, groundLift: 42, zIndex: 1 },
+  { id: "mid", distance: 28, groundLift: 22, zIndex: 2 },
+  { id: "near", distance: 52, groundLift: 0, zIndex: 3 },
+] as const;
 
 function seed(s: number) {
   return function () {
@@ -104,7 +131,6 @@ interface BambooLeaf {
 interface Bamboo {
   id: number;
   x: number;
-  speed: number;
   opacity: number;
   zIndex: number;
   trunkPath: string;
@@ -113,31 +139,52 @@ interface Bamboo {
   leaves: BambooLeaf[];
 }
 
-const bamboos = ref<Bamboo[]>([]);
+interface BambooLayer {
+  id: string;
+  distance: number;
+  groundLift: number;
+  groundY: number;
+  zIndex: number;
+  bamboos: Bamboo[];
+}
+
+const forestLayers = ref<BambooLayer[]>([]);
+
+function layerStyle(layer: BambooLayer) {
+  const progress = Math.max(0, Math.min(1, props.progress ?? 0));
+  const eased = progress * progress * (3 - 2 * progress);
+  return {
+    transform: `translate3d(0, ${-eased * layer.distance}px, 0)`,
+    zIndex: layer.zIndex,
+  };
+}
 let resizeObserver: ResizeObserver | null = null;
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 function generateForest() {
   if (!forestRef.value) return;
   const vw = window.innerWidth;
-  const vh = window.innerHeight;
   const containerHeight = forestRef.value.clientHeight;
 
-  const generated: Bamboo[] = [];
+  const generatedLayers: BambooLayer[] = LAYER_CONFIGS.map((layer) => ({
+    ...layer,
+    groundY: containerHeight - 76 - layer.groundLift,
+    bamboos: [],
+  }));
 
   const bambooCount = Math.max(3, Math.floor(vw / 340));
 
   for (let i = 0; i < bambooCount; i++) {
     const rnd = seed(191981 + i);
     const x = -vw * 0.1 + rnd() * (vw * 1.2);
-    const zIndex = Math.floor(rnd() * 10);
+    const layerIndex = i % generatedLayers.length;
+    const layer = generatedLayers[layerIndex]!;
+    const zIndex = layerIndex * 4 + Math.floor(rnd() * 3);
     const baseWidth = 15 + zIndex * 2.5 + rnd() * 20;
 
-    // 第一屏只露一点竹梢，滚到底时整片竹子要顶出屏幕顶部
-  const speed = 270 + zIndex * 26;
-
-    const startY = 0.8 * vh;
-    const bottomY = containerHeight + speed + 200 + rnd() * vh * 1.5;
+    // Tops vary naturally; roots in one depth layer share a single ground line.
+    const startY = 330 + rnd() * Math.min(180, containerHeight * 0.2);
+    const bottomY = layer.groundY + 140;
 
     // 主干重量向一边倾斜
     const leanDirection = rnd() > 0.5 ? 1 : -1;
@@ -202,7 +249,7 @@ function generateForest() {
           transform: `translate(${lx + ox}, ${
             ly + oy
           }) rotate(${svgRot}) scale(${scale})`,
-          opacity: Math.max(1, Math.max(0.1, leafOpacity)),
+          opacity: Math.min(1, Math.max(0.1, leafOpacity)),
         });
       }
     }
@@ -417,10 +464,9 @@ function generateForest() {
       ); // 顶端深度强制为 0
     }
 
-    generated.push({
+    layer.bamboos.push({
       id: i,
       x,
-      speed,
       opacity: 0.6 + (zIndex / 10) * 0.4,
       zIndex,
       trunkPath,
@@ -429,7 +475,7 @@ function generateForest() {
       leaves,
     });
   }
-  bamboos.value = generated;
+  forestLayers.value = generatedLayers;
 }
 
 onMounted(() => {
@@ -458,43 +504,86 @@ onBeforeUnmount(() => {
 <style scoped>
 .bamboo-forest {
   position: absolute;
-  /* keep the trunk tops a fixed distance below the section, so only the branch
-     tips peek above the fold no matter how tall the viewport is */
-  top: calc(330px - 80vh);
-  left: 0;
-  width: 100vw;
-  height: calc(100% + 80vh - 330px);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 0;
-  overflow: visible;
+  overflow: clip;
+}
+
+.bamboo-layer {
+  position: absolute;
+  inset: 0;
+  transform-origin: center bottom;
+  will-change: transform;
 }
 
 .bamboo-svg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.bamboo-group {
-  transform-origin: center center;
-  animation: parallaxScroll linear;
-  animation-timeline: scroll();
+.bamboo-ground {
+  position: absolute;
+  left: -5%;
+  z-index: 2;
+  width: 110%;
+  height: 190px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(106, 118, 100, 0) 0%,
+    rgba(106, 118, 100, 0.82) 38%,
+    #6a7664 68%
+  );
+}
+
+.bamboo-ground--far {
+  background: linear-gradient(
+    to bottom,
+    rgba(113, 128, 107, 0) 0%,
+    rgba(113, 128, 107, 0.72) 38%,
+    #71806b 68%
+  );
+}
+
+.bamboo-ground--near {
+  background: linear-gradient(
+    to bottom,
+    rgba(98, 111, 92, 0) 0%,
+    rgba(98, 111, 92, 0.88) 38%,
+    #626f5c 68%
+  );
+}
+
+.bamboo-ground-veil {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  height: 100px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(106, 118, 100, 0), #6a7664);
 }
 
 @media (max-width: 760px) {
-  /* mobile: smaller leaves, keep the peek even shorter */
-  .bamboo-forest {
-    top: calc(370px - 80vh);
-    height: calc(100% + 80vh - 370px);
+  .bamboo-ground {
+    height: 160px;
+  }
+
+  .bamboo-ground-veil {
+    height: 80px;
   }
 }
 
-@keyframes parallaxScroll {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(calc(var(--parallax-dist) * -1));
+@media (prefers-reduced-motion: reduce) {
+  .bamboo-layer {
+    transform: none !important;
   }
 }
 </style>
