@@ -33,7 +33,7 @@ jobs:
             curl -fsS http://127.0.0.1:3200/home > /dev/null
             curl -fsS http://127.0.0.1:3200/apis/v1/blog/ > /dev/null
             echo "--- buildAssetsDir by hop ---"
-            docker compose exec -T frontend sh -c "grep -n '\"buildAssetsDir\"' /app/output/server/chunks/_/nitro.mjs | head -n 2"
+            docker compose exec -T frontend sh -c 'grep -n buildAssetsDir /app/output/server/chunks/_/nitro.mjs | head -n 2 || true'
             docker compose exec -T frontend printenv | grep -E '^(NUXT|NODE_ENV|HOST|PORT)' || true
             curl -s http://127.0.0.1:3100/home | grep -oE 'buildAssetsDir\":\"[^\"]+' | head -n 1
             curl -s http://127.0.0.1:3200/home | grep -oE 'buildAssetsDir\":\"[^\"]+' | head -n 1
