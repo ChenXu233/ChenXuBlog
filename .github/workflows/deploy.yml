@@ -114,6 +114,22 @@ jobs:
             docker compose run --no-deps --rm backend python -c "from backend.config import CONFIG; print('Backend production config: OK')"
             docker compose up -d
             docker compose ps
+            backend_container="$(docker compose ps -q backend)"
+            for i in $(seq 1 20); do
+              if docker logs --since=5m "$backend_container" 2>&1 | grep -F "MinIO connected"; then
+                echo "MinIO connection verified"
+                break
+              fi
+              if docker logs --since=5m "$backend_container" 2>&1 | grep -F "MinIO init failed"; then
+                echo "Backend MinIO initialization failed"
+                exit 1
+              fi
+              if [ "$i" = 20 ]; then
+                echo "MinIO connection verification timed out"
+                exit 1
+              fi
+              sleep 3
+            done
             docker image prune -f
             # 注：openresty 站点配置由服务器上的 1Panel 面板管理，
             # 只需保证反代目标为 http://127.0.0.1:3200（Caddy 网关）
