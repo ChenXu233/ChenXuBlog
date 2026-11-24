@@ -70,6 +70,8 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-08-06",
 
   app: {
+    // Keep client URLs aligned with Nitro's generated public/_nuxt directory.
+    buildAssetsDir: "/_nuxt/",
     head: {
       charset: "utf-8",
       viewport: "width=device-width, initial-scale=1",
@@ -82,8 +84,16 @@ export default defineNuxtConfig({
             "晨煦的个人博客：代码、物理、哲学与生活。烟花三月，雾与花之间。",
         },
         { property: "og:site_name", content: "晨煦 CHENXU" },
-        { name: "theme-color", content: "#f3f0e8", media: "(prefers-color-scheme: light)" },
-        { name: "theme-color", content: "#0b0c0e", media: "(prefers-color-scheme: dark)" },
+        {
+          name: "theme-color",
+          content: "#f3f0e8",
+          media: "(prefers-color-scheme: light)",
+        },
+        {
+          name: "theme-color",
+          content: "#0b0c0e",
+          media: "(prefers-color-scheme: dark)",
+        },
       ],
       link: [
         {
