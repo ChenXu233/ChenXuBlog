@@ -96,10 +96,11 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 const props = defineProps<{ progress?: number }>();
 const forestRef = ref<HTMLElement | null>(null);
 
+// At full progress all three grounds meet at containerHeight - 160.
 const LAYER_CONFIGS = [
-  { id: "far", distance: 12, groundLift: 42, zIndex: 1 },
-  { id: "mid", distance: 28, groundLift: 22, zIndex: 2 },
-  { id: "near", distance: 52, groundLift: 0, zIndex: 3 },
+  { id: "far", distance: 48, groundLift: 36, zIndex: 1 },
+  { id: "mid", distance: 120, groundLift: -36, zIndex: 2 },
+  { id: "near", distance: 220, groundLift: -136, zIndex: 3 },
 ] as const;
 
 function seed(s: number) {
