@@ -1,0 +1,35 @@
+name: Server health check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check containers and storage
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            set -e
+            cd /opt/chenxu233.cn
+            docker compose ps
+            echo "--- latest backend storage status ---"
+            status="$(docker compose logs --no-color --tail=300 backend 2>&1 | grep -E 'MinIO (connected|init failed)' | tail -n 1 || true)"
+            echo "$status"
+            case "$status" in
+              *"MinIO connected"*) ;;
+              *) echo "Backend is not using MinIO"; exit 1 ;;
+            esac
+            curl -fsS http://127.0.0.1:9200/minio/health/live > /dev/null
+            curl -fsS http://127.0.0.1:3200/home > /dev/null
+            curl -fsS http://127.0.0.1:3200/apis/v1/blog/ > /dev/null
+            echo "Production health check passed"
