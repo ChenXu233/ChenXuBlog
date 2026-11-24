@@ -24,7 +24,13 @@ jobs:
             config="/usr/local/openresty/nginx/conf/conf.d/chenxu233.conf"
             backup="${config}.bak-$(date +%Y%m%d-%H%M%S)"
             docker exec "$container" cp "$config" "$backup"
-            docker exec "$container" sed -i '/sub_filter/d' "$config"
+            docker exec "$container" sed -i \
+              -e '/sub_filter/d' \
+              -e 's|alias /www/static-nuxt/_nuxt/;|proxy_pass http://127.0.0.1:3200;|g' \
+              -e 's|alias /www/static-nuxt/_fonts/;|proxy_pass http://127.0.0.1:3200;|g' \
+              -e 's|alias /www/static-nuxt/img/;|proxy_pass http://127.0.0.1:3200;|g' \
+              -e 's|alias /www/static-nuxt/favicon.ico;|proxy_pass http://127.0.0.1:3200;|g' \
+              "$config"
             if ! docker exec "$container" openresty -t; then
               docker exec "$container" cp "$backup" "$config"
               docker exec "$container" openresty -t
