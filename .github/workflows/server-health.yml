@@ -52,6 +52,11 @@ jobs:
             docker compose exec -T frontend sh -c 'find /app/output/public/_nuxt -maxdepth 2 -type f | head -n 20'
             docker compose exec -T frontend sh -c 'ls -l /app/output/public/_nuxt/v2/CsZdZF-f.js || true'
             echo "--- asset responses ---"
+            docker compose exec -T frontend sh -c 'ls -l /app/output/public/_nuxt/Co0eWOLC.js || true'
+            curl -s -o /dev/null -w 'current flat asset direct: %{http_code}' http://127.0.0.1:3100/_nuxt/Co0eWOLC.js
+            echo
+            curl -s -o /dev/null -w 'current flat asset caddy: %{http_code}' http://127.0.0.1:3200/_nuxt/Co0eWOLC.js
+            echo
             curl -s -o /dev/null -w 'frontend direct: %{http_code}' http://127.0.0.1:3100/_nuxt/v2/CsZdZF-f.js
             echo
             curl -s -o /dev/null -w 'caddy: %{http_code}' http://127.0.0.1:3200/_nuxt/v2/CsZdZF-f.js
