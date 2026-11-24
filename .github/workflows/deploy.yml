@@ -122,8 +122,12 @@ jobs:
         run: |
           for i in $(seq 1 20); do
             if curl -sf -o /dev/null https://chenxu233.cn/home && curl -sf -o /dev/null https://chenxu233.cn/apis/v1/blog/; then
-              echo "Deployment verified"
-              exit 0
+              asset_path="$(curl -fsSL https://chenxu233.cn/home | grep -oE '/_nuxt/[^" ]+\.js' | head -n 1)"
+              if [ -n "$asset_path" ] && curl -sf -o /dev/null "https://chenxu233.cn$asset_path"; then
+                echo "Deployment verified: HTML, API and client asset $asset_path"
+                exit 0
+              fi
+              echo "Client asset verification failed: $asset_path"
             fi
             echo "waiting... ($i/20)"
             sleep 15

@@ -11,6 +11,8 @@ services:
       - "127.0.0.1:3100:3000"
     environment:
       - NUXT_API_INTERNAL_URL=http://backend:8000
+      - NUXT_APP_BUILD_ASSETS_DIR=/_nuxt/
+      - NUXT_PUBLIC_SITE_URL=https://chenxu233.cn
     depends_on:
       - backend
     restart: unless-stopped
