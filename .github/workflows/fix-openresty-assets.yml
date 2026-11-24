@@ -1,0 +1,43 @@
+name: Fix OpenResty asset rewrites
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fix-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove asset rewrite and verify
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            set -e
+            container="$(docker ps --format '{{.Names}}' | grep -i openresty | head -n 1)"
+            config="/usr/local/openresty/nginx/conf/conf.d/chenxu233.conf"
+            backup="${config}.bak-$(date +%Y%m%d-%H%M%S)"
+            docker exec "$container" cp "$config" "$backup"
+            docker exec "$container" sed -i '/sub_filter/d' "$config"
+            if ! docker exec "$container" openresty -t; then
+              docker exec "$container" cp "$backup" "$config"
+              docker exec "$container" openresty -t
+              exit 1
+            fi
+            docker exec "$container" openresty -s reload
+            sleep 2
+            asset_path="$(curl -ks --resolve chenxu233.cn:443:127.0.0.1 https://chenxu233.cn/home | grep -oE '/_nuxt/[^" ]+\.js' | head -n 1)"
+            if [ -z "$asset_path" ] || ! curl -kfs -o /dev/null --resolve chenxu233.cn:443:127.0.0.1 "https://chenxu233.cn$asset_path"; then
+              echo "Asset verification failed: $asset_path"
+              docker exec "$container" cp "$backup" "$config"
+              docker exec "$container" openresty -t
+              docker exec "$container" openresty -s reload
+              exit 1
+            fi
+            echo "OpenResty asset rewrite fixed: $asset_path"
