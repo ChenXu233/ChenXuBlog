@@ -1,5 +1,6 @@
 <template>
-  <div class="warm-os-container">
+  <!-- 被 WarmOS 窗口以 iframe 嵌进来的页面不再渲染第二套 dock -->
+  <div v-if="!embedded" class="warm-os-container">
     <!-- 全局独立的 Tooltip 层，防止被溢出隐藏切割 -->
     <div
       class="global-tooltip"
@@ -349,6 +350,8 @@ const updateTime = () => {
 const colorMode = useColorMode();
 const isDark = computed(() => colorMode.value === "dark");
 const mounted = ref(false);
+// 内嵌在 iframe（WarmOS 的窗口）里时隐藏，避免和外层 dock 叠成两条
+const embedded = ref(false);
 
 // 与 CSS 的 --dk-u 同一公式：1440 宽 = 1，4K ≈ 1.75。
 // 传给液态玻璃，让折射环厚度 / 内框圆角 / 位移量一起等比放大。
@@ -380,6 +383,8 @@ const toggleTheme = () => {
 };
 
 onMounted(() => {
+  embedded.value = window.self !== window.top;
+  if (embedded.value) return;
   mounted.value = true;
   updateDockUnit();
   updateTime();
