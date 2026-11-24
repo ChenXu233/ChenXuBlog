@@ -32,6 +32,11 @@ jobs:
             curl -fsS http://127.0.0.1:9200/minio/health/live > /dev/null
             curl -fsS http://127.0.0.1:3200/home > /dev/null
             curl -fsS http://127.0.0.1:3200/apis/v1/blog/ > /dev/null
+            echo "--- buildAssetsDir by hop ---"
+            docker compose exec -T frontend sh -c "grep -n '\"buildAssetsDir\"' /app/output/server/chunks/_/nitro.mjs | head -n 2"
+            docker compose exec -T frontend printenv | grep -E '^(NUXT|NODE_ENV|HOST|PORT)' || true
+            curl -s http://127.0.0.1:3100/home | grep -oE 'buildAssetsDir\":\"[^\"]+' | head -n 1
+            curl -s http://127.0.0.1:3200/home | grep -oE 'buildAssetsDir\":\"[^\"]+' | head -n 1
             echo "--- frontend asset files ---"
             docker compose exec -T frontend sh -c 'find /app/output/public/_nuxt -maxdepth 2 -type f | head -n 20'
             docker compose exec -T frontend sh -c 'ls -l /app/output/public/_nuxt/v2/CsZdZF-f.js || true'
