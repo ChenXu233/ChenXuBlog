@@ -29,8 +29,13 @@
       <!-- 主控岛容器：管理高度、宽度过渡及溢出隐藏 -->
       <div class="island-wrapper" :class="viewState">
         <LiquidGlass
-          :border-radius="viewState === 'pill' ? '24px' : '28px'"
-          bg-color="rgba(255, 255, 255, 0.2)"
+          :border-radius="
+            viewState === 'pill'
+              ? 'calc(24 * var(--dk-u))'
+              : 'calc(28 * var(--dk-u))'
+          "
+          :scale="dockUnit"
+          bg-color="var(--dk-glass)"
           class="island-glass"
         >
           <div class="island-content" @click.stop>
@@ -81,11 +86,24 @@
                   </router-link>
                 </div>
 
-                <div class="section-title mt-4">常用应用</div>
-                <div class="nav-panel-list">
-                  <div class="app-list-item">
-                    <span>暂无</span>
-                  </div>
+                <div class="section-title mt-4">外观</div>
+                <div class="theme-segment" role="group" aria-label="颜色模式">
+                  <button
+                    v-for="opt in themeOptions"
+                    :key="opt.value"
+                    type="button"
+                    class="theme-option"
+                    :class="{
+                      active: mounted && colorMode.preference === opt.value,
+                    }"
+                    :aria-pressed="
+                      mounted && colorMode.preference === opt.value
+                    "
+                    @click.stop="setThemePreference(opt.value)"
+                  >
+                    <i :class="['fa', opt.icon]"></i>
+                    <span>{{ opt.label }}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -136,8 +154,12 @@
                 @mouseenter="showTooltip($event, '切换主题')"
                 @mouseleave="hideTooltip"
               >
-                <i class="fa fa-lg dock-icon dock-theme-icon dock-theme-moon"></i>
-                <i class="fa fa-lg dock-icon dock-theme-icon dock-theme-sun"></i>
+                <i
+                  class="fa fa-lg fa-moon-o dock-icon dock-theme-icon dock-theme-moon"
+                ></i>
+                <i
+                  class="fa fa-lg fa-sun-o dock-icon dock-theme-icon dock-theme-sun"
+                ></i>
               </div>
 
               <div class="divider"></div>
@@ -205,8 +227,8 @@ const showTooltip = (e: MouseEvent, text: string) => {
   const target = e.currentTarget as HTMLElement;
   const rect = target.getBoundingClientRect();
   tooltipX.value = rect.left + rect.width / 2;
-  // 加上一些上方间距，56 = icon 高度(44) + 悬浮距离(12)
-  tooltipY.value = window.innerHeight - rect.top + 8;
+  // 间距跟着 dock 的缩放单位走（与 CSS 里的 --dk-u 同一公式）
+  tooltipY.value = window.innerHeight - rect.top + 8 * computeDockUnit();
 };
 
 const hideTooltip = () => {
@@ -326,6 +348,31 @@ const updateTime = () => {
 // ================ 原生暗色切换 ================
 const colorMode = useColorMode();
 const isDark = computed(() => colorMode.value === "dark");
+const mounted = ref(false);
+
+// 与 CSS 的 --dk-u 同一公式：1440 宽 = 1，4K ≈ 1.75。
+// 传给液态玻璃，让折射环厚度 / 内框圆角 / 位移量一起等比放大。
+const dockUnit = ref(1);
+const computeDockUnit = () =>
+  Math.min(
+    3,
+    Math.max(1, Math.min(window.innerWidth / 1440, window.innerHeight / 900)),
+  );
+const updateDockUnit = () => {
+  dockUnit.value = computeDockUnit();
+};
+
+const themeOptions = [
+  { value: "light", label: "浅色", icon: "fa-sun-o" },
+  { value: "dark", label: "深色", icon: "fa-moon-o" },
+  { value: "system", label: "跟随系统", icon: "fa-desktop" },
+] as const;
+
+// 选中态只在客户端渲染，避免 SSR 与 color-mode 注入的 class 不一致
+const setThemePreference = (value: "light" | "dark" | "system") => {
+  colorMode.preference = value;
+  hideTooltip();
+};
 
 const toggleTheme = () => {
   colorMode.preference = isDark.value ? "light" : "dark";
@@ -333,19 +380,47 @@ const toggleTheme = () => {
 };
 
 onMounted(() => {
+  mounted.value = true;
+  updateDockUnit();
   updateTime();
   timer = setInterval(updateTime, 1000);
   document.addEventListener("click", closePanels);
+  window.addEventListener("resize", updateDockUnit, { passive: true });
 });
 
 onUnmounted(() => {
   clearInterval(timer);
   document.removeEventListener("click", closePanels);
+  window.removeEventListener("resize", updateDockUnit);
 });
 </script>
 
 <style scoped>
+/* ------------------------------------------------------------
+   主题变量：dock 自带一层玻璃，颜色只跟随 html.dark，
+   不再用 @media(prefers-color-scheme) —— 站点是手动切主题的，
+   媒体查询在"系统亮/站点暗"时会把文字刷成看不见的浅色。
+   ------------------------------------------------------------ */
 .warm-os-container {
+  /* 缩放单位：1440×900 时 = 1px，按视口等比放大（4K = 2.4px） */
+  --dk-u: clamp(1px, min(calc(100vw / 1440), calc(100vh / 900)), 3px);
+  --dk-ink: #14120f;
+  --dk-ink-2: rgba(20, 18, 15, 0.64);
+  --dk-mute: rgba(20, 18, 15, 0.46);
+  --dk-line: rgba(20, 18, 15, 0.14);
+  --dk-hover: rgba(20, 18, 15, 0.06);
+  --dk-active: rgba(20, 18, 15, 0.1);
+  --dk-item: rgba(255, 255, 255, 0.5);
+  --dk-item-strong: rgba(255, 255, 255, 0.86);
+  /* 跟原版液态玻璃一致：只上一层很淡的白，靠折射层出效果 */
+  --dk-glass: rgba(255, 255, 255, 0.2);
+  --dk-gloss: rgba(255, 255, 255, 0.55);
+  --dk-gloss-soft: rgba(255, 255, 255, 0.22);
+  --dk-shadow: 0 calc(12 * var(--dk-u)) calc(32 * var(--dk-u))
+    rgba(20, 18, 15, 0.14);
+  --dk-tip-bg: rgba(20, 18, 15, 0.9);
+  --dk-tip-ink: #fdfbf6;
+
   position: fixed;
   bottom: 0;
   left: 0;
@@ -355,29 +430,41 @@ onUnmounted(() => {
   pointer-events: none; /* 允许鼠标穿透到底层页面 */
 }
 
+html.dark .warm-os-container {
+  --dk-ink: #f3f1ec;
+  --dk-ink-2: rgba(243, 241, 236, 0.68);
+  --dk-mute: rgba(243, 241, 236, 0.46);
+  --dk-line: rgba(255, 255, 255, 0.16);
+  --dk-hover: rgba(255, 255, 255, 0.09);
+  --dk-active: rgba(255, 255, 255, 0.15);
+  --dk-item: rgba(255, 255, 255, 0.08);
+  --dk-item-strong: rgba(255, 255, 255, 0.18);
+  --dk-glass: rgba(18, 19, 24, 0.45);
+  --dk-gloss: rgba(255, 255, 255, 0.16);
+  --dk-gloss-soft: rgba(255, 255, 255, 0.06);
+  --dk-shadow: 0 calc(16 * var(--dk-u)) calc(40 * var(--dk-u))
+    rgba(0, 0, 0, 0.55);
+  --dk-tip-bg: rgba(245, 243, 238, 0.94);
+  --dk-tip-ink: #14120f;
+}
+
 /* Tooltip 不在溢出隐藏容器内，自由设定位置和淡入动画 */
 .global-tooltip {
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 6px;
+  background-color: var(--dk-tip-bg);
+  color: var(--dk-tip-ink);
+  font-size: calc(12 * var(--dk-u));
+  padding: calc(4 * var(--dk-u)) calc(10 * var(--dk-u));
+  border-radius: calc(6 * var(--dk-u));
   pointer-events: none;
   opacity: 0;
-  transform: translateX(-50%) translateY(8px);
+  transform: translateX(-50%) translateY(calc(8 * var(--dk-u)));
   transition:
     opacity 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 1000;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-@media (prefers-color-scheme: dark) {
-  .global-tooltip {
-    background-color: rgba(255, 255, 255, 0.85);
-    color: #000;
-  }
+  box-shadow: var(--dk-shadow);
 }
 .global-tooltip.show {
   opacity: 1;
@@ -391,86 +478,84 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 600px;
-  height: 100px;
+  max-width: calc(820 * var(--dk-u));
+  height: calc(100 * var(--dk-u));
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 24px; /* 离底部的距离 */
+  padding-bottom: calc(24 * var(--dk-u)); /* 离底部的距离 */
   pointer-events: auto; /* 恢复交互 */
 }
 
-/* ================= 核心结构重构 ================= */
+/* ================= 核心结构 ================= */
 .island-wrapper {
   position: relative;
-  /* 平滑的尺寸控制，这三者是灵动岛动画顺滑的关键 */
   transition:
     max-width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
     height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
     transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  /* 基础弹性轴 */
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  /* 恢复 overflow: hidden！这是苹果式灵动岛裁剪内容毛边的关键。
-     由于 Tooltip 已经完全独立全局，不再被裁剪，这里可以安全使用！ */
   overflow: hidden;
-  /* 阴影悬浮感 */
   box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 1px rgba(255, 255, 255, 0.6);
-  border-radius: 24px;
-}
-@media (prefers-color-scheme: dark) {
-  .island-wrapper {
-    box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.4),
-      inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  }
+    var(--dk-shadow),
+    inset 0 calc(1 * var(--dk-u)) calc(1 * var(--dk-u)) var(--dk-gloss);
+  border-radius: calc(24 * var(--dk-u));
 }
 
 /* 玻璃层贴合并占据所有体积 */
 .island-glass {
   width: 100%;
   height: 100%;
-  /* 移除 absolute 定位，让它作为常规内容存在，从而把内部尺寸透传给 wrapper */
   border-radius: inherit;
   transition: border-radius 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  overflow: hidden; /* 恢复完美的背景圆角切除 */
+  overflow: hidden;
+}
+
+/* 保留液态玻璃自己的折射层，只把高光/描边换成主题色 */
+.island-glass :deep(.liquid_glass-sharp) {
+  box-shadow:
+    inset calc(1 * var(--dk-u)) calc(1 * var(--dk-u)) 0 0 var(--dk-gloss),
+    inset calc(-1 * var(--dk-u)) calc(-1 * var(--dk-u)) 0 0 var(--dk-gloss);
+}
+
+.island-glass :deep(.liquid_glass-reflect) {
+  box-shadow:
+    inset calc(2 * var(--dk-u)) calc(2 * var(--dk-u)) calc(6 * var(--dk-u))
+      calc(2 * var(--dk-u)) var(--dk-gloss-soft),
+    inset calc(-2 * var(--dk-u)) calc(-2 * var(--dk-u)) calc(4 * var(--dk-u))
+      calc(-1 * var(--dk-u)) var(--dk-gloss-soft);
 }
 
 /* == 状态尺码控制 == */
-/* 1. Pill 收缩态 */
 .island-wrapper.pill {
-  max-width: 170px;
-  height: 48px;
-  transform: translateY(4px) scale(0.96);
-  border-radius: 24px;
+  max-width: calc(170 * var(--dk-u));
+  height: calc(48 * var(--dk-u));
+  transform: translateY(calc(4 * var(--dk-u))) scale(0.96);
+  border-radius: calc(24 * var(--dk-u));
 }
 
-/* 2. Dock 展开态 */
 .island-wrapper.dock {
-  max-width: 800px;
-  height: 60px;
+  max-width: calc(800 * var(--dk-u));
+  height: calc(60 * var(--dk-u));
   transform: translateY(0) scale(1);
-  border-radius: 28px;
+  border-radius: calc(28 * var(--dk-u));
 }
 
-/* 3. Menu 二次展开高态 */
 .island-wrapper.menu {
-  max-width: 800px; /* 依据内部内容(也就是底框)撑开最大边界 */
-  height: 480px; /* 二次平滑拔高！ */
+  max-width: calc(800 * var(--dk-u));
+  height: calc(480 * var(--dk-u));
   transform: translateY(0) scale(1);
-  border-radius: 32px;
+  border-radius: calc(32 * var(--dk-u));
 }
 
-/* 控制内部元素，使得它在横向自适应宽度，从而撑开 wrapper 到 max-width 极限 */
 .island-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: max-content; /* 最核心魔法：由内部内容驱动容器实际宽度！ */
-  height: 100%; /* 满高，供 flex 自动布局 */
+  width: max-content; /* 由内部内容驱动容器实际宽度 */
+  height: 100%;
   margin: 0 auto;
 }
 
@@ -479,13 +564,13 @@ onUnmounted(() => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%; /* 撑满当前灵动岛宽度 */
-  height: 48px; /* 固定为短条状态的高度 */
-  box-sizing: border-box; /* 确保 padding 不会撑破容器 */
+  width: 100%;
+  height: calc(48 * var(--dk-u));
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
+  padding: 0 calc(14 * var(--dk-u));
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
@@ -506,80 +591,60 @@ onUnmounted(() => {
 .status-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  margin-left: -8px;
-  border-radius: 6px;
+  gap: calc(8 * var(--dk-u));
+  padding: calc(4 * var(--dk-u)) calc(8 * var(--dk-u));
+  margin-left: calc(-8 * var(--dk-u));
+  border-radius: calc(6 * var(--dk-u));
   cursor: pointer;
   transition: background-color 0.2s;
   overflow: hidden;
   white-space: nowrap;
 }
 .status-left:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-@media (prefers-color-scheme: dark) {
-  .status-left:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
+  background-color: var(--dk-hover);
 }
 
 .status-icon {
-  color: #555;
-  font-size: 14px;
+  color: var(--dk-ink-2);
+  font-size: calc(14 * var(--dk-u));
 }
 .status-text {
-  font-size: 13px;
+  font-size: calc(13 * var(--dk-u));
   font-weight: 500;
-  color: #333;
-  max-width: 80px;
+  color: var(--dk-ink);
+  max-width: calc(80 * var(--dk-u));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .status-right {
-  font-size: 12px;
+  font-size: calc(12 * var(--dk-u));
   font-weight: 600;
-  color: #555;
+  color: var(--dk-ink-2);
   cursor: pointer;
-  padding: 4px 8px;
-  margin-right: -8px;
-  border-radius: 6px;
+  padding: calc(4 * var(--dk-u)) calc(8 * var(--dk-u));
+  margin-right: calc(-8 * var(--dk-u));
+  border-radius: calc(6 * var(--dk-u));
   transition: background-color 0.2s;
 }
 .status-right:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-@media (prefers-color-scheme: dark) {
-  .status-icon {
-    color: #ccc;
-  }
-  .status-text {
-    color: #eee;
-  }
-  .status-right {
-    color: #eee;
-  }
-  .status-right:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
+  background-color: var(--dk-hover);
 }
 
 /* ======== 第二层：主导航菜单 (Menu) ======== */
 .island-menu {
-  width: 360px;
+  width: calc(360 * var(--dk-u));
   margin: 0 auto;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(20px) scale(0.95);
+  transform: translateY(calc(20 * var(--dk-u))) scale(0.95);
   transition:
     opacity 0.3s ease,
     transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
   flex: 1; /* 撑满纵向高度，压住底部的 Dock */
-  overflow: hidden; /* 防止未激活时内容干扰 */
+  overflow: hidden;
 }
 .island-menu.show {
   opacity: 1;
@@ -588,85 +653,61 @@ onUnmounted(() => {
 }
 
 .menu-spacer {
-  height: 24px;
+  height: calc(24 * var(--dk-u));
 }
 
 .search-box-wrapper {
-  margin-bottom: 16px;
-  padding: 0 16px;
+  margin-bottom: calc(16 * var(--dk-u));
+  padding: 0 calc(16 * var(--dk-u));
 }
 .search-box {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  padding: 8px 16px;
+  background: var(--dk-item);
+  border-radius: calc(20 * var(--dk-u));
+  padding: calc(8 * var(--dk-u)) calc(16 * var(--dk-u));
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.05) inset,
-    0 1px 0 rgba(255, 255, 255, 0.5);
-}
-@media (prefers-color-scheme: dark) {
-  .search-box {
-    background: rgba(0, 0, 0, 0.3);
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.3) inset,
-      0 1px 0 rgba(255, 255, 255, 0.05);
-  }
+    inset 0 calc(2 * var(--dk-u)) calc(8 * var(--dk-u)) rgba(0, 0, 0, 0.06),
+    0 calc(1 * var(--dk-u)) 0 var(--dk-gloss);
 }
 .search-icon {
-  color: #666;
-  margin-right: 8px;
+  color: var(--dk-mute);
+  margin-right: calc(8 * var(--dk-u));
 }
 .search-input {
   border: none;
   background: transparent;
   outline: none;
   flex: 1;
-  font-size: 14px;
-  color: #333;
+  font-size: calc(14 * var(--dk-u));
+  color: var(--dk-ink);
 }
 .search-input::placeholder {
-  color: #999;
-}
-@media (prefers-color-scheme: dark) {
-  .search-icon {
-    color: #aaa;
-  }
-  .search-input {
-    color: #eee;
-  }
-  .search-input::placeholder {
-    color: #666;
-  }
+  color: var(--dk-mute);
 }
 
 .start-content {
-  padding: 0 24px;
+  padding: 0 calc(24 * var(--dk-u)) calc(18 * var(--dk-u));
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 .section-title {
-  font-size: 13px;
+  font-size: calc(13 * var(--dk-u));
   font-weight: 600;
-  color: #666;
-  margin-bottom: 12px;
-  padding-left: 4px;
-}
-@media (prefers-color-scheme: dark) {
-  .section-title {
-    color: #aaa;
-  }
+  color: var(--dk-mute);
+  margin-bottom: calc(12 * var(--dk-u));
+  padding-left: calc(4 * var(--dk-u));
 }
 .mt-4 {
-  margin-top: 16px;
+  margin-top: calc(16 * var(--dk-u));
 }
 
 .nav-panel-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  row-gap: 20px;
-  column-gap: 16px;
+  row-gap: calc(20 * var(--dk-u));
+  column-gap: calc(16 * var(--dk-u));
   justify-items: center;
 }
 .nav-grid-item {
@@ -674,94 +715,77 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   text-decoration: none;
-  color: #333;
+  color: var(--dk-ink);
   width: 100%;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .nav-grid-item:hover {
   transform: scale(1.05);
 }
-@media (prefers-color-scheme: dark) {
-  .nav-grid-item {
-    color: #eee;
-  }
-}
 
 .nav-grid-item .icon-wrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: calc(48 * var(--dk-u));
+  height: calc(48 * var(--dk-u));
+  border-radius: calc(12 * var(--dk-u));
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 8px;
-  color: #555;
+  background-color: var(--dk-item);
+  box-shadow: 0 calc(2 * var(--dk-u)) calc(8 * var(--dk-u)) rgba(0, 0, 0, 0.08);
+  margin-bottom: calc(8 * var(--dk-u));
+  color: var(--dk-ink-2);
   transition: background-color 0.2s;
 }
 .nav-grid-item:hover .icon-wrapper {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--dk-item-strong);
 }
 .nav-grid-item.active .icon-wrapper {
-  background-color: #0078d4;
-  color: white;
-}
-@media (prefers-color-scheme: dark) {
-  .nav-grid-item .icon-wrapper {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #ddd;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-  .nav-grid-item:hover .icon-wrapper {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-  .nav-grid-item.active .icon-wrapper {
-    background-color: #005a9e;
-  }
+  background-color: var(--cx-accent);
+  color: var(--cx-accent-ink);
 }
 .nav-grid-item span {
-  font-size: 12px;
+  font-size: calc(12 * var(--dk-u));
   font-weight: 500;
 }
 
-.nav-panel-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* ======== 外观（颜色模式） ======== */
+.theme-segment {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: calc(6 * var(--dk-u));
+  padding: calc(4 * var(--dk-u));
+  border-radius: calc(14 * var(--dk-u));
+  background: var(--dk-item);
 }
-.app-list-item {
-  display: flex;
+.theme-option {
+  display: inline-flex;
   align-items: center;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 10px;
+  justify-content: center;
+  gap: calc(6 * var(--dk-u));
+  height: calc(34 * var(--dk-u));
+  padding: 0 calc(6 * var(--dk-u));
+  border: 0;
+  border-radius: calc(10 * var(--dk-u));
+  background: transparent;
+  color: var(--dk-ink-2);
+  font-size: calc(12 * var(--dk-u));
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
-.app-list-item i {
-  margin-right: 12px;
-  width: 20px;
-  text-align: center;
+.theme-option:hover {
+  color: var(--dk-ink);
+  background: var(--dk-hover);
 }
-.app-list-item span {
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
+.theme-option.active {
+  background: var(--cx-accent);
+  color: var(--cx-accent-ink);
 }
-.app-list-item:hover {
-  background: rgba(255, 255, 255, 0.8);
-}
-@media (prefers-color-scheme: dark) {
-  .app-list-item {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  .app-list-item span {
-    color: #eee;
-  }
-  .app-list-item:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
+.theme-option:focus-visible {
+  outline: calc(2 * var(--dk-u)) solid var(--cx-accent);
+  outline-offset: calc(2 * var(--dk-u));
 }
 
 /* ======== 第三层：应用底座 (Dock) ======== */
@@ -769,25 +793,22 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  /* 初始不可见并略微缩小，等待 wrapper 拓宽 */
+  gap: calc(6 * var(--dk-u));
+  padding: calc(8 * var(--dk-u)) calc(12 * var(--dk-u));
   opacity: 0;
-  transform: translateY(10px) scale(0.9);
+  transform: translateY(calc(10 * var(--dk-u))) scale(0.9);
   pointer-events: none;
   transition:
     opacity 0.3s ease,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 10;
-  height: 60px; /* 固定高宽，为整个组件奠定拓宽基础 */
+  height: calc(60 * var(--dk-u));
   flex-shrink: 0;
 }
 .island-dock.show {
-  /* 当激活 dock/menu 时，内部模块迅速淡入 */
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0) scale(1);
-  /* 为了能让淡入和 wrapper 扩宽协调，加一点延迟 */
   transition:
     opacity 0.35s ease 0.15s,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s;
@@ -798,53 +819,34 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: calc(44 * var(--dk-u));
+  height: calc(44 * var(--dk-u));
+  border-radius: calc(14 * var(--dk-u));
   cursor: pointer;
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
 .dock-icon {
-  color: #444;
+  color: var(--dk-ink-2);
   transition: color 0.3s ease;
-}
-@media (prefers-color-scheme: dark) {
-  .dock-icon {
-    color: #ddd;
-  }
 }
 
 .dock-item:hover {
-  background-color: rgba(255, 255, 255, 0.6);
-  transform: translateY(-6px);
+  background-color: var(--dk-hover);
+  transform: translateY(calc(-6 * var(--dk-u)));
 }
 .dock-item.active {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--dk-item-strong);
   transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-@media (prefers-color-scheme: dark) {
-  .dock-item:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-  }
-  .dock-item.active {
-    background-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
+  box-shadow: 0 calc(2 * var(--dk-u)) calc(8 * var(--dk-u)) rgba(0, 0, 0, 0.12);
 }
 
 .divider {
-  width: 1px;
-  height: 28px;
-  background-color: rgba(0, 0, 0, 0.15);
-  margin: 0 2px;
-  border-radius: 1px;
-}
-@media (prefers-color-scheme: dark) {
-  .divider {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
+  width: calc(1 * var(--dk-u));
+  height: calc(28 * var(--dk-u));
+  background-color: var(--dk-line);
+  margin: 0 calc(2 * var(--dk-u));
+  border-radius: calc(1 * var(--dk-u));
 }
 
 .dock-theme-icon {
@@ -864,64 +866,26 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 10px;
-  height: 44px;
-  border-radius: 12px;
+  padding: 0 calc(10 * var(--dk-u));
+  height: calc(44 * var(--dk-u));
+  border-radius: calc(12 * var(--dk-u));
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s ease;
   flex-shrink: 0;
 }
 .dock-time-widget:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--dk-hover);
 }
 .time-main {
-  font-size: 13px;
+  font-size: calc(13 * var(--dk-u));
   font-weight: 700;
-  color: #333;
+  color: var(--dk-ink);
 }
 .time-sub {
-  font-size: 10px;
-  color: #666;
-  margin-top: -2px;
-}
-
-/* ================ 实时 FPS 挂件 ================ */
-.dock-fps-widget {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  height: 44px;
-  flex-shrink: 0;
-  cursor: default;
-  user-select: none;
-}
-.fps-value {
-  font-size: 13px;
-  font-weight: 700;
-}
-.fps-label {
-  font-size: 10px;
-  color: #666;
-  margin-top: -2px;
-  font-weight: 600;
-}
-
-@media (prefers-color-scheme: dark) {
-  .dock-time-widget:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  .time-main {
-    color: #eee;
-  }
-  .time-sub {
-    color: #aaa;
-  }
-  .fps-label {
-    color: #aaa;
-  }
+  font-size: calc(10 * var(--dk-u));
+  color: var(--dk-mute);
+  margin-top: calc(-2 * var(--dk-u));
 }
 </style>
 
@@ -934,4 +898,3 @@ html.dark .dock-theme-sun {
   display: inline-block;
 }
 </style>
-
