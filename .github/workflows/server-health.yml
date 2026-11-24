@@ -41,7 +41,9 @@ jobs:
             echo "--- caddy HTML ---"
             curl -s http://127.0.0.1:3200/home | grep -o 'buildAssetsDir.\{0,50\}' | head -n 1
             echo "--- openresty rewrite rules ---"
-            grep -R -n -E 'sub_filter|/_nuxt/v2|proxy_pass|chenxu233' /opt/1panel/apps/openresty/openresty/conf/conf.d 2>/dev/null | head -n 100 || true
+            openresty_container="$(docker ps --format '{{.Names}}' | grep -i openresty | head -n 1)"
+            echo "OpenResty container: $openresty_container"
+            docker exec "$openresty_container" openresty -T 2>&1 | grep -n -E 'sub_filter|_nuxt/v2|body_filter|chenxu233|proxy_pass' | head -n 100 || true
             echo "--- local public HTML ---"
             curl -ks --resolve chenxu233.cn:443:127.0.0.1 https://chenxu233.cn/home | grep -o 'buildAssetsDir.\{0,50\}' | head -n 1
             echo "--- frontend asset files ---"
