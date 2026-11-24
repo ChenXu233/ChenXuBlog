@@ -40,6 +40,10 @@ jobs:
             curl -s http://127.0.0.1:3100/home | grep -o 'buildAssetsDir.\{0,50\}' | head -n 1
             echo "--- caddy HTML ---"
             curl -s http://127.0.0.1:3200/home | grep -o 'buildAssetsDir.\{0,50\}' | head -n 1
+            echo "--- openresty rewrite rules ---"
+            grep -R -n -E 'sub_filter|/_nuxt/v2|proxy_pass|chenxu233' /opt/1panel/apps/openresty/openresty/conf/conf.d 2>/dev/null | head -n 100 || true
+            echo "--- local public HTML ---"
+            curl -ks --resolve chenxu233.cn:443:127.0.0.1 https://chenxu233.cn/home | grep -o 'buildAssetsDir.\{0,50\}' | head -n 1
             echo "--- frontend asset files ---"
             docker compose exec -T frontend sh -c 'find /app/output/public/_nuxt -maxdepth 2 -type f | head -n 20'
             docker compose exec -T frontend sh -c 'ls -l /app/output/public/_nuxt/v2/CsZdZF-f.js || true'
