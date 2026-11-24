@@ -45,7 +45,7 @@ jobs:
             echo "OpenResty container: $openresty_container"
             docker exec "$openresty_container" openresty -T 2>&1 | grep -n -E 'sub_filter|_nuxt/v2|body_filter|chenxu233|proxy_pass' | head -n 100 || true
             echo "--- rewrite source block ---"
-            docker exec "$openresty_container" openresty -T 2>&1 | sed -n '400,445p'
+            docker exec "$openresty_container" openresty -T 2>&1 | sed -n '360,445p'
             echo "--- local public HTML ---"
             curl -ks --resolve chenxu233.cn:443:127.0.0.1 https://chenxu233.cn/home | grep -o 'buildAssetsDir.\{0,50\}' | head -n 1
             echo "--- frontend asset files ---"
